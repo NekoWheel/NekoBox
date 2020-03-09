@@ -13,6 +13,17 @@ type UserController struct {
 func (this *UserController) Prepare() {
 	this.Data["title"] = beego.AppConfig.String("title")
 	this.Data["error"] = ""
+
+	user := this.GetSession("user")
+	if user != nil {
+		this.Data["isLogin"] = true
+		this.Data["user"] = user.(*models.User)
+
+		page, _ := models.GetPageByID(user.(*models.User).ID)
+		this.Data["page"] = page
+	} else {
+		this.Data["isLogin"] = false
+	}
 }
 
 // RegisterGet: user register page
@@ -119,7 +130,7 @@ func (this *UserController) LoginPost() {
 		return
 	}
 
-	page, err := models.GetPage(user.PageID)
+	page, err := models.GetPageByID(user.PageID)
 	if err != nil {
 		this.Data["error"] = "用户名或密码错误！"
 		this.Data["email"] = r.Email

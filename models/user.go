@@ -30,6 +30,7 @@ func Register(form *UserRegisterForm) error {
 	// create page
 	page := new(Page)
 	page.Domain = form.Domain
+	page.Intro = "问你想问的"
 
 	tx := DB.Begin()
 	if tx.Create(&page).RowsAffected != 1 {
@@ -58,4 +59,13 @@ func Login(form *UserLoginForm) (*User, error) {
 	}
 
 	return &User{}, errors.New("")
+}
+
+func GetUserByPage(pageId uint) (*User, error) {
+	user := new(User)
+	DB.Model(&User{}).Where(&User{PageID: pageId}).Find(&user)
+	if user.Name == "" {
+		return &User{}, errors.New("")
+	}
+	return user, nil
 }

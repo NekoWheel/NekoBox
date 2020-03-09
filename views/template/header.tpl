@@ -21,14 +21,23 @@
         <a class="uk-navbar-item uk-logo" href="/">{{.title}}</a>
         <div class="uk-navbar-center-right">
             <div>
-                <ul class="uk-navbar-nav">
-                    <li><a href="/register">注册</a></li>
-                </ul>
-                <ul class="uk-navbar-nav">
-                    <li><a href="/login">登录</a></li>
-                </ul>
+                {{ if eq .isLogin false}}
+                    <ul class="uk-navbar-nav">
+                        <li><a href="/register">注册</a></li>
+                    </ul>
+                    <ul class="uk-navbar-nav">
+                        <li><a href="/login">登录</a></li>
+                    </ul>
+                {{else}}
+                    <ul class="uk-navbar-nav">
+                        <li><b><a href="/_/{{ .page.Domain }}">{{ .user.Name }}</a></b></li>
+                    </ul>
+                    <ul class="uk-navbar-nav">
+                        <li><a href="/setting">设置</a></li>
+                    </ul>
+                {{ end }}
             </div>
         </div>
     </div>
 </nav>
-<div class="uk-container  uk-container-xsmall">
+<div class="uk-container uk-container-xsmall">

@@ -48,6 +48,11 @@ type UserLoginForm struct {
 	Password string `form:"password" valid:"Required; MinSize(8); MaxSize(30)"`
 }
 
+type QuestionForm struct {
+	PageID  uint
+	Content string `form:"content" valid:"Required; MaxSize(50)"`
+}
+
 type User struct {
 	gorm.Model
 	Name     string
@@ -66,6 +71,7 @@ type Page struct {
 
 type Question struct {
 	gorm.Model
-	PageID uint
-	Answer string
+	PageID  uint
+	Content string
+	Answer  string
 }
