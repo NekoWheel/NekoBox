@@ -23,3 +23,12 @@ func GetPageByDomain(domain string) (*Page, error) {
 	}
 	return page, nil
 }
+
+func UpdatePage(pageID uint, page *Page) {
+	tx := DB.Begin()
+	if tx.Model(&Page{}).Where(&Page{Model: gorm.Model{ID: pageID}}).Update(page).RowsAffected != 1 {
+		tx.Rollback()
+		return
+	}
+	tx.Commit()
+}

@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"github.com/jinzhu/gorm"
 )
 
 func Register(form *UserRegisterForm) error {
@@ -24,7 +25,7 @@ func Register(form *UserRegisterForm) error {
 
 	user := new(User)
 	user.Name = form.Name
-	user.Password = addSalt(form.Password)
+	user.Password = AddSalt(form.Password)
 	user.Email = form.Email
 
 	// create page
@@ -54,7 +55,7 @@ func Login(form *UserLoginForm) (*User, error) {
 		return &User{}, errors.New("")
 	}
 
-	if user.Password == addSalt(form.Password) {
+	if user.Password == AddSalt(form.Password) {
 		return user, nil
 	}
 
@@ -68,4 +69,13 @@ func GetUserByPage(pageId uint) (*User, error) {
 		return &User{}, errors.New("")
 	}
 	return user, nil
+}
+
+func UpdateUser(id uint, u *User) {
+	tx := DB.Begin()
+	if tx.Model(&User{}).Where(&User{Model: gorm.Model{ID: id}}).Update(u).RowsAffected != 1 {
+		tx.Rollback()
+		return
+	}
+	tx.Commit()
 }

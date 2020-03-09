@@ -29,10 +29,11 @@ func (this *PageController) Prepare() {
 	}
 
 	// check if the domain is existed.
-	domain := this.Ctx.Input.Param("domain")
+	domain := this.Ctx.Input.Param(":domain")
 	pageContent, err := models.GetPageByDomain(domain)
 	if err != nil {
 		this.Redirect("/", 302)
+		this.Abort("302")
 		return
 	}
 	this.Data["pageContent"] = pageContent

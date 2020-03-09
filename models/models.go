@@ -53,6 +53,28 @@ type QuestionForm struct {
 	Content string `form:"content" valid:"Required; MaxSize(50)"`
 }
 
+type UpdateForm struct {
+	Name     string `form:"name" valid:"Required; MaxSize(20)"`
+	Password string `form:"password"`
+	Intro    string `form:"intro" valid:"MaxSize(40)"`
+}
+
+type UploadCallBack struct {
+	Code int `json:"code"`
+	Data struct {
+		Md5      string `json:"md5"`
+		Mime     string `json:"mime"`
+		Name     string `json:"name"`
+		Quota    string `json:"quota"`
+		Sha1     string `json:"sha1"`
+		Size     int    `json:"size"`
+		URL      string `json:"url"`
+		UseQuota string `json:"use_quota"`
+	} `json:"data"`
+	Msg  string `json:"msg"`
+	Time int    `json:"time"`
+}
+
 type User struct {
 	gorm.Model
 	Name     string

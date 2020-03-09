@@ -8,7 +8,7 @@ import (
 	"io"
 )
 
-func addSalt(raw string) string {
+func AddSalt(raw string) string {
 	return hmacSha1Encode(raw, beego.AppConfig.String("salt"))
 }
 

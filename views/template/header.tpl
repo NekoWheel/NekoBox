@@ -30,11 +30,15 @@
                     </ul>
                 {{else}}
                     <ul class="uk-navbar-nav">
-                        <li><b><a href="/_/{{ .page.Domain }}">{{ .user.Name }}</a></b></li>
+                        <li><a href="/_/{{ .page.Domain }}">{{ .user.Name }}</a></li>
+                    </ul>
+                    <ul class="uk-navbar-nav">
+                        <li><a href="/question">收到的问题</a></li>
                     </ul>
                     <ul class="uk-navbar-nav">
                         <li><a href="/setting">设置</a></li>
                     </ul>
+
                 {{ end }}
             </div>
         </div>

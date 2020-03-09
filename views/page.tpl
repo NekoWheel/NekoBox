@@ -1,7 +1,7 @@
 {{template "template/header.tpl" .}}
 <div class="uk-card uk-card-default uk-text-center">
     <div class="uk-height-medium uk-flex uk-flex-center uk-flex-middle uk-background-cover uk-light"
-         data-src="https://getuikit.com/docs/images/photo.jpg" uk-img>
+         data-src="{{ .pageContent.Background }}" uk-img>
         <div class="uk-card-body">
             <img class="uk-border-circle uk-box-shadow-large" src="{{ .userContent.Avatar }}" width="100" height="100">
             <h3>{{ .userContent.Name }}</h3>

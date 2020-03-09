@@ -14,16 +14,15 @@ func (this *UserController) Prepare() {
 	this.Data["title"] = beego.AppConfig.String("title")
 	this.Data["error"] = ""
 
-	user := this.GetSession("user")
-	if user != nil {
-		this.Data["isLogin"] = true
-		this.Data["user"] = user.(*models.User)
-
-		page, _ := models.GetPageByID(user.(*models.User).ID)
-		this.Data["page"] = page
-	} else {
-		this.Data["isLogin"] = false
+	userInterface := this.GetSession("user")
+	if userInterface != nil {
+		user := userInterface.(*models.User)
+		domain, _ := models.GetPageByID(user.PageID)
+		this.Redirect("/_/"+domain.Domain, 302)
+		this.Abort("302")
+		return
 	}
+	this.Data["isLogin"] = false
 }
 
 // RegisterGet: user register page
