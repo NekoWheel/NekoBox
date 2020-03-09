@@ -14,7 +14,9 @@ func (this *PageController) Prepare() {
 	this.Data["title"] = beego.AppConfig.String("title")
 	this.Data["success"] = ""
 	this.Data["error"] = ""
+	this.TplName = "page.tpl"
 
+	// get login status
 	user := this.GetSession("user")
 	if user != nil {
 		this.Data["isLogin"] = true
@@ -25,38 +27,34 @@ func (this *PageController) Prepare() {
 	} else {
 		this.Data["isLogin"] = false
 	}
+
+	// check if the domain is existed.
+	domain := this.Ctx.Input.Param("domain")
+	pageContent, err := models.GetPageByDomain(domain)
+	if err != nil {
+		this.Redirect("/", 302)
+		return
+	}
+	this.Data["pageContent"] = pageContent
+	this.Ctx.Input.SetData("pageContent", pageContent)
+
+	// get the owner of this box
+	userContent, _ := models.GetUserByPage(pageContent.ID)
+	this.Data["userContent"] = userContent
+	this.Ctx.Input.SetData("userContent", userContent)
+
+	// get answer question
+	questionContent := models.GetQuestionsByPageID(pageContent.ID)
+	this.Data["questionContent"] = questionContent
 }
 
 // Index is the main page of user's question box.
 func (this *PageController) Index() {
-	// check if the domain is existed.
-	domain := this.Ctx.Input.Param("domain")
-	page, err := models.GetPageByDomain(domain)
-	if err != nil {
-		this.Redirect("/", 302)
-		return
-	}
-	this.Data["pageContent"] = page
 
-	// get the owner of this box
-	user, _ := models.GetUserByPage(page.ID)
-	this.Data["userContent"] = user
-
-	this.TplName = "page.tpl"
 }
 
 // NewQuestion is post new question handler.
 func (this *PageController) NewQuestion() {
-	this.TplName = "page.tpl"
-
-	// check if the domain is existed.
-	domain := this.Ctx.Input.Param("domain")
-	page, err := models.GetPageByDomain(domain)
-	if err != nil {
-		this.Redirect("/", 302)
-		return
-	}
-
 	q := new(models.QuestionForm)
 	if err := this.ParseForm(q); err != nil {
 		this.Data["error"] = "发送问题失败！"
@@ -79,6 +77,7 @@ func (this *PageController) NewQuestion() {
 		}
 	}
 
+	page := this.Ctx.Input.GetData("pageContent").(*models.Page)
 	q.PageID = page.ID
 	err = models.NewQuestion(q)
 	if err != nil {
@@ -87,14 +86,4 @@ func (this *PageController) NewQuestion() {
 		return
 	}
 	this.Data["success"] = "发送问题成功！"
-}
-
-// Question is the page of a question.
-func (this *PageController) Question() {
-
-}
-
-// AnswerQuestion is the answer question handler.
-func (this *PageController) AnswerQuestion() {
-
 }

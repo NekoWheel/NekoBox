@@ -1,6 +1,7 @@
 {{template "template/header.tpl" .}}
 <div class="uk-card uk-card-default uk-text-center">
-    <div class="uk-height-medium uk-flex uk-flex-center uk-flex-middle uk-background-cover uk-light" data-src="https://getuikit.com/docs/images/photo.jpg" uk-img>
+    <div class="uk-height-medium uk-flex uk-flex-center uk-flex-middle uk-background-cover uk-light"
+         data-src="https://getuikit.com/docs/images/photo.jpg" uk-img>
         <div class="uk-card-body">
             <img class="uk-border-circle uk-box-shadow-large" src="{{ .userContent.Avatar }}" width="100" height="100">
             <h3>{{ .userContent.Name }}</h3>
@@ -34,12 +35,16 @@
         </form>
         <hr class="uk-divider-icon">
         <p class="uk-text-left uk-text-muted uk-text-small">@{{ .userContent.Name }}以前回答过的问题</p>
-        <div>
-            <hr>
-            <a class="uk-button uk-button-default uk-button-small uk-float-right" href="#">查看回答</a>
-            <div class="uk-text-left uk-text-small uk-text-muted">2020-03-08 12:34:56</div>
-            <p class="uk-text-small">这里是问题</p>
-        </div>
+        {{range $index, $elem := .questionContent}}
+            {{ if ne $elem.Answer ""}}
+                <div>
+                    <hr>
+                    <a class="uk-button uk-button-default uk-button-small uk-float-right" href="#">查看回答</a>
+                    <div class="uk-text-left uk-text-small uk-text-muted">{{date $elem.CreatedAt "Y-m-d H:i:s"}}</div>
+                    <p class="uk-text-small">{{$elem.Content}}</p>
+                </div>
+            {{end}}
+        {{end}}
     </div>
 </div>
 {{template "template/footer.tpl" .}}

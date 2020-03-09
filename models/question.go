@@ -17,3 +17,12 @@ func NewQuestion(form *QuestionForm) error {
 	tx.Commit()
 	return nil
 }
+
+func GetQuestionsByPageID(pageID uint) []*Question {
+	questions := make([]*Question, 0)
+
+	DB.Model(&Question{}).Where(&Question{
+		PageID: pageID,
+	}).Find(&questions)
+	return questions
+}
