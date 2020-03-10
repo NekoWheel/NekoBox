@@ -59,6 +59,10 @@ type UpdateForm struct {
 	Intro    string `form:"intro" valid:"MaxSize(40)"`
 }
 
+type AnswerForm struct {
+	Answer string `form:"answer" valid:"Required; MaxSize(150)"`
+}
+
 type UploadCallBack struct {
 	Code int `json:"code"`
 	Data struct {

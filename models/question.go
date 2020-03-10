@@ -46,3 +46,13 @@ func GetQuestionByDomainID(domain string, questionID uint) (*Question, error) {
 	}
 	return question, nil
 }
+
+func AnswerQuestion(questionID uint, question *Question) error {
+	tx := DB.Begin()
+	if tx.Model(&Question{}).Where(&Question{Model: gorm.Model{ID: questionID}}).Update(&question).RowsAffected != 1 {
+		tx.Rollback()
+		return errors.New("回答问题失败")
+	}
+	tx.Commit()
+	return nil
+}

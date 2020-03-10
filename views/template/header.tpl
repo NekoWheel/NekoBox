@@ -13,9 +13,11 @@
     <div class="uk-navbar-center">
         <div class="uk-navbar-center-left">
             <div>
-                <ul class="uk-navbar-nav">
-                    <li class="uk-active"><a href="#">Active</a></li>
-                </ul>
+                {{ if eq .isLogin true}}
+                    <ul class="uk-navbar-nav">
+                        <li><a href="/_/{{ .page.Domain }}">{{ .user.Name }}</a></li>
+                    </ul>
+                {{ end }}
             </div>
         </div>
         <a class="uk-navbar-item uk-logo" href="/">{{.title}}</a>
@@ -29,9 +31,6 @@
                         <li><a href="/login">登录</a></li>
                     </ul>
                 {{else}}
-                    <ul class="uk-navbar-nav">
-                        <li><a href="/_/{{ .page.Domain }}">{{ .user.Name }}</a></li>
-                    </ul>
                     <ul class="uk-navbar-nav">
                         <li><a href="/question">收到的问题</a></li>
                     </ul>

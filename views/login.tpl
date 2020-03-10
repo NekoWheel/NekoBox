@@ -14,7 +14,7 @@
         </div>
         <div class="uk-margin">
             <label class="uk-form-label" for="form-stacked-text">密码</label>
-            <input name="password" class="uk-input" type="text">
+            <input type="password" name="password" class="uk-input" type="text">
         </div>
         <div class="uk-margin">
             <button type="submit" class="uk-button uk-button-primary">登录</button>

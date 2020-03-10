@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/validation"
 	"github.com/wuhan005/QuestionBox/models"
 	"strconv"
 )
@@ -47,6 +48,20 @@ func (this *QuestionController) Question() {
 		this.Redirect("/", 302)
 		return
 	}
+
+	// public user can't get the no answer question.
+	isLogin := this.Ctx.Input.GetData("isLogin").(bool)
+	if question.Answer == "" {
+		if !isLogin || this.Ctx.Input.GetData("user").(*models.User).PageID != question.PageID {
+			this.Redirect("/", 302)
+			return
+		} else {
+			if this.Ctx.Input.Query("err") != "" {
+				this.Data["error"] = "回答问题失败！"
+			}
+		}
+	}
+
 	user, _ := models.GetUserByPage(question.PageID)
 	page, _ := models.GetPageByDomain(domain)
 	questions := models.GetQuestionsByPageID(question.PageID, false)
@@ -72,5 +87,63 @@ func (this *QuestionController) QuestionList() {
 
 // AnswerQuestion is the answer question handler.
 func (this *QuestionController) AnswerQuestion() {
+	this.TplName = "questionlist.tpl"
+	isLogin := this.Ctx.Input.GetData("isLogin").(bool)
+	if !isLogin {
+		this.Redirect("/login", 302)
+		return
+	}
 
+	domain := this.Ctx.Input.Param(":domain")
+	id := this.Ctx.Input.Param(":id")
+	questionID, err := strconv.Atoi(id)
+	if err != nil {
+		this.Redirect("/", 302)
+		return
+	}
+
+	question, err := models.GetQuestionByDomainID(domain, uint(questionID))
+	if err != nil || question.Answer != "" {
+		this.Redirect("/", 302)
+		return
+	}
+
+	// make sure the question belong to this user
+	loginUser := this.Ctx.Input.GetData("user").(*models.User)
+	if loginUser.PageID != question.PageID {
+		this.Redirect("/", 302)
+		return
+	}
+
+	questionURL := "/_/" + domain + "/" + id
+
+	// parse form
+	a := new(models.AnswerForm)
+	if err := this.ParseForm(a); err != nil {
+		this.Redirect(questionURL+"?err=1", 302)
+		return
+	}
+
+	valid := validation.Validation{}
+	b, err := valid.Valid(a)
+	if err != nil {
+		this.Redirect(questionURL+"?err=1", 302)
+		return
+	}
+
+	if !b {
+		this.Redirect(questionURL+"?err=1", 302)
+		return
+	}
+
+	question = &models.Question{
+		Answer: a.Answer,
+	}
+
+	err = models.AnswerQuestion(uint(questionID), question)
+	if err != nil {
+		this.Redirect(questionURL+"?err=1", 302)
+		return
+	}
+	this.Redirect(questionURL, 302)
 }
