@@ -11,6 +11,7 @@ type MainController struct {
 
 func (this *MainController) Prepare() {
 	this.Data["title"] = beego.AppConfig.String("title")
+	this.Data["icp"] = beego.AppConfig.String("icp")
 	this.Data["success"] = ""
 	this.Data["error"] = ""
 	this.TplName = "page.tpl"

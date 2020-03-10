@@ -14,6 +14,7 @@ type SettingController struct {
 
 func (this *SettingController) Prepare() {
 	this.Data["title"] = beego.AppConfig.String("title")
+	this.Data["icp"] = beego.AppConfig.String("icp")
 	this.Data["error"] = ""
 	this.Data["success"] = ""
 

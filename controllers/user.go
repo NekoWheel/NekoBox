@@ -12,6 +12,7 @@ type UserController struct {
 
 func (this *UserController) Prepare() {
 	this.Data["title"] = beego.AppConfig.String("title")
+	this.Data["icp"] = beego.AppConfig.String("icp")
 	this.Data["error"] = ""
 
 	userInterface := this.GetSession("user")

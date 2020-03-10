@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/validation"
 	"github.com/wuhan005/QuestionBox/models"
@@ -12,6 +13,7 @@ type PageController struct {
 
 func (this *PageController) Prepare() {
 	this.Data["title"] = beego.AppConfig.String("title")
+	this.Data["icp"] = beego.AppConfig.String("icp")
 	this.Data["success"] = ""
 	this.Data["error"] = ""
 	this.TplName = "page.tpl"
@@ -51,7 +53,8 @@ func (this *PageController) Prepare() {
 
 // Index is the main page of user's question box.
 func (this *PageController) Index() {
-
+	userContent := this.Ctx.Input.GetData("userContent").(*models.User)
+	this.Data["title"] = fmt.Sprintf("%s | %s", userContent.Name, beego.AppConfig.String("title"))
 }
 
 // NewQuestion is post new question handler.

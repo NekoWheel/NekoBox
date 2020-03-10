@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title></title>
+    <title>{{.title}}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.3.3/dist/css/uikit.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.3.3/dist/js/uikit.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.3.3/dist/js/uikit-icons.min.js"></script>
@@ -20,7 +20,7 @@
                 {{ end }}
             </div>
         </div>
-        <a class="uk-navbar-item uk-logo" href="/">{{.title}}</a>
+        <a class="uk-navbar-item uk-logo" href="/">NekoBox</a>
         <div class="uk-navbar-center-right">
             <div>
                 {{ if eq .isLogin false}}
