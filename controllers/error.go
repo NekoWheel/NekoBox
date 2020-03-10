@@ -8,4 +8,5 @@ type ErrorController struct {
 
 func (this *ErrorController) Error404() {
 	this.Redirect("/", 302)
+	this.TplName = "index.tpl"
 }
