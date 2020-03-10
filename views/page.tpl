@@ -1,9 +1,12 @@
 {{template "template/header.tpl" .}}
+<link rel="shortcut icon" href="{{.userContent.Avatar}}?x-oss-process=image/auto-orient,1/quality,q_70/sharpen,200/resize,limit_0,m_fill,w_200,h_200" />
+<link rel="apple-touch-icon" href="{{.userContent.Avatar}}?x-oss-process=image/auto-orient,1/quality,q_70/sharpen,200/resize,limit_0,m_fill,w_200,h_200" />
+<link rel="icon" sizes="192x192" href="{{.userContent.Avatar}}?x-oss-process=image/auto-orient,1/quality,q_70/sharpen,200/resize,limit_0,m_fill,w_200,h_200">
 <div class="uk-card uk-card-default uk-text-center">
     <div class="uk-height-medium uk-flex uk-flex-center uk-flex-middle uk-background-cover uk-light"
-         data-src="{{ .pageContent.Background }}" uk-img>
+         data-src="{{ .pageContent.Background }}?x-oss-process=image/auto-orient,1/quality,q_70/sharpen,200/format,webp" uk-img>
         <div class="uk-card-body">
-            <img class="uk-border-circle uk-box-shadow-large" src="{{ .userContent.Avatar }}" width="100" height="100">
+            <img class="uk-border-circle uk-box-shadow-large" src="{{ .userContent.Avatar }}?x-oss-process=image/auto-orient,1/quality,q_70/sharpen,200/resize,limit_0,m_fill,w_200,h_200/format,webp" width="100" height="100">
             <h3>{{ .userContent.Name }}</h3>
             <p>{{ .pageContent.Intro }}</p>
         </div>

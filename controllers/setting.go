@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/validation"
 	"github.com/parnurzeal/gorequest"
 	"github.com/wuhan005/QuestionBox/models"
 	"html/template"
+	"strings"
 )
 
 type SettingController struct {
@@ -98,12 +100,12 @@ func (this *SettingController) UpdateProfile() {
 		req.Header.Set("token", beego.AppConfig.String("upload_token"))
 		req.SendFile(fileByte, header.Filename, "image")
 		resp, body, _ := req.End()
-
+		fmt.Println(body)
 		if resp != nil && resp.StatusCode == 200 {
 			avatarJSON := new(models.UploadCallBack)
 			err = json.Unmarshal([]byte(body), &avatarJSON)
 			if err == nil {
-				user.Avatar = avatarJSON.Data.URL
+				user.Avatar = strings.Split(avatarJSON.Data.URL, "?")[0]
 			}
 		}
 	}
@@ -121,7 +123,7 @@ func (this *SettingController) UpdateProfile() {
 			backgroundJSON := new(models.UploadCallBack)
 			err = json.Unmarshal([]byte(body), &backgroundJSON)
 			if err == nil {
-				page.Background = backgroundJSON.Data.URL
+				page.Background = strings.Split(backgroundJSON.Data.URL, "?")[0]
 			}
 		}
 	}

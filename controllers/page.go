@@ -58,7 +58,7 @@ func (this *PageController) Prepare() {
 // Index is the main page of user's question box.
 func (this *PageController) Index() {
 	userContent := this.Ctx.Input.GetData("userContent").(*models.User)
-	this.Data["title"] = fmt.Sprintf("%s | %s", userContent.Name, beego.AppConfig.String("title"))
+	this.Data["title"] = fmt.Sprintf("%s的提问箱 | %s", userContent.Name, beego.AppConfig.String("title"))
 }
 
 // NewQuestion is post new question handler.

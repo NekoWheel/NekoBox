@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/validation"
 	"github.com/wuhan005/QuestionBox/models"
@@ -74,6 +75,7 @@ func (this *QuestionController) Question() {
 	this.Data["pageContent"] = page
 	this.Data["questionsContent"] = questions
 	this.Data["questionContent"] = question
+	this.Data["title"] = fmt.Sprintf("%s的提问箱 | %s", user.Name, beego.AppConfig.String("title"))
 	this.TplName = "question.tpl"
 }
 

@@ -1,4 +1,7 @@
 {{template "template/header.tpl" .}}
+<link rel="shortcut icon" href="{{.userContent.Avatar}}?x-oss-process=image/auto-orient,1/quality,q_70/sharpen,200/resize,limit_0,m_fill,w_200,h_200" />
+<link rel="apple-touch-icon" href="{{.userContent.Avatar}}?x-oss-process=image/auto-orient,1/quality,q_70/sharpen,200/resize,limit_0,m_fill,w_200,h_200" />
+<link rel="icon" sizes="192x192" href="{{.userContent.Avatar}}?x-oss-process=image/auto-orient,1/quality,q_70/sharpen,200/resize,limit_0,m_fill,w_200,h_200">
 <div>
     <div class="uk-card uk-card-default">
         <div class="uk-card-header">
@@ -39,21 +42,20 @@
                             <button type="submit" class="uk-button uk-button-primary">回答</button>
                         </div>
                     </form>
-                {{else if ne .user.PageID .pageContent.ID}}
-                    <h5 class="uk-text-center">再问点别的问题？</h5>
-                    <form method="post" action="/_/{{.pageContent.Domain}}" id="form">
-                        {{ .xsrfdata }}
-                        <div class="uk-margin uk-text-center">
-                            <textarea name="content" class="uk-textarea" rows="3" placeholder="在此处撰写你的问题..."></textarea>
-                        </div>
-                        <div class="uk-margin uk-text-center">
-                            <button type="submit" class="uk-button uk-button-primary g-recaptcha"
-                                    data-sitekey="{{.recaptcha}}" data-callback="onSubmit">发送提问
-                            </button>
-                        </div>
-                    </form>
                 {{end}}
             {{end}}
+            <h5 class="uk-text-center">再问点别的问题？</h5>
+            <form method="post" action="/_/{{.pageContent.Domain}}" id="form">
+                {{ .xsrfdata }}
+                <div class="uk-margin uk-text-center">
+                    <textarea name="content" class="uk-textarea" rows="3" placeholder="在此处撰写你的问题..."></textarea>
+                </div>
+                <div class="uk-margin uk-text-center">
+                    <button type="submit" class="uk-button uk-button-primary g-recaptcha"
+                            data-sitekey="{{.recaptcha}}" data-callback="onSubmit">发送提问
+                    </button>
+                </div>
+            </form>
 
             <hr class="uk-divider-icon">
             <p class="uk-text-left uk-text-muted uk-text-small">@{{ .userContent.Name }}以前回答过的问题</p>

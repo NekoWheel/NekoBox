@@ -25,7 +25,7 @@
         </div>
         <div class="uk-margin">
             <label class="uk-form-label" for="form-stacked-text">提问箱介绍</label>
-            <input name="intro" class="uk-input" type="text">
+            <input name="intro" class="uk-input" type="text" value="{{.page.Intro}}">
         </div>
         <div class="uk-margin">
             <label class="uk-form-label" for="form-stacked-text">个人头像</label>
