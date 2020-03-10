@@ -24,7 +24,8 @@
                     <form method="post">
                         {{ .xsrfdata }}
                         <div class="uk-margin uk-text-center">
-                            <textarea name="answer" class="uk-textarea" rows="3" maxlength="150" placeholder="在此处撰写你的回答..."></textarea>
+                            <textarea name="answer" class="uk-textarea" rows="3" maxlength="150"
+                                      placeholder="在此处撰写你的回答..."></textarea>
                         </div>
                         <div class="uk-margin uk-text-center">
                             <button type="submit" class="uk-button uk-button-primary">回答</button>
@@ -32,13 +33,15 @@
                     </form>
                 {{else if ne .user.PageID .pageContent.ID}}
                     <h5 class="uk-text-center">再问点别的问题？</h5>
-                    <form method="post" action="/_/{{.pageContent.Domain}}">
+                    <form method="post" action="/_/{{.pageContent.Domain}}" id="form">
                         {{ .xsrfdata }}
                         <div class="uk-margin uk-text-center">
                             <textarea name="content" class="uk-textarea" rows="3" placeholder="在此处撰写你的问题..."></textarea>
                         </div>
                         <div class="uk-margin uk-text-center">
-                            <button type="submit" class="uk-button uk-button-primary">发送提问</button>
+                            <button type="submit" class="uk-button uk-button-primary g-recaptcha"
+                                    data-sitekey="{{.recaptcha}}" data-callback="onSubmit">发送提问
+                            </button>
                         </div>
                     </form>
                 {{end}}

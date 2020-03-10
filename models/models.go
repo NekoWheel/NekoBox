@@ -37,20 +37,23 @@ func init() {
 }
 
 type UserRegisterForm struct {
-	Name     string `form:"name" valid:"Required; MaxSize(20)"`
-	Password string `form:"password" valid:"Required; MinSize(8); MaxSize(30)"`
-	Email    string `form:"email" valid:"Required; Email; MaxSize(100)"`
-	Domain   string `form:"domain" valid:"Required; AlphaDash; MinSize(3); MaxSize(10)"`
+	Recaptcha string `form:"g-recaptcha-response" valid:"Required"`
+	Name      string `form:"name" valid:"Required; MaxSize(20)"`
+	Password  string `form:"password" valid:"Required; MinSize(8); MaxSize(30)"`
+	Email     string `form:"email" valid:"Required; Email; MaxSize(100)"`
+	Domain    string `form:"domain" valid:"Required; AlphaDash; MinSize(3); MaxSize(10)"`
 }
 
 type UserLoginForm struct {
-	Email    string `form:"email" valid:"Required; Email; MaxSize(100)"`
-	Password string `form:"password" valid:"Required; MinSize(8); MaxSize(30)"`
+	Recaptcha string `form:"g-recaptcha-response" valid:"Required"`
+	Email     string `form:"email" valid:"Required; Email; MaxSize(100)"`
+	Password  string `form:"password" valid:"Required; MinSize(8); MaxSize(30)"`
 }
 
 type QuestionForm struct {
-	PageID  uint
-	Content string `form:"content" valid:"Required; MaxSize(50)"`
+	Recaptcha string `form:"g-recaptcha-response" valid:"Required"`
+	PageID    uint
+	Content   string `form:"content" valid:"Required; MaxSize(50)"`
 }
 
 type UpdateForm struct {
@@ -77,6 +80,10 @@ type UploadCallBack struct {
 	} `json:"data"`
 	Msg  string `json:"msg"`
 	Time int    `json:"time"`
+}
+
+type RecaptchaResponse struct {
+	Success bool `json:"success"`
 }
 
 type User struct {

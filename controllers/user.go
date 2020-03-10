@@ -14,6 +14,8 @@ type UserController struct {
 func (this *UserController) Prepare() {
 	this.Data["title"] = beego.AppConfig.String("title")
 	this.Data["icp"] = beego.AppConfig.String("icp")
+	this.Data["recaptcha"] = beego.AppConfig.String("recaptcha_site_key")
+	this.Data["recaptcha_domain"] = beego.AppConfig.String("recaptcha_domain")
 	this.Data["xsrfdata"] = template.HTML(this.XSRFFormHTML())
 	this.Data["error"] = ""
 
@@ -76,6 +78,14 @@ func (this *UserController) RegisterPost() {
 		}
 	}
 
+	if !models.CheckRecaptcha(r.Recaptcha, this.Ctx.Input.IP()) {
+		this.Data["error"] = "请不要搞事情，感谢。"
+		this.Data["name"] = r.Name
+		this.Data["email"] = r.Email
+		this.Data["domain"] = r.Domain
+		return
+	}
+
 	err = models.Register(r)
 	if err != nil {
 		this.Data["error"] = err.Error()
@@ -123,6 +133,13 @@ func (this *UserController) LoginPost() {
 			this.Data["email"] = r.Email
 			return
 		}
+	}
+
+	// recaptcha
+	if !models.CheckRecaptcha(r.Recaptcha, this.Ctx.Input.IP()) {
+		this.Data["error"] = "请不要搞事情，感谢。"
+		this.Data["email"] = r.Email
+		return
 	}
 
 	user, err := models.Login(r)

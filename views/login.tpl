@@ -1,5 +1,5 @@
 {{template "template/header.tpl" .}}
-<form method="post">
+<form method="post" id="form">
     <fieldset class="uk-fieldset">
         {{ .xsrfdata }}
         <legend class="uk-legend">用户登录</legend>
@@ -18,7 +18,7 @@
             <input type="password" name="password" class="uk-input" type="text">
         </div>
         <div class="uk-margin">
-            <button type="submit" class="uk-button uk-button-primary">登录</button>
+            <button type="submit" class="uk-button uk-button-primary g-recaptcha" data-sitekey="{{.recaptcha}}" data-callback="onSubmit">登录</button>
         </div>
     </fieldset>
 </form>
