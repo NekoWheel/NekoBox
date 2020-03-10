@@ -16,5 +16,6 @@ func init() {
 
 	beego.Router("/question", &controllers.QuestionController{}, "get:QuestionList")
 	beego.Router("/setting", &controllers.SettingController{}, "get:Index;post:UpdateProfile")
+	beego.Router("/logout", &controllers.SettingController{}, "get:Logout")
 
 }

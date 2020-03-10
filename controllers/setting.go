@@ -130,3 +130,8 @@ func (this *SettingController) UpdateProfile() {
 	models.UpdatePage(loginUser.PageID, page)
 	this.Data["success"] = "修改个人信息成功！"
 }
+
+func (this *SettingController) Logout() {
+	this.DestroySession()
+	this.Redirect("/", 302)
+}

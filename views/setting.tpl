@@ -42,6 +42,7 @@
         </div>
         <div class="uk-margin">
             <button type="submit" class="uk-button uk-button-primary">修改信息</button>
+            <a href="/logout" class="uk-button uk-button-danger">登出</a>
         </div>
     </fieldset>
 </form>
