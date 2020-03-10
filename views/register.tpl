@@ -14,7 +14,7 @@
             <input name="email" class="uk-input" type="text" value="{{.email}}">
         </div>
         <div class="uk-margin">
-            <label class="uk-form-label" for="form-stacked-text">个性域名</label>
+            <label class="uk-form-label" for="form-stacked-text">个性域名 (https://box.n3ko.co/_/你的域名)</label>
             <input name="domain" class="uk-input" type="text" value="{{.domain}}">
         </div>
         <div class="uk-margin">

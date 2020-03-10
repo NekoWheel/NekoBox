@@ -13,11 +13,12 @@ var DB *gorm.DB
 
 func init() {
 	validation.SetDefaultMessage(map[string]string{
-		"Required": "不能为空",
-		"MinSize":  "长度最小值是 %d",
-		"MaxSize":  "长度最大值是 %d",
-		"Length":   "长度需要为 %d",
-		"Email":    "电子邮箱格式不正确",
+		"Required":  "不能为空",
+		"MinSize":   "长度最小值是 %d",
+		"MaxSize":   "长度最大值是 %d",
+		"Length":    "长度需要为 %d",
+		"Email":     "电子邮箱格式不正确",
+		"AlphaDash": "只能包含字符或数字或横杠 -_",
 	})
 
 	db, err := gorm.Open("mysql",
