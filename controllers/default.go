@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"github.com/wuhan005/QuestionBox/models"
+	"html/template"
 )
 
 type MainController struct {
@@ -12,6 +13,7 @@ type MainController struct {
 func (this *MainController) Prepare() {
 	this.Data["title"] = beego.AppConfig.String("title")
 	this.Data["icp"] = beego.AppConfig.String("icp")
+	this.Data["xsrfdata"] = template.HTML(this.XSRFFormHTML())
 	this.Data["success"] = ""
 	this.Data["error"] = ""
 	this.TplName = "page.tpl"

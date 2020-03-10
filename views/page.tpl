@@ -14,6 +14,7 @@
     <div class="uk-card uk-card-default uk-card-small uk-card-body">
         <p class="uk-text-center uk-text-small">谁都可以以匿名的形式提问</p>
         <form method="post">
+            {{ .xsrfdata }}
             {{if ne .error ""}}
                 <div class="uk-alert-danger" uk-alert>
                     <a class="uk-alert-close" uk-close></a>

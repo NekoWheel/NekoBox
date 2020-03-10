@@ -24,9 +24,9 @@ func GetQuestionsByPageID(pageID uint, order bool) []*Question {
 
 	query := DB.Model(&Question{}).Where(&Question{
 		PageID: pageID,
-	})
+	}).Order("`id` DESC")
 	if order {
-		query = query.Order("`answer` <> \"\", `id`")
+		query = query.Order("`answer` <> \"\"")
 	}
 	query.Find(&questions)
 	return questions

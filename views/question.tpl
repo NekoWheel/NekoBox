@@ -22,6 +22,7 @@
                 {{if and (eq .user.PageID .pageContent.ID) (eq .questionContent.Answer "") }}
                     <h5 class="uk-text-center">回答问题</h5>
                     <form method="post">
+                        {{ .xsrfdata }}
                         <div class="uk-margin uk-text-center">
                             <textarea name="answer" class="uk-textarea" rows="3" maxlength="150" placeholder="在此处撰写你的回答..."></textarea>
                         </div>
@@ -32,6 +33,7 @@
                 {{else if ne .user.PageID .pageContent.ID}}
                     <h5 class="uk-text-center">再问点别的问题？</h5>
                     <form method="post" action="/_/{{.pageContent.Domain}}">
+                        {{ .xsrfdata }}
                         <div class="uk-margin uk-text-center">
                             <textarea name="content" class="uk-textarea" rows="3" placeholder="在此处撰写你的问题..."></textarea>
                         </div>

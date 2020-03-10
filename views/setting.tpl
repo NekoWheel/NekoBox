@@ -1,6 +1,7 @@
 {{template "template/header.tpl" .}}
 <form method="post" enctype="multipart/form-data">
     <fieldset class="uk-fieldset">
+        {{ .xsrfdata }}
         <legend class="uk-legend">个人信息</legend>
         {{if ne .error ""}}
             <div class="uk-alert-danger" uk-alert>

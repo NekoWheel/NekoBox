@@ -5,6 +5,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/validation"
 	"github.com/wuhan005/QuestionBox/models"
+	"html/template"
 )
 
 type PageController struct {
@@ -14,6 +15,7 @@ type PageController struct {
 func (this *PageController) Prepare() {
 	this.Data["title"] = beego.AppConfig.String("title")
 	this.Data["icp"] = beego.AppConfig.String("icp")
+	this.Data["xsrfdata"] = template.HTML(this.XSRFFormHTML())
 	this.Data["success"] = ""
 	this.Data["error"] = ""
 	this.TplName = "page.tpl"

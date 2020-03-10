@@ -1,6 +1,7 @@
 {{template "template/header.tpl" .}}
 <form method="post">
     <fieldset class="uk-fieldset">
+        {{ .xsrfdata }}
         <legend class="uk-legend">用户登录</legend>
         {{if ne .error ""}}
             <div class="uk-alert-danger" uk-alert>
