@@ -31,7 +31,6 @@ func CheckRecaptcha(response string, remoteip string) bool {
 	if body == "" || resp == nil || resp.StatusCode != 200 {
 		return false
 	}
-	fmt.Println(body)
 
 	recaptcha := new(RecaptchaResponse)
 	err := json.Unmarshal([]byte(body), &recaptcha)

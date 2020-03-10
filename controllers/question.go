@@ -152,3 +152,35 @@ func (this *QuestionController) AnswerQuestion() {
 	}
 	this.Redirect(questionURL, 302)
 }
+
+func (this *QuestionController) QuestionDelete() {
+	this.TplName = "questionlist.tpl"
+	isLogin := this.Ctx.Input.GetData("isLogin").(bool)
+	if !isLogin {
+		this.Redirect("/login", 302)
+		return
+	}
+	user := this.Ctx.Input.GetData("user").(*models.User)
+
+	domain := this.Ctx.Input.Param(":domain")
+	id := this.Ctx.Input.Param(":id")
+	questionID, err := strconv.Atoi(id)
+	if err != nil {
+		this.Redirect("/", 302)
+		return
+	}
+
+	question, err := models.GetQuestionByDomainID(domain, uint(questionID))
+	if err != nil {
+		this.Redirect("/", 302)
+		return
+	}
+
+	if question.PageID != user.PageID {
+		this.Redirect("/", 302)
+		return
+	}
+
+	models.DeleteQuestion(question.ID)
+	this.Redirect("/_/"+domain, 302)
+}

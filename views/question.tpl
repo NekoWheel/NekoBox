@@ -21,6 +21,14 @@
             {{if eq .isLogin true}}
                 {{if and (eq .user.PageID .pageContent.ID) (eq .questionContent.Answer "") }}
                     <h5 class="uk-text-center">回答问题</h5>
+                    {{if and (eq .user.PageID .pageContent.ID) (eq .questionContent.Answer "") }}
+                        <form class="uk-float-right"
+                              method="post"
+                              action="/delete/{{ .pageContent.Domain }}/{{ .questionContent.ID }}">
+                            {{ .xsrfdata }}
+                            <button class="uk-button uk-button-danger uk-button-small">删除提问</button>
+                        </form>
+                    {{end}}
                     <form method="post">
                         {{ .xsrfdata }}
                         <div class="uk-margin uk-text-center">

@@ -56,3 +56,11 @@ func AnswerQuestion(questionID uint, question *Question) error {
 	tx.Commit()
 	return nil
 }
+
+func DeleteQuestion(questionID uint) {
+	tx := DB.Begin()
+	if tx.Where("id = ?", questionID).Delete(&Question{}).RowsAffected != 1 {
+		tx.Rollback()
+	}
+	tx.Commit()
+}
