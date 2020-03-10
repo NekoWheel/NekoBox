@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"github.com/astaxie/beego"
 	"github.com/jinzhu/gorm"
 )
 
@@ -27,11 +28,13 @@ func Register(form *UserRegisterForm) error {
 	user.Name = form.Name
 	user.Password = AddSalt(form.Password)
 	user.Email = form.Email
+	user.Avatar = beego.AppConfig.String("default_avatar") // default avatar
 
 	// create page
 	page := new(Page)
 	page.Domain = form.Domain
 	page.Intro = "问你想问的"
+	page.Background = beego.AppConfig.String("default_background") // default background
 
 	tx := DB.Begin()
 	if tx.Create(&page).RowsAffected != 1 {
