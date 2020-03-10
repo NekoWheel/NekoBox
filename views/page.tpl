@@ -39,7 +39,7 @@
             {{ if ne $elem.Answer ""}}
                 <div>
                     <hr>
-                    <a class="uk-button uk-button-default uk-button-small uk-float-right" href="#">查看回答</a>
+                    <a class="uk-button uk-button-default uk-button-small uk-float-right" href="/_/{{$.pageContent.Domain}}/{{$elem.ID}}">查看回答</a>
                     <div class="uk-text-left uk-text-small uk-text-muted">{{date $elem.CreatedAt "Y-m-d H:i:s"}}</div>
                     <p class="uk-text-small">{{$elem.Content}}</p>
                 </div>

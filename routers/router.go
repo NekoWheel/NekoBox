@@ -12,9 +12,9 @@ func init() {
 	beego.Router("/login", &controllers.UserController{}, "get:LoginGet;post:LoginPost")
 
 	beego.Router("/_/:domain", &controllers.PageController{}, "get:Index;post:NewQuestion")
-	beego.Router("/_/:domain/:id:string", &controllers.QuestionController{}, "get:Question")
-	beego.Router("/question", &controllers.QuestionController{}, "get:QuestionList;post:AnswerQuestion")
+	beego.Router("/_/:domain/:id:int", &controllers.QuestionController{}, "get:Question;post:AnswerQuestion")
 
+	beego.Router("/question", &controllers.QuestionController{}, "get:QuestionList")
 	beego.Router("/setting", &controllers.SettingController{}, "get:Index;post:UpdateProfile")
 
 }

@@ -45,7 +45,7 @@ func (this *PageController) Prepare() {
 	this.Ctx.Input.SetData("userContent", userContent)
 
 	// get answer question
-	questionContent := models.GetQuestionsByPageID(pageContent.ID)
+	questionContent := models.GetQuestionsByPageID(pageContent.ID, false)
 	this.Data["questionContent"] = questionContent
 }
 

@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"github.com/jinzhu/gorm"
 )
 
 func NewQuestion(form *QuestionForm) error {
@@ -18,11 +19,30 @@ func NewQuestion(form *QuestionForm) error {
 	return nil
 }
 
-func GetQuestionsByPageID(pageID uint) []*Question {
+func GetQuestionsByPageID(pageID uint, order bool) []*Question {
 	questions := make([]*Question, 0)
 
-	DB.Model(&Question{}).Where(&Question{
+	query := DB.Model(&Question{}).Where(&Question{
 		PageID: pageID,
-	}).Find(&questions)
+	})
+	if order {
+		query = query.Order("`answer` <> \"\", `id`")
+	}
+	query.Find(&questions)
 	return questions
+}
+
+func GetQuestionByDomainID(domain string, questionID uint) (*Question, error) {
+	page := new(Page)
+	DB.Model(&Page{}).Where(&Page{Domain: domain}).Find(&page)
+	if page.ID == 0 {
+		return nil, errors.New("用户不存在")
+	}
+
+	question := new(Question)
+	DB.Model(&Question{}).Where(&Question{Model: gorm.Model{ID: questionID}, PageID: page.ID}).Find(&question)
+	if question.ID == 0 {
+		return nil, errors.New("问题不存在")
+	}
+	return question, nil
 }
