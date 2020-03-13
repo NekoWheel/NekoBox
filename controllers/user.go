@@ -4,7 +4,6 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/validation"
 	"github.com/wuhan005/QuestionBox/models"
-	"html/template"
 )
 
 type UserController struct {
@@ -12,22 +11,14 @@ type UserController struct {
 }
 
 func (this *UserController) Prepare() {
-	this.Data["title"] = beego.AppConfig.String("title")
-	this.Data["icp"] = beego.AppConfig.String("icp")
-	this.Data["recaptcha"] = beego.AppConfig.String("recaptcha_site_key")
-	this.Data["recaptcha_domain"] = beego.AppConfig.String("recaptcha_domain")
-	this.Data["xsrfdata"] = template.HTML(this.XSRFFormHTML())
-	this.Data["error"] = ""
-
-	userInterface := this.GetSession("user")
-	if userInterface != nil {
-		user := userInterface.(*models.User)
+	isLogin, _ := this.Ctx.Input.GetData("isLogin").(bool)
+	if isLogin {
+		user := this.Data["user"].(*models.User)
 		domain, _ := models.GetPageByID(user.PageID)
 		this.Redirect("/_/"+domain.Domain, 302)
 		this.Abort("302")
 		return
 	}
-	this.Data["isLogin"] = false
 }
 
 // RegisterGet: user register page
@@ -59,18 +50,7 @@ func (this *UserController) RegisterPost() {
 	}
 	if !b {
 		for _, value := range valid.Errors {
-			field := ""
-			switch value.Field {
-			case "Name":
-				field = "昵称"
-			case "Password":
-				field = "密码"
-			case "Email":
-				field = "邮箱"
-			case "Domain":
-				field = "个性域名"
-			}
-			this.Data["error"] = field + value.Message
+			this.Data["error"] = value.Message
 			this.Data["name"] = r.Name
 			this.Data["email"] = r.Email
 			this.Data["domain"] = r.Domain
@@ -122,14 +102,7 @@ func (this *UserController) LoginPost() {
 	}
 	if !b {
 		for _, value := range valid.Errors {
-			field := ""
-			switch value.Field {
-			case "Email":
-				field = "电子邮箱"
-			case "Password":
-				field = "密码"
-			}
-			this.Data["error"] = field + value.Message
+			this.Data["error"] = value.Message
 			this.Data["email"] = r.Email
 			return
 		}

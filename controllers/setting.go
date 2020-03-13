@@ -1,14 +1,9 @@
 package controllers
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/validation"
-	"github.com/parnurzeal/gorequest"
 	"github.com/wuhan005/QuestionBox/models"
-	"html/template"
-	"strings"
 )
 
 type SettingController struct {
@@ -16,26 +11,12 @@ type SettingController struct {
 }
 
 func (this *SettingController) Prepare() {
-	this.Data["title"] = beego.AppConfig.String("title")
-	this.Data["icp"] = beego.AppConfig.String("icp")
-	this.Data["recaptcha"] = beego.AppConfig.String("recaptcha_site_key")
-	this.Data["recaptcha_domain"] = beego.AppConfig.String("recaptcha_domain")
-	this.Data["xsrfdata"] = template.HTML(this.XSRFFormHTML())
-	this.Data["error"] = ""
-	this.Data["success"] = ""
-
-	userInterface := this.GetSession("user")
-	if userInterface == nil {
+	isLogin := this.Ctx.Input.GetData("isLogin").(bool)
+	if !isLogin {
 		this.Redirect("/login", 302)
 		this.Abort("302")
 		return
 	}
-	user := userInterface.(*models.User)
-	this.Data["isLogin"] = true
-	this.Data["user"] = user
-	this.Ctx.Input.SetData("user", user)
-	userPage, _ := models.GetPageByID(user.ID)
-	this.Data["page"] = userPage
 }
 
 // Index is the main page of setting.
@@ -62,16 +43,7 @@ func (this *SettingController) UpdateProfile() {
 	}
 	if !b {
 		for _, value := range valid.Errors {
-			field := ""
-			switch value.Field {
-			case "Name":
-				field = "昵称"
-			case "Password":
-				field = "密码"
-			case "Intro":
-				field = "提问箱介绍"
-			}
-			this.Data["error"] = field + value.Message
+			this.Data["error"] = value.Message
 			return
 		}
 	}
@@ -94,38 +66,12 @@ func (this *SettingController) UpdateProfile() {
 	// handler picture file
 	file, header, err := this.GetFile("avatar")
 	if err == nil {
-		fileByte := make([]byte, header.Size)
-		_, _ = file.Read(fileByte)
-		req := gorequest.New().Post(beego.AppConfig.String("upload_url")).Type("multipart")
-		req.Header.Set("token", beego.AppConfig.String("upload_token"))
-		req.SendFile(fileByte, header.Filename, "image")
-		resp, body, _ := req.End()
-		fmt.Println(body)
-		if resp != nil && resp.StatusCode == 200 {
-			avatarJSON := new(models.UploadCallBack)
-			err = json.Unmarshal([]byte(body), &avatarJSON)
-			if err == nil {
-				user.Avatar = strings.Split(avatarJSON.Data.URL, "?")[0]
-			}
-		}
+		user.Avatar = models.UploadPicture(header, file)
 	}
 
 	file, header, err = this.GetFile("background")
 	if err == nil {
-		fileByte := make([]byte, header.Size)
-		_, _ = file.Read(fileByte)
-		req := gorequest.New().Post(beego.AppConfig.String("upload_url")).Type("multipart")
-		req.Header.Set("token", beego.AppConfig.String("upload_token"))
-		req.SendFile(fileByte, header.Filename, "image")
-		resp, body, _ := req.End()
-
-		if resp != nil && resp.StatusCode == 200 {
-			backgroundJSON := new(models.UploadCallBack)
-			err = json.Unmarshal([]byte(body), &backgroundJSON)
-			if err == nil {
-				page.Background = strings.Split(backgroundJSON.Data.URL, "?")[0]
-			}
-		}
+		page.Background = models.UploadPicture(header, file)
 	}
 
 	// password

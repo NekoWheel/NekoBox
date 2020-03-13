@@ -2,10 +2,40 @@ package routers
 
 import (
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/context"
 	"github.com/wuhan005/QuestionBox/controllers"
+	"github.com/wuhan005/QuestionBox/models"
+	"html/template"
 )
 
 func init() {
+	beego.InsertFilter("*", beego.BeforeExec, func(c *context.Context) {
+		c.Input.Data()["title"] = beego.AppConfig.String("title")
+		c.Input.Data()["icp"] = beego.AppConfig.String("icp")
+		c.Input.Data()["recaptcha"] = beego.AppConfig.String("recaptcha_site_key")
+		c.Input.Data()["recaptcha_domain"] = beego.AppConfig.String("recaptcha_domain")
+		c.Input.Data()["xsrfdata"] = template.HTML(`<input type="hidden" name="_xsrf" value="` +
+			c.XSRFToken(beego.BConfig.WebConfig.XSRFKey, int64(beego.BConfig.WebConfig.XSRFExpire)) +
+			`" />`)
+		c.Input.Data()["success"] = ""
+		c.Input.Data()["error"] = ""
+
+		// get login status
+		user := c.Input.Session("user")
+		if user != nil {
+			c.Input.Data()["isLogin"] = true
+			c.Input.Data()["user"] = user.(*models.User)
+			c.Input.SetData("user", user.(*models.User))
+			c.Input.SetData("isLogin", true)
+
+			userPage, _ := models.GetPageByID(user.(*models.User).ID)
+			c.Input.Data()["page"] = userPage
+		} else {
+			c.Input.Data()["isLogin"] = false
+			c.Input.SetData("isLogin", false)
+		}
+	})
+
 	beego.Router("/", &controllers.MainController{})
 
 	beego.Router("/register", &controllers.UserController{}, "get:RegisterGet;post:RegisterPost")

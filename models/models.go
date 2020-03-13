@@ -17,7 +17,7 @@ func init() {
 		"MinSize":   "长度最小值是 %d",
 		"MaxSize":   "长度最大值是 %d",
 		"Length":    "长度需要为 %d",
-		"Email":     "电子邮箱格式不正确",
+		"Email":     "格式不正确",
 		"AlphaDash": "只能包含字符或数字或横杠 -_",
 	})
 
@@ -38,33 +38,33 @@ func init() {
 }
 
 type UserRegisterForm struct {
-	Recaptcha string `form:"g-recaptcha-response" valid:"Required"`
-	Name      string `form:"name" valid:"Required; MaxSize(20)"`
-	Password  string `form:"password" valid:"Required; MinSize(8); MaxSize(30)"`
-	Email     string `form:"email" valid:"Required; Email; MaxSize(100)"`
-	Domain    string `form:"domain" valid:"Required; AlphaDash; MinSize(3); MaxSize(10)"`
+	Recaptcha string `form:"g-recaptcha-response" valid:"Required" label:"Recaptcha"`
+	Name      string `form:"name" valid:"Required; MaxSize(20)" label:"昵称"`
+	Password  string `form:"password" valid:"Required; MinSize(8); MaxSize(30)" label:"密码"`
+	Email     string `form:"email" valid:"Required; Email; MaxSize(100)" label:"电子邮箱"`
+	Domain    string `form:"domain" valid:"Required; AlphaDash; MinSize(3); MaxSize(10)" label:"个性域名"`
 }
 
 type UserLoginForm struct {
-	Recaptcha string `form:"g-recaptcha-response" valid:"Required"`
-	Email     string `form:"email" valid:"Required; Email; MaxSize(100)"`
-	Password  string `form:"password" valid:"Required; MinSize(8); MaxSize(30)"`
+	Recaptcha string `form:"g-recaptcha-response" valid:"Required" label:"Recaptcha"`
+	Email     string `form:"email" valid:"Required; Email; MaxSize(100)" label:"电子邮箱"`
+	Password  string `form:"password" valid:"Required; MinSize(8); MaxSize(30)" label:"密码"`
 }
 
 type QuestionForm struct {
-	Recaptcha string `form:"g-recaptcha-response" valid:"Required"`
+	Recaptcha string `form:"g-recaptcha-response" valid:"Required" label:"Recaptcha"`
 	PageID    uint
-	Content   string `form:"content" valid:"Required; MaxSize(50)"`
+	Content   string `form:"content" valid:"Required; MaxSize(50)" label:"问题内容"`
 }
 
 type UpdateForm struct {
-	Name     string `form:"name" valid:"Required; MaxSize(20)"`
-	Password string `form:"password"`
-	Intro    string `form:"intro" valid:"MaxSize(40)"`
+	Name     string `form:"name" valid:"Required; MaxSize(20)" label:"昵称"`
+	Password string `form:"password" label:"密码"`
+	Intro    string `form:"intro" valid:"MaxSize(40)" label:"留言板介绍"`
 }
 
 type AnswerForm struct {
-	Answer string `form:"answer" valid:"Required; MaxSize(150)"`
+	Answer string `form:"answer" valid:"Required; MaxSize(150)" label:"回答内容"`
 }
 
 type UploadCallBack struct {
