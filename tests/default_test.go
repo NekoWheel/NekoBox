@@ -1,7 +1,7 @@
 package test
 
 import (
-	_ "github.com/wuhan005/QuestionBox/routers"
+	_ "github.com/NekoWheel/NekoBox/routers"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"

@@ -1,4 +1,4 @@
-module github.com/wuhan005/QuestionBox
+module github.com/NekoWheel/NekoBox
 
 go 1.13
 

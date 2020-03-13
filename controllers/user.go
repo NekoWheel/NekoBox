@@ -3,7 +3,7 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/validation"
-	"github.com/wuhan005/QuestionBox/models"
+	"github.com/NekoWheel/NekoBox/models"
 )
 
 type UserController struct {

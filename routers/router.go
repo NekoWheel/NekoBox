@@ -1,10 +1,10 @@
 package routers
 
 import (
+	"github.com/NekoWheel/NekoBox/controllers"
+	"github.com/NekoWheel/NekoBox/models"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
-	"github.com/wuhan005/QuestionBox/controllers"
-	"github.com/wuhan005/QuestionBox/models"
 	"html/template"
 )
 

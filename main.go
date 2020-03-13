@@ -1,8 +1,8 @@
 package main
 
 import (
+	_ "github.com/NekoWheel/NekoBox/routers"
 	"github.com/astaxie/beego"
-	_ "github.com/wuhan005/QuestionBox/routers"
 )
 
 func main() {
