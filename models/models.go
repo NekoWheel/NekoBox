@@ -2,11 +2,12 @@ package models
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/validation"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"log"
 )
 
 var DB *gorm.DB
@@ -38,11 +39,18 @@ func init() {
 }
 
 type UserRegisterForm struct {
-	Recaptcha string `form:"g-recaptcha-response" valid:"Required" label:"Recaptcha"`
-	Name      string `form:"name" valid:"Required; MaxSize(20)" label:"昵称"`
-	Password  string `form:"password" valid:"Required; MinSize(8); MaxSize(30)" label:"密码"`
-	Email     string `form:"email" valid:"Required; Email; MaxSize(100)" label:"电子邮箱"`
-	Domain    string `form:"domain" valid:"Required; AlphaDash; MinSize(3); MaxSize(10)" label:"个性域名"`
+	Recaptcha      string `form:"g-recaptcha-response" valid:"Required" label:"Recaptcha"`
+	Name           string `form:"name" valid:"Required; MaxSize(20)" label:"昵称"`
+	Password       string `form:"password" valid:"Required; MinSize(8); MaxSize(30)" label:"密码"`
+	RepeatPassword string `form:"repeat_password"`
+	Email          string `form:"email" valid:"Required; Email; MaxSize(100)" label:"电子邮箱"`
+	Domain         string `form:"domain" valid:"Required; AlphaDash; MinSize(3); MaxSize(10)" label:"个性域名"`
+}
+
+func (f *UserRegisterForm) Valid(v *validation.Validation) {
+	if f.Password != f.RepeatPassword {
+		_ = v.SetError("Password", "两次输入的密码不相同")
+	}
 }
 
 type UserLoginForm struct {

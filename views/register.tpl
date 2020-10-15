@@ -26,6 +26,10 @@
             <input type="password" name="password" class="uk-input" type="text">
         </div>
         <div class="uk-margin">
+            <label class="uk-form-label" for="form-stacked-text">确认密码</label>
+            <input type="password" name="repeat_password" class="uk-input" type="text">
+        </div>
+        <div class="uk-margin">
             <button type="submit" class="uk-button uk-button-primary g-recaptcha" data-sitekey="{{.recaptcha}}"
                     data-callback="onSubmit">注册
             </button>
