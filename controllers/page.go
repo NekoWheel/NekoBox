@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"fmt"
+
+	"github.com/NekoWheel/NekoBox/models"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/validation"
-	"github.com/NekoWheel/NekoBox/models"
+	"github.com/jinzhu/gorm"
 )
 
 type PageController struct {
@@ -74,11 +76,18 @@ func (this *PageController) NewQuestion() {
 
 	page := this.Ctx.Input.GetData("pageContent").(*models.Page)
 	q.PageID = page.ID
-	err = models.NewQuestion(q)
+	questionID, err := models.NewQuestion(q)
 	if err != nil {
 		this.Data["error"] = err.Error()
 		this.Data["content"] = q.Content
 		return
 	}
+
+	// Send email
+	go models.SendNewQuestionMail(page.ID, &models.Question{
+		Model:   gorm.Model{ID: questionID},
+		Content: q.Content,
+	})
+
 	this.Data["success"] = "发送问题成功！"
 }

@@ -2,21 +2,23 @@ package models
 
 import (
 	"errors"
+
 	"github.com/jinzhu/gorm"
 )
 
-func NewQuestion(form *QuestionForm) error {
-	tx := DB.Begin()
-	if tx.Create(&Question{
+func NewQuestion(form *QuestionForm) (uint, error) {
+	question := &Question{
 		PageID:  form.PageID,
 		Content: form.Content,
 		Answer:  "",
-	}).RowsAffected != 1 {
+	}
+	tx := DB.Begin()
+	if tx.Create(question).RowsAffected != 1 {
 		tx.Rollback()
-		return errors.New("服务器错误！")
+		return 0, errors.New("服务器错误！")
 	}
 	tx.Commit()
-	return nil
+	return question.ID, nil
 }
 
 func GetQuestionsByPageID(pageID uint, order bool) []*Question {
