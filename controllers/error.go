@@ -9,5 +9,5 @@ type ErrorController struct {
 func (this *ErrorController) Error404() {
 	this.Redirect("/", 302)
 	this.Data["isLogin"] = false
-	this.TplName = "index.tpl"
+	this.TplName = "empty.tpl"
 }
