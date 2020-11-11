@@ -75,5 +75,6 @@ jobs:
           script: |
             docker rm -f nekobox || true
             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD $DOCKER_REGISTRY
+            docker rmi $DOCKER_NAME || true
             docker pull $DOCKER_NAME
             docker run -dt --name nekobox -e TZ=Asia/Shanghai -p 127.0.0.1:10000:8080 -v /home/neko/nekobox/conf:/home/app/conf --link mysql:mysql $DOCKER_NAME:latest
