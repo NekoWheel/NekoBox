@@ -146,38 +146,50 @@ func (this *UserController) ForgotPasswordGet() {
 }
 
 func (this *UserController) ForgotPasswordPost() {
-	this.TplName = "forgot_password.tpl"
+	flash := beego.NewFlash()
+	this.TplName = "forgot_password_sent.tpl"
+
 	f := new(models.EmailValidationForm)
 	if err := this.ParseForm(f); err != nil {
-		this.Data["error"] = "发送邮件失败！"
+		flash.Error("发送邮件失败！")
+		flash.Store(&this.Controller)
+		this.Redirect("/forgotPassword", 302)
 		return
 	}
 
 	valid := validation.Validation{}
 	b, err := valid.Valid(f)
 	if err != nil {
-		this.Data["error"] = "发送邮件失败！"
+		flash.Error("发送邮件失败！")
+		flash.Store(&this.Controller)
+		this.Redirect("/forgotPassword", 302)
 		return
 	}
 	if !b {
 		for _, value := range valid.Errors {
-			this.Data["error"] = value.Message
+			flash.Error(value.Message)
+			flash.Store(&this.Controller)
+			this.Redirect("/forgotPassword", 302)
 			return
 		}
 	}
 
 	u, err := models.GetUserByEmail(f.Email)
 	if err != nil {
-		this.Data["error"] = "邮箱不存在！"
+		flash.Error("邮箱不存在！")
+		flash.Store(&this.Controller)
+		this.Redirect("/forgotPassword", 302)
 		return
 	}
 
 	err = models.SendPasswordRecoveryMail(u.ID, f.Email)
 	if err != nil {
-		this.Data["error"] = err.Error()
+		flash.Error(err.Error())
+		flash.Store(&this.Controller)
+		this.Redirect("/forgotPassword", 302)
 		return
 	}
-	this.TplName = "forgot_password_sent.tpl"
+
 	this.Data["email"] = f.Email
 }
 
