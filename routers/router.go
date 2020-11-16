@@ -46,6 +46,8 @@ func init() {
 
 	beego.Router("/register", &controllers.UserController{}, "get:RegisterGet;post:RegisterPost")
 	beego.Router("/login", &controllers.UserController{}, "get:LoginGet;post:LoginPost")
+	beego.Router("/forgotPassword", &controllers.UserController{}, "get:ForgotPasswordGet;post:ForgotPasswordPost")
+	beego.Router("/recoveryPassword", &controllers.UserController{}, "get:RecoveryPasswordGet;post:RecoveryPasswordPost")
 
 	beego.Router("/_/:domain", &controllers.PageController{}, "get:Index;post:NewQuestion")
 	beego.Router("/_/:domain/:id:int", &controllers.QuestionController{}, "get:Question;post:AnswerQuestion")

@@ -11,6 +11,13 @@ type UserController struct {
 }
 
 func (this *UserController) Prepare() {
+	// Flash
+	flash := beego.ReadFromRequest(&this.Controller)
+	this.Data["success"] = flash.Data["success"]
+	this.Data["notice"] = flash.Data["notice"]
+	this.Data["warning"] = flash.Data["warning"]
+	this.Data["error"] = flash.Data["error"]
+
 	isLogin, _ := this.Ctx.Input.GetData("isLogin").(bool)
 	if isLogin {
 		user := this.Data["user"].(*models.User)
@@ -132,4 +139,98 @@ func (this *UserController) LoginPost() {
 	this.SetSession("user", user)
 
 	this.Redirect("/_/"+page.Domain, 302)
+}
+
+func (this *UserController) ForgotPasswordGet() {
+	this.TplName = "forgot_password.tpl"
+}
+
+func (this *UserController) ForgotPasswordPost() {
+	this.TplName = "forgot_password.tpl"
+	f := new(models.EmailValidationForm)
+	if err := this.ParseForm(f); err != nil {
+		this.Data["error"] = "发送邮件失败！"
+		return
+	}
+
+	valid := validation.Validation{}
+	b, err := valid.Valid(f)
+	if err != nil {
+		this.Data["error"] = "发送邮件失败！"
+		return
+	}
+	if !b {
+		for _, value := range valid.Errors {
+			this.Data["error"] = value.Message
+			return
+		}
+	}
+
+	u, err := models.GetUserByEmail(f.Email)
+	if err != nil {
+		this.Data["error"] = "邮箱不存在！"
+		return
+	}
+
+	err = models.SendPasswordRecoveryMail(u.ID, f.Email)
+	if err != nil {
+		this.Data["error"] = err.Error()
+		return
+	}
+	this.TplName = "forgot_password_sent.tpl"
+	this.Data["email"] = f.Email
+}
+
+func (this *UserController) RecoveryPasswordGet() {
+	this.TplName = "password_recovery.tpl"
+	code := this.Ctx.Input.Query("code")
+	email, err := models.ValidateEmailCode(code)
+	if err != nil {
+		this.Redirect("/", 302)
+		return
+	}
+	this.Data["email"] = email.Email
+}
+
+func (this *UserController) RecoveryPasswordPost() {
+	this.TplName = "password_recovery.tpl"
+	flash := beego.NewFlash()
+
+	code := this.Ctx.Input.Query("code")
+	email, err := models.ValidateEmailCode(code)
+	if err != nil {
+		this.Redirect("/", 302)
+		return
+	}
+	this.Data["email"] = email.Email
+
+	f := new(models.PasswordRecoveryForm)
+	if err := this.ParseForm(f); err != nil {
+		flash.Error("修改密码失败")
+		flash.Store(&this.Controller)
+		this.Redirect(this.Ctx.Request.URL.String(), 302)
+		return
+	}
+	valid := validation.Validation{}
+	b, err := valid.Valid(f)
+	if err != nil {
+		flash.Error("修改密码失败")
+		flash.Store(&this.Controller)
+		this.Redirect(this.Ctx.Request.URL.String(), 302)
+		return
+	}
+	if !b {
+		for _, value := range valid.Errors {
+			flash.Error(value.Message)
+			flash.Store(&this.Controller)
+			this.Redirect(this.Ctx.Request.URL.String(), 302)
+			return
+		}
+	}
+
+	models.DeleteEmailCode(email.Code)
+	models.ResetUserPassword(email.UserID, f.Password)
+	flash.Success("修改密码成功")
+	flash.Store(&this.Controller)
+	this.Redirect("/login", 302)
 }

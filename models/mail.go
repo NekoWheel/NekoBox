@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"time"
 
 	"github.com/astaxie/beego"
+	"github.com/pkg/errors"
+	"github.com/thanhpk/randstr"
 	"gopkg.in/gomail.v2"
 )
 
@@ -33,6 +36,36 @@ func SendNewQuestionMail(pageID uint, question *Question) {
 	if err != nil {
 		log.Println(err)
 	}
+}
+
+func SendPasswordRecoveryMail(userID uint, email string) error {
+	var previousValidation EmailValidation
+	DB.Model(&EmailValidation{}).Where(&EmailValidation{Email: email}).Order("`id` ASC").Find(&previousValidation)
+	if previousValidation.ID != 0 && previousValidation.CreatedAt.Add(2*time.Minute).After(time.Now()) {
+		return errors.New("邮件发送过于频繁")
+	}
+	code := randstr.String(64)
+	tx := DB.Begin()
+	if tx.Create(&EmailValidation{
+		UserID: userID,
+		Email:  email,
+		Code:   code,
+		Type:   "recovery_mail",
+	}).RowsAffected != 1 {
+		tx.Rollback()
+		return errors.New("数据库错误")
+	}
+	tx.Commit()
+
+	var mailContent bytes.Buffer
+	t, _ := template.ParseFiles("views/mail/password_recovery.tpl")
+	p := map[string]string{
+		"link":  fmt.Sprintf("https://box.n3ko.co/recoveryPassword?code=%s", code),
+		"email": email,
+	}
+	_ = t.Execute(&mailContent, p)
+
+	return sendMail(email, "【NekoBox】账号密码找回", mailContent.String())
 }
 
 func sendMail(to string, title string, content string) error {

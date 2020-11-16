@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"time"
 
 	"github.com/astaxie/beego"
 	"github.com/jinzhu/gorm"
@@ -73,6 +74,45 @@ func GetUserByPage(pageId uint) (*User, error) {
 		return &User{}, errors.New("")
 	}
 	return user, nil
+}
+
+func GetUserByEmail(email string) (*User, error) {
+	user := new(User)
+	DB.Model(&User{}).Where(&User{Email: email}).Find(&user)
+	if user.ID == 0 {
+		return nil, errors.New("")
+	}
+	return user, nil
+}
+
+func ValidateEmailCode(code string) (*EmailValidation, error) {
+	mail := new(EmailValidation)
+	DB.Model(&EmailValidation{}).Where("`code` = ?", code).Find(&mail)
+	if mail.ID == 0 {
+		return nil, errors.New("")
+	}
+	if mail.CreatedAt.Add(30 * time.Minute).Before(time.Now()) {
+		return nil, errors.New("")
+	}
+	return mail, nil
+}
+
+func DeleteEmailCode(code string) {
+	tx := DB.Begin()
+	if tx.Delete(&EmailValidation{}, "`code` = ?", code).RowsAffected != 1 {
+		tx.Rollback()
+		return
+	}
+	tx.Commit()
+}
+
+func ResetUserPassword(userID uint, password string) {
+	tx := DB.Begin()
+	if tx.Model(&User{}).Where("`id` = ?", userID).Update(&User{Password: AddSalt(password)}).RowsAffected != 1 {
+		tx.Rollback()
+		return
+	}
+	tx.Commit()
 }
 
 func UpdateUser(id uint, u *User) {

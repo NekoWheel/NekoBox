@@ -35,7 +35,7 @@ func init() {
 	}
 	DB = db
 
-	DB.AutoMigrate(&User{}, &Page{}, &Question{})
+	DB.AutoMigrate(&User{}, &Page{}, &Question{}, &EmailValidation{})
 }
 
 type UserRegisterForm struct {
@@ -57,6 +57,21 @@ type UserLoginForm struct {
 	Recaptcha string `form:"g-recaptcha-response" valid:"Required" label:"Recaptcha"`
 	Email     string `form:"email" valid:"Required; Email; MaxSize(100)" label:"电子邮箱"`
 	Password  string `form:"password" valid:"Required; MinSize(8); MaxSize(30)" label:"密码"`
+}
+
+type EmailValidationForm struct {
+	Email string `form:"email" valid:"Required; Email; MaxSize(100)" label:"电子邮箱"`
+}
+
+type PasswordRecoveryForm struct {
+	Password       string `form:"password" valid:"Required; MinSize(8); MaxSize(30)" label:"密码"`
+	RepeatPassword string `form:"repeat_password"`
+}
+
+func (f *PasswordRecoveryForm) Valid(v *validation.Validation) {
+	if f.Password != f.RepeatPassword {
+		_ = v.SetError("Password", "两次输入的密码不相同")
+	}
 }
 
 type QuestionForm struct {
@@ -116,4 +131,13 @@ type Question struct {
 	PageID  uint
 	Content string
 	Answer  string
+}
+
+// EmailValidation used to save the email validation data.
+type EmailValidation struct {
+	gorm.Model
+	UserID uint
+	Email  string
+	Code   string
+	Type   string
 }
