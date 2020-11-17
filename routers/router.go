@@ -9,15 +9,15 @@ import (
 	"github.com/astaxie/beego/context"
 )
 
-const (
-	COMMITSHA string = "aef6d648f7ca9923550c504ac2407e9d979e0734"
+var (
+	COMMIT_SHA string
 )
 
 func init() {
 	beego.InsertFilter("*", beego.BeforeExec, func(c *context.Context) {
 		c.Input.Data()["title"] = beego.AppConfig.String("title")
 		c.Input.Data()["icp"] = beego.AppConfig.String("icp")
-		c.Input.Data()["commitSha"] = COMMITSHA
+		c.Input.Data()["commitSha"] = COMMIT_SHA
 		c.Input.Data()["recaptcha"] = beego.AppConfig.String("recaptcha_site_key")
 		c.Input.Data()["recaptcha_domain"] = beego.AppConfig.String("recaptcha_domain")
 		c.Input.Data()["xsrfdata"] = template.HTML(`<input type="hidden" name="_xsrf" value="` +
