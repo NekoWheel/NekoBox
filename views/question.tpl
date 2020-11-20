@@ -1,7 +1,10 @@
 {{template "template/header.tpl" .}}
-<link rel="shortcut icon" href="{{.userContent.Avatar}}?x-oss-process=image/auto-orient,1/quality,q_70/sharpen,200/resize,limit_0,m_fill,w_200,h_200" />
-<link rel="apple-touch-icon" href="{{.userContent.Avatar}}?x-oss-process=image/auto-orient,1/quality,q_70/sharpen,200/resize,limit_0,m_fill,w_200,h_200" />
-<link rel="icon" sizes="192x192" href="{{.userContent.Avatar}}?x-oss-process=image/auto-orient,1/quality,q_70/sharpen,200/resize,limit_0,m_fill,w_200,h_200">
+<link rel="shortcut icon"
+      href="{{.userContent.Avatar}}?x-oss-process=image/auto-orient,1/quality,q_70/sharpen,200/resize,limit_0,m_fill,w_200,h_200"/>
+<link rel="apple-touch-icon"
+      href="{{.userContent.Avatar}}?x-oss-process=image/auto-orient,1/quality,q_70/sharpen,200/resize,limit_0,m_fill,w_200,h_200"/>
+<link rel="icon" sizes="192x192"
+      href="{{.userContent.Avatar}}?x-oss-process=image/auto-orient,1/quality,q_70/sharpen,200/resize,limit_0,m_fill,w_200,h_200">
 <div>
     <div class="uk-card uk-card-default">
         <div class="uk-card-header">
@@ -10,7 +13,7 @@
         </div>
         {{if ne .questionContent.Answer ""}}
             <div class="uk-card-body">
-                <p class="uk-text-small">{{.questionContent.Answer}}</p>
+                <p class="uk-text-small">{{answerFormat .questionContent.Answer}}</p>
                 <p class="uk-text-small uk-text-right uk-text-muted">-来自@{{.userContent.Name}}的回答</p>
             </div>
         {{end}}
@@ -48,7 +51,8 @@
             <form method="post" action="/_/{{.pageContent.Domain}}" id="form">
                 {{ .xsrfdata }}
                 <div class="uk-margin uk-text-center">
-                    <textarea name="content" class="uk-textarea" rows="3" placeholder="在此处撰写你的问题..."></textarea>
+                    <textarea name="content" class="uk-textarea" rows="3" placeholder="在此处撰写你的问题..."
+                              maxlength="150"></textarea>
                 </div>
                 <div class="uk-margin uk-text-center">
                     <button type="submit" class="uk-button uk-button-primary g-recaptcha"
