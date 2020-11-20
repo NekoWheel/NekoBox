@@ -77,7 +77,7 @@ func (f *PasswordRecoveryForm) Valid(v *validation.Validation) {
 type QuestionForm struct {
 	Recaptcha string `form:"g-recaptcha-response" valid:"Required" label:"Recaptcha"`
 	PageID    uint
-	Content   string `form:"content" valid:"Required; MaxSize(50)" label:"问题内容"`
+	Content   string `form:"content" valid:"Required; MaxSize(150)" label:"问题内容"`
 }
 
 type UpdateForm struct {
