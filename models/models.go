@@ -23,7 +23,7 @@ func init() {
 	})
 
 	db, err := gorm.Open("mysql",
-		fmt.Sprintf("%s:%s@%s/%s?charset=utf8mb4,utf8&parseTime=True&loc=Local",
+		fmt.Sprintf("%s:%s@%s/%s?charset=utf8mb4,utf8&parseTime=True&loc=Asia%%2fShanghai",
 			beego.AppConfig.String("db_user"),
 			beego.AppConfig.String("db_password"),
 			beego.AppConfig.String("db_addr"),
