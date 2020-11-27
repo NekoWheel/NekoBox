@@ -38,7 +38,7 @@
             {{end}}
             <div class="uk-margin uk-text-center">
                 <textarea name="content" class="uk-textarea" rows="3" placeholder="在此处撰写你的问题..."
-                          maxlength="150"></textarea>
+                          maxlength="150">{{.questionDraft}}</textarea>
             </div>
             <div class="uk-margin uk-text-center">
                 <button type="submit" class="uk-button uk-button-primary g-recaptcha" data-sitekey="{{.recaptcha}}"
