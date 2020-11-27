@@ -52,6 +52,8 @@ func (this *PageController) NewQuestion() {
 		return
 	}
 
+	this.Data["questionDraft"] = q.Content
+
 	valid := validation.Validation{}
 	b, err := valid.Valid(q)
 	if err != nil {
@@ -89,5 +91,6 @@ func (this *PageController) NewQuestion() {
 		Content: q.Content,
 	})
 
+	this.Data["questionDraft"] = ""
 	this.Data["success"] = "发送问题成功！"
 }
