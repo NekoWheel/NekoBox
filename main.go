@@ -10,6 +10,7 @@ func main() {
 	beego.BConfig.ServerName = "NekoBox"
 	beego.BConfig.WebConfig.Session.SessionOn = true
 	beego.BConfig.WebConfig.Session.SessionName = "nekoboxSession"
-	beego.AddFuncMap("answerFormat", template.AnswerFormat)
+    //fix linter warning 'Error return value of `beego.AddFuncMap` is not checked (errcheck)'
+    _ = beego.AddFuncMap("answerFormat", template.AnswerFormat)
 	beego.Run()
 }
