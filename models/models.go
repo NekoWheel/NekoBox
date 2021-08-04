@@ -44,7 +44,7 @@ type UserRegisterForm struct {
 	Password       string `form:"password" valid:"Required; MinSize(8); MaxSize(30)" label:"密码"`
 	RepeatPassword string `form:"repeat_password"`
 	Email          string `form:"email" valid:"Required; Email; MaxSize(100)" label:"电子邮箱"`
-	Domain         string `form:"domain" valid:"Required; AlphaDash; MinSize(3); MaxSize(10)" label:"个性域名"`
+	Domain         string `form:"domain" valid:"Required; AlphaDash; MinSize(3); MaxSize(20)" label:"个性域名"`
 }
 
 func (f *UserRegisterForm) Valid(v *validation.Validation) {
