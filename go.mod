@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/astaxie/beego v1.12.1
+	github.com/elazarl/goproxy v0.0.0-20220115173737-adb46da277ac // indirect
 	github.com/jinzhu/gorm v1.9.12
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/pkg/errors v0.8.0
