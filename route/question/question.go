@@ -38,7 +38,7 @@ func Questioner(ctx context.Context, pageUser *db.User) {
 	// The page's owner or the question's token can have the permission to delete the question.
 	// Inject the permission into the context.
 	token := ctx.Query("t")
-	canDelete := (ctx.IsLogged && ctx.User.ID == pageUser.ID) || (token == question.Token)
+	canDelete := (ctx.IsLogged && ctx.User.ID == pageUser.ID) || (token == question.Token && question.Token != "")
 	ctx.Map(canDelete)
 	ctx.Data["CanDelete"] = canDelete
 
