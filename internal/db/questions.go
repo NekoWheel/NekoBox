@@ -74,7 +74,7 @@ func (db *questions) GetByUserID(ctx context.Context, userID uint, answered bool
 		q = q.Where(`user_id = ?`, userID)
 	}
 
-	if err := q.Find(&questions).Error; err != nil {
+	if err := q.Order("created_at DESC").Find(&questions).Error; err != nil {
 		return nil, errors.Wrap(err, "get questions by page ID")
 	}
 	return questions, nil
