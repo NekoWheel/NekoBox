@@ -1,0 +1,28 @@
+{{if .Error}}
+<div class="uk-alert-danger" uk-alert>
+  <a class="uk-alert-close" uk-close></a>
+  <p>{{.Error}}</p>
+</div>
+{{end}}
+
+{{if .Warning}}
+<div class="uk-alert-warning" uk-alert>
+  <a class="uk-alert-close" uk-close></a>
+  <p>{{.Warning}}</p>
+</div>
+{{end}}
+
+{{if .Success}}
+<div class="uk-alert-success" uk-alert>
+  <a class="uk-alert-close" uk-close></a>
+  <p>{{.Success}}</p>
+</div>
+{{end}}
+
+{{if .Info}}
+<div class="uk-alert-primary" uk-alert>
+  <a class="uk-alert-close" uk-close></a>
+  <p>{{.Info}}</p>
+</div>
+{{end}}
+
