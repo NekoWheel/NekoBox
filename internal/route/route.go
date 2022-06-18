@@ -5,6 +5,9 @@
 package route
 
 import (
+	"encoding/gob"
+	"time"
+
 	"github.com/flamego/cache"
 	"github.com/flamego/csrf"
 	"github.com/flamego/flamego"
@@ -38,6 +41,7 @@ func New() *flamego.Flame {
 
 	// We prefer to save session into database,
 	// if no database configuration, the session will be saved into memory instead.
+	gob.Register(time.Time{})
 	var sessionStorage interface{}
 	initer := session.MemoryIniter()
 	if conf.Database.DSN != "" {
