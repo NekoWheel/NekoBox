@@ -42,6 +42,7 @@ func New() *flamego.Flame {
 	// We prefer to save session into database,
 	// if no database configuration, the session will be saved into memory instead.
 	gob.Register(time.Time{})
+	gob.Register(context.Flash{})
 	var sessionStorage interface{}
 	initer := session.MemoryIniter()
 	if conf.Database.DSN != "" {
