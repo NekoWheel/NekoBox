@@ -12,6 +12,7 @@ import (
 	"github.com/flamego/session"
 	"github.com/flamego/template"
 	"gorm.io/gorm"
+	log "unknwon.dev/clog/v2"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/context"
@@ -21,12 +22,18 @@ import (
 	"github.com/NekoWheel/NekoBox/route/auth"
 	"github.com/NekoWheel/NekoBox/route/question"
 	"github.com/NekoWheel/NekoBox/route/user"
+	"github.com/NekoWheel/NekoBox/templates"
 )
 
 func New(db *gorm.DB) *flamego.Flame {
 	f := flamego.Classic()
 	if conf.App.Production {
 		flamego.SetEnv(flamego.EnvTypeProd)
+	}
+
+	templateFS, err := template.EmbedFS(templates.FS, ".", []string{".html"})
+	if err != nil {
+		log.Fatal("Failed to embed templates file system: %v", err)
 	}
 
 	reqUserSignOut := context.Toggle(&context.ToggleOptions{UserSignOutRequired: true})
@@ -47,7 +54,7 @@ func New(db *gorm.DB) *flamego.Flame {
 			f.Group("/{questionID}", func() {
 				f.Get("", question.Item)
 				//f.Post("/update", question.Update)
-				//f.Post("/delete", question.Delete)
+				f.Post("/delete", question.Delete)
 				f.Post("/answer", reqUserSignIn, form.Bind(form.PublishAnswerQuestion{}), question.PublishAnswer)
 			}, question.Questioner)
 		}, question.Pager)
@@ -78,10 +85,14 @@ func New(db *gorm.DB) *flamego.Flame {
 			Header: "X-CSRF-Token",
 		}),
 		template.Templater(template.Options{
-			FuncMaps: templatepkg.FuncMap(),
+			FileSystem: templateFS,
+			FuncMaps:   templatepkg.FuncMap(),
 		}),
 		context.Contexter(db),
 	)
+	f.NotFound(func(ctx flamego.Context) {
+		ctx.Redirect("/")
+	})
 
 	return f
 }

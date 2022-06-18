@@ -22,7 +22,7 @@
 <div>
   <div class="uk-card uk-card-default uk-card-small uk-card-body">
     <p class="uk-text-center uk-text-small">谁都可以以匿名的形式提问</p>
-    <form method="post">
+    <form method="post" id="form">
       {{ .CSRFTokenHTML }}
       {{template "base/alert" .}}
       <div class="uk-margin uk-text-center">
