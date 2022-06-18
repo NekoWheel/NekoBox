@@ -12,6 +12,7 @@ import (
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
 	"github.com/NekoWheel/NekoBox/internal/form"
+	"github.com/NekoWheel/NekoBox/internal/mail"
 )
 
 func Pager(ctx context.Context) {
@@ -68,15 +69,23 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 		return
 	}
 
-	if err := db.Questions.Create(ctx.Request().Context(), db.CreateQuestionOptions{
+	question, err := db.Questions.Create(ctx.Request().Context(), db.CreateQuestionOptions{
 		UserID:  pageUser.ID,
 		Content: f.Content,
-	}); err != nil {
+	})
+	if err != nil {
 		log.Error("Failed to create new question: %v", err)
 		ctx.SetError(errors.New("服务器错误！"))
 		ctx.Success("question/list")
 		return
 	}
+
+	go func() {
+		// Send notification to page user.
+		if err := mail.SendNewQuestionMail(pageUser.Email, pageUser.Domain, question.ID, question.Content); err != nil {
+			log.Error("Failed to send new question mail to user: %v", err)
+		}
+	}()
 
 	ctx.SetSuccessFlash("发送问题成功！")
 	ctx.Redirect("/_/" + pageUser.Domain)

@@ -15,7 +15,7 @@ import (
 var Questions QuestionsStore
 
 type QuestionsStore interface {
-	Create(ctx context.Context, opts CreateQuestionOptions) error
+	Create(ctx context.Context, opts CreateQuestionOptions) (*Question, error)
 	GetByID(ctx context.Context, id uint) (*Question, error)
 	GetByUserID(ctx context.Context, userID uint, answered bool) ([]*Question, error)
 	AnswerByID(ctx context.Context, id uint, answer string) error
@@ -43,13 +43,13 @@ type CreateQuestionOptions struct {
 	Content string
 }
 
-func (db *questions) Create(ctx context.Context, opts CreateQuestionOptions) error {
+func (db *questions) Create(ctx context.Context, opts CreateQuestionOptions) (*Question, error) {
 	question := Question{
 		UserID:  opts.UserID,
 		Token:   randstr.String(6),
 		Content: opts.Content,
 	}
-	return db.WithContext(ctx).Create(&question).Error
+	return &question, db.WithContext(ctx).Create(&question).Error
 }
 
 var ErrQuestionNotExist = errors.New("提问不存在")
