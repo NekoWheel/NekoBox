@@ -46,12 +46,12 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 	if f.NewPassword != "" {
 		if err := db.Users.ChangePassword(ctx.Request().Context(), ctx.User.ID, f.OldPassword, f.NewPassword); err != nil {
 			if errors.Is(err, db.ErrBadCredential) {
-				ctx.SetErrorFlash("旧密码输入错误")
+				ctx.SetError(errors.New("旧密码输入错误"))
 			} else {
 				log.Error("Failed to update password: %v", err)
 				ctx.SetError(errors.New("系统内部错误"))
 			}
-			ctx.Redirect("/user/profile")
+			ctx.Success("user/profile")
 			return
 		}
 	}

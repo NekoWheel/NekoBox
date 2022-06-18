@@ -63,6 +63,7 @@ func PublishAnswer(ctx context.Context, pageUser *db.User, question *db.Question
 	if err := db.Questions.AnswerByID(ctx.Request().Context(), question.ID, f.Answer); err != nil {
 		log.Error("Failed to answer question: %v", err)
 		ctx.SetError(errors.New("服务器错误！"))
+		ctx.Success("question/item")
 		return
 	}
 
