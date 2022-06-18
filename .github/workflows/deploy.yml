@@ -25,7 +25,7 @@ jobs:
 
       - name: Build
         run: |
-          CGO_ENABLED=0 go build -v -ldflags "-w -s -extldflags '-static' -X 'github.com/NekoWheel/NekoBox/conf.BuildCommit=$GITHUB_SHA'" -o NekoBox .
+          CGO_ENABLED=0 go build -v -ldflags "-w -s -extldflags '-static' -X 'github.com/NekoWheel/NekoBox/internal/conf.BuildCommit=$GITHUB_SHA'" -o NekoBox .
           pwd
 
       - name: Archive production artifacts
