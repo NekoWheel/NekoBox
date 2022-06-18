@@ -10,10 +10,10 @@ jobs:
     name: Build Binary
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go 1.14
+      - name: Set up Go 1.17
         uses: actions/setup-go@v1
         with:
-          go-version: 1.14
+          go-version: 1.17
         id: go
 
       - name: Check out code into the Go module directory
@@ -22,30 +22,22 @@ jobs:
       - name: Get dependencies
         run: |
           go mod tidy
+
       - name: Build
         run: |
-          CGO_ENABLED=0 go build -v -ldflags "-w -s -extldflags '-static' -X 'github.com/NekoWheel/NekoBox/routers.COMMIT_SHA=$GITHUB_SHA'" -o NekoBox .
+          CGO_ENABLED=0 go build -v -ldflags "-w -s -extldflags '-static' -X 'github.com/NekoWheel/NekoBox/conf.BuildCommit=$GITHUB_SHA'" -o NekoBox .
           pwd
+
       - name: Archive production artifacts
         uses: actions/upload-artifact@v1
         with:
           name: NekoBox
           path: /home/runner/work/NekoBox/NekoBox
 
-  dockerfile:
-    name: Build Image
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Get artifacts
-        uses: actions/download-artifact@master
-        with:
-          name: NekoBox
-          path: /home/runner/work/NekoBox/NekoBox
-
-      - id: create_docker_tags
+      - name: Create Docker tag
         run: |
           echo "::set-output name=tags::latest,$(git tag -l --sort=-v:refname | head -1 | cut -c 2-)"
+
       - name: Build & Publish to Registry
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
@@ -54,12 +46,8 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: ${{ secrets.DOCKER_REGISTRY }}
           tags: ${{ steps.create_docker_tags.outputs.tags }}
-  deploy:
-    name: Deploy to Servers
-    runs-on: ubuntu-latest
-    needs: dockerfile
-    steps:
-      - name: ssh pipelines
+
+      - name: Deploy to server
         uses: cross-the-world/ssh-pipeline@master
         env:
           DOCKER_NAME: ${{ secrets.DOCKER_NAME }}
@@ -77,4 +65,4 @@ jobs:
             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD $DOCKER_REGISTRY
             docker rmi $DOCKER_NAME || true
             docker pull $DOCKER_NAME
-            docker run -dt --name nekobox -e TZ=Asia/Shanghai -v /etc/localtime:/etc/localtime -p 127.0.0.1:10000:8080 -v /home/neko/nekobox/conf:/home/app/conf --link mysql:mysql $DOCKER_NAME:latest
+            docker run -dt --name nekobox -e TZ=Asia/Shanghai -v /etc/localtime:/etc/localtime -p 127.0.0.1:10000:8080 -v /home/neko/nekobox/conf:/home/app/conf --restart=always --link mysql:mysql $DOCKER_NAME:latest

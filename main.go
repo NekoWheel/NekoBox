@@ -1,16 +1,29 @@
 package main
 
 import (
-	_ "github.com/NekoWheel/NekoBox/routers"
-	"github.com/NekoWheel/NekoBox/template"
-	"github.com/astaxie/beego"
+	log "unknwon.dev/clog/v2"
+
+	"github.com/NekoWheel/NekoBox/internal/conf"
+	"github.com/NekoWheel/NekoBox/internal/db"
+	"github.com/NekoWheel/NekoBox/internal/route"
 )
 
 func main() {
-	beego.BConfig.ServerName = "NekoBox"
-	beego.BConfig.WebConfig.Session.SessionOn = true
-	beego.BConfig.WebConfig.Session.SessionName = "nekoboxSession"
-    //fix linter warning 'Error return value of `beego.AddFuncMap` is not checked (errcheck)'
-    _ = beego.AddFuncMap("answerFormat", template.AnswerFormat)
-	beego.Run()
+	defer log.Stop()
+	if err := log.NewConsole(); err != nil {
+		panic("init console logger: " + err.Error())
+	}
+
+	if err := conf.Init(); err != nil {
+		log.Fatal("Failed to load configuration: %v", err)
+	}
+
+	_, err := db.Init()
+	if err != nil {
+		log.Fatal("Failed to connect database: %v", err)
+	}
+
+	r := route.New()
+
+	r.Run("0.0.0.0", conf.Server.Port)
 }
