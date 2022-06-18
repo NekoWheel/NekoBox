@@ -40,7 +40,7 @@ var (
 	Upload struct {
 		Token             string `ini:"token"`
 		URL               string `ini:"url"`
-		DefaultAvatarURL  string `ini:"default_avatar_url"`
+		DefaultAvatarURL  string `ini:"default_avatar"`
 		DefaultBackground string `ini:"default_background"`
 	}
 
