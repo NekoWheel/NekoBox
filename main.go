@@ -18,12 +18,12 @@ func main() {
 		log.Fatal("Failed to load configuration: %v", err)
 	}
 
-	db, err := db.Init()
+	_, err := db.Init()
 	if err != nil {
 		log.Fatal("Failed to connect database: %v", err)
 	}
 
-	r := route.New(db)
+	r := route.New()
 
 	r.Run("0.0.0.0", conf.Server.Port)
 }

@@ -11,7 +11,6 @@ import (
 	"github.com/flamego/recaptcha"
 	"github.com/flamego/session"
 	"github.com/flamego/template"
-	"gorm.io/gorm"
 	log "unknwon.dev/clog/v2"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
@@ -25,7 +24,7 @@ import (
 	"github.com/NekoWheel/NekoBox/templates"
 )
 
-func New(db *gorm.DB) *flamego.Flame {
+func New() *flamego.Flame {
 	f := flamego.Classic()
 	if conf.App.Production {
 		flamego.SetEnv(flamego.EnvTypeProd)
@@ -88,7 +87,7 @@ func New(db *gorm.DB) *flamego.Flame {
 			FileSystem: templateFS,
 			FuncMaps:   templatepkg.FuncMap(),
 		}),
-		context.Contexter(db),
+		context.Contexter(),
 	)
 	f.NotFound(func(ctx flamego.Context) {
 		ctx.Redirect("/")

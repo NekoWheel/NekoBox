@@ -11,11 +11,9 @@ import (
 	"github.com/flamego/flamego"
 	"github.com/flamego/session"
 	"github.com/flamego/template"
-	"gorm.io/gorm"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/db"
-	"github.com/NekoWheel/NekoBox/internal/dbutil"
 	templatepkg "github.com/NekoWheel/NekoBox/internal/template"
 )
 
@@ -59,7 +57,7 @@ func (c *Context) Refresh() {
 }
 
 // Contexter initializes a classic context for a request.
-func Contexter(db *gorm.DB) flamego.Handler {
+func Contexter() flamego.Handler {
 	return func(ctx flamego.Context, data template.Data, session session.Session, x csrf.CSRF, t template.Template, flash session.Flash) {
 		c := Context{
 			Context:  ctx,
@@ -122,7 +120,6 @@ func Contexter(db *gorm.DB) flamego.Handler {
 		c.ResponseWriter().Header().Set("X-Content-Type-Options", "nosniff")
 		c.ResponseWriter().Header().Set("X-Frame-Options", "DENY")
 
-		c.MapTo(db, (*dbutil.Transactor)(nil))
 		ctx.Map(c)
 	}
 }
