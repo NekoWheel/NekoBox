@@ -41,6 +41,7 @@ func New() *flamego.Flame {
 	var sessionStorage interface{}
 	initer := session.MemoryIniter()
 	if conf.Database.DSN != "" {
+		initer = mysql.Initer()
 		sessionStorage = mysql.Config{
 			DSN: conf.Database.DSN,
 		}
