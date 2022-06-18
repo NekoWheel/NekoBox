@@ -21,6 +21,8 @@ func Init() (*gorm.DB, error) {
 		conf.Database.Address,
 		conf.Database.Name,
 	)
+	conf.Database.DSN = dsn
+
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, errors.Wrap(err, "connect to database")

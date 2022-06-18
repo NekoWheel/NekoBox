@@ -10,6 +10,7 @@ import (
 	"github.com/flamego/flamego"
 	"github.com/flamego/recaptcha"
 	"github.com/flamego/session"
+	"github.com/flamego/session/mysql"
 	"github.com/flamego/template"
 	log "unknwon.dev/clog/v2"
 
@@ -34,6 +35,20 @@ func New() *flamego.Flame {
 	if err != nil {
 		log.Fatal("Failed to embed templates file system: %v", err)
 	}
+
+	// We prefer to save session into database,
+	// if no database configuration, the session will be saved into memory instead.
+	var sessionStorage interface{}
+	initer := session.MemoryIniter()
+	if conf.Database.DSN != "" {
+		sessionStorage = mysql.Config{
+			DSN: conf.Database.DSN,
+		}
+	}
+	sessioner := session.Sessioner(session.Options{
+		Initer: initer,
+		Config: sessionStorage,
+	})
 
 	reqUserSignOut := context.Toggle(&context.ToggleOptions{UserSignOutRequired: true})
 	reqUserSignIn := context.Toggle(&context.ToggleOptions{UserSignInRequired: true})
@@ -78,7 +93,7 @@ func New() *flamego.Flame {
 				VerifyURL: recaptcha.VerifyURLGlobal,
 			},
 		),
-		session.Sessioner(session.Options{}),
+		sessioner,
 		csrf.Csrfer(csrf.Options{
 			Secret: conf.Server.XSRFKey,
 			Header: "X-CSRF-Token",

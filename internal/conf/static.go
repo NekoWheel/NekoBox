@@ -25,6 +25,7 @@ var (
 	}
 
 	Database struct {
+		DSN      string
 		User     string `ini:"user"`
 		Password string `ini:"password"`
 		Address  string `ini:"address"`
