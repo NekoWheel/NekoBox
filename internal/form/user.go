@@ -8,5 +8,5 @@ type UpdateProfile struct {
 	Name        string `valid:"required;maxlen:20" label:"回答内容"`
 	OldPassword string `label:"旧密码"`
 	NewPassword string `valid:"maxlen:30" label:"新密码"`
-	Intro       string `valid:"required;avatar;maxlen:100" label:"介绍"`
+	Intro       string `valid:"required;maxlen:100" label:"介绍"`
 }
