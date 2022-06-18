@@ -15,7 +15,6 @@ var (
 var (
 	App struct {
 		Production bool   `ini:"production"`
-		Title      string `ini:"title"`
 		ICP        string `ini:"icp"`
 	}
 
