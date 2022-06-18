@@ -1,43 +1,41 @@
 {{template "base/header" .}}
 <form method="post" enctype="multipart/form-data" action="/user/profile/update">
-  <fieldset class="uk-fieldset">
-    {{ .CSRFTokenHTML }}
-    <legend class="uk-legend">个人信息</legend>
-    {{template "base/alert" .}}
-    <div class="uk-margin">
-      <label class="uk-form-label" for="form-stacked-text">昵称</label>
-      <input name="name" class="uk-input" type="text" value="{{.LoggedUser.Name}}">
+  {{ .CSRFTokenHTML }}
+  <legend class="uk-legend">个人信息</legend>
+  {{template "base/alert" .}}
+  <div class="uk-margin">
+    <label class="uk-form-label" for="form-stacked-text">昵称</label>
+    <input name="name" class="uk-input" type="text" value="{{.LoggedUser.Name}}">
+  </div>
+  <div class="uk-margin">
+    <label class="uk-form-label" for="form-stacked-text">旧密码</label>
+    <input name="old_password" class="uk-input" type="text" placeholder="修改密码使用，留空则不修改">
+  </div>
+  <div class="uk-margin">
+    <label class="uk-form-label" for="form-stacked-text">新密码</label>
+    <input name="new_password" class="uk-input" type="text" placeholder="修改密码使用，留空则不修改">
+  </div>
+  <div class="uk-margin">
+    <label class="uk-form-label" for="form-stacked-text">提问箱介绍</label>
+    <input name="intro" class="uk-input" type="text" value="{{.LoggedUser.Intro}}">
+  </div>
+  <div class="uk-margin">
+    <label class="uk-form-label" for="form-stacked-text">个人头像</label>
+    <div uk-form-custom="target: true">
+      <input type="file" name="avatar">
+      <input class="uk-input uk-form-width-large" type="text" placeholder="上传个人头像" disabled>
     </div>
-    <div class="uk-margin">
-      <label class="uk-form-label" for="form-stacked-text">旧密码</label>
-      <input name="old_password" class="uk-input" type="text" placeholder="修改密码使用，留空则不修改">
+  </div>
+  <div class="uk-margin">
+    <label class="uk-form-label" for="form-stacked-text">提问箱背景</label>
+    <div uk-form-custom="target: true">
+      <input type="file" name="background">
+      <input class="uk-input uk-form-width-large" type="text" placeholder="上传提问箱背景" disabled>
     </div>
-    <div class="uk-margin">
-      <label class="uk-form-label" for="form-stacked-text">新密码</label>
-      <input name="new_password" class="uk-input" type="text" placeholder="修改密码使用，留空则不修改">
-    </div>
-    <div class="uk-margin">
-      <label class="uk-form-label" for="form-stacked-text">提问箱介绍</label>
-      <input name="intro" class="uk-input" type="text" value="{{.LoggedUser.Intro}}">
-    </div>
-    <div class="uk-margin">
-      <label class="uk-form-label" for="form-stacked-text">个人头像</label>
-      <div uk-form-custom="target: true">
-        <input type="file" name="avatar">
-        <input class="uk-input uk-form-width-large" type="text" placeholder="上传个人头像" disabled>
-      </div>
-    </div>
-    <div class="uk-margin">
-      <label class="uk-form-label" for="form-stacked-text">提问箱背景</label>
-      <div uk-form-custom="target: true">
-        <input type="file" name="background">
-        <input class="uk-input uk-form-width-large" type="text" placeholder="上传提问箱背景" disabled>
-      </div>
-    </div>
-    <div class="uk-margin">
-      <button type="submit" class="uk-button uk-button-primary">修改信息</button>
-      <a href="/user/logout" class="uk-button uk-button-danger">登出</a>
-    </div>
-  </fieldset>
+  </div>
+  <div class="uk-margin">
+    <button type="submit" class="uk-button uk-button-primary">修改信息</button>
+    <a href="/user/logout" class="uk-button uk-button-danger">登出</a>
+  </div>
 </form>
 {{template "base/footer" .}}
