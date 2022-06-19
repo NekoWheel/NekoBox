@@ -81,9 +81,11 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 	}
 
 	go func() {
-		// Send notification to page user.
-		if err := mail.SendNewQuestionMail(pageUser.Email, pageUser.Domain, question.ID, question.Content); err != nil {
-			log.Error("Failed to send new question mail to user: %v", err)
+		if pageUser.Notify == db.NotifyTypeEmail {
+			// Send notification to page user.
+			if err := mail.SendNewQuestionMail(pageUser.Email, pageUser.Domain, question.ID, question.Content); err != nil {
+				log.Error("Failed to send new question mail to user: %v", err)
+			}
 		}
 	}()
 

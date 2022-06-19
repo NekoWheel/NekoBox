@@ -46,7 +46,15 @@ type User struct {
 	Domain     string
 	Background string
 	Intro      string
+	Notify     string
 }
+
+type NotifyType string
+
+const (
+	NotifyTypeEmail = "email"
+	NotifyTypeNone  = "none"
+)
 
 func (u *User) EncodePassword() {
 	u.Password = gadget.HmacSha1(u.Password, conf.Server.Salt)
@@ -87,6 +95,7 @@ func (db *users) Create(ctx context.Context, opts CreateUserOptions) error {
 		Domain:     opts.Domain,
 		Background: opts.Background,
 		Intro:      opts.Intro,
+		Notify:     NotifyTypeEmail,
 	}
 	newUser.EncodePassword()
 
@@ -124,6 +133,7 @@ type UpdateUserOptions struct {
 	Avatar     string
 	Background string
 	Intro      string
+	Notify     NotifyType
 }
 
 func (db *users) Update(ctx context.Context, id uint, opts UpdateUserOptions) error {
@@ -132,11 +142,18 @@ func (db *users) Update(ctx context.Context, id uint, opts UpdateUserOptions) er
 		return errors.Wrap(err, "get user by id")
 	}
 
+	switch opts.Notify {
+	case NotifyTypeEmail, NotifyTypeNone:
+	default:
+		return errors.Errorf("unexpected notify type: %q", opts.Notify)
+	}
+
 	if err := db.WithContext(ctx).Where("id = ?", id).Updates(&User{
 		Name:       opts.Name,
 		Avatar:     opts.Avatar,
 		Background: opts.Background,
 		Intro:      opts.Intro,
+		Notify:     string(opts.Notify),
 	}).Error; err != nil {
 		return errors.Wrap(err, "update user")
 	}

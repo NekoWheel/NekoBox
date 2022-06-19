@@ -4,6 +4,10 @@
   <legend class="uk-legend">个人信息</legend>
   {{template "base/alert" .}}
   <div class="uk-margin">
+    <label class="uk-form-label" for="form-stacked-text">电子邮箱</label>
+    <input class="uk-input" type="text" disabled value="{{.LoggedUser.Email}}">
+  </div>
+  <div class="uk-margin">
     <label class="uk-form-label" for="form-stacked-text">昵称</label>
     <input name="name" class="uk-input" type="text" value="{{.LoggedUser.Name}}">
   </div>
@@ -18,6 +22,12 @@
   <div class="uk-margin">
     <label class="uk-form-label" for="form-stacked-text">提问箱介绍</label>
     <input name="intro" class="uk-input" type="text" value="{{.LoggedUser.Intro}}">
+  </div>
+  <div class="uk-margin">
+    <label class="uk-form-label" for="form-stacked-text">新提问通知</label>
+    <label><input name="notify_email" class="uk-checkbox" type="checkbox"
+                  {{ if eq .LoggedUser.Notify "email"}}checked{{end}}
+      > 邮件</label>
   </div>
   <div class="uk-margin">
     <label class="uk-form-label" for="form-stacked-text">个人头像</label>

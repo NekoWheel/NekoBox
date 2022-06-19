@@ -56,11 +56,19 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 		}
 	}
 
+	var notify db.NotifyType
+	if f.NotifyEmail != "" {
+		notify = db.NotifyTypeEmail
+	} else {
+		notify = db.NotifyTypeNone
+	}
+
 	if err := db.Users.Update(ctx.Request().Context(), ctx.User.ID, db.UpdateUserOptions{
 		Name:       f.Name,
 		Avatar:     avatarURL,
 		Background: backgroundURL,
 		Intro:      f.Intro,
+		Notify:     notify,
 	}); err != nil {
 		ctx.SetErrorFlash("系统内部错误")
 	} else {
