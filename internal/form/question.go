@@ -5,14 +5,14 @@
 package form
 
 type NewQuestion struct {
-	Content   string `form:"content" valid:"required;maxlen:150" label:"问题内容"`
+	Content   string `form:"content" valid:"required;maxlen:1000" label:"问题内容"`
 	Recaptcha string `form:"g-recaptcha-response" valid:"required" label:"Recaptcha"`
 }
 
 type PublishAnswerQuestion struct {
-	Answer string `form:"answer" valid:"required;maxlen:150" label:"回答内容"`
+	Answer string `form:"answer" valid:"required;maxlen:1000" label:"回答内容"`
 }
 
 type UpdateAnswerQuestion struct {
-	Answer string `form:"answer" valid:"required;maxlen:150" label:"回答内容"`
+	Answer string `form:"answer" valid:"required;maxlen:1000" label:"回答内容"`
 }
