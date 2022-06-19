@@ -13,7 +13,7 @@ require (
 	github.com/thanhpk/randstr v1.0.4
 	github.com/unknwon/com v1.0.1
 	github.com/wuhan005/gadget v0.0.0-20210723152124-0fc7e8810653
-	github.com/wuhan005/govalid v0.0.0-20220201123025-829904afbd35
+	github.com/wuhan005/govalid v0.0.0-20220315191209-043a899c3c7a
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/ini.v1 v1.62.0
 	gorm.io/driver/mysql v1.2.3
