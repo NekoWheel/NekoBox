@@ -85,8 +85,8 @@ func New() *flamego.Flame {
 			f.Group("/profile", func() {
 				f.Get("", user.Profile)
 				f.Post("/update", form.Bind(form.UpdateProfile{}), user.UpdateProfile)
-				//f.Post("/export")
-				//f.Post("/delete")
+				f.Post("/export", user.ExportProfile)
+				f.Combo("/deactivate").Get(user.DeactivateProfile).Post(user.DeactivateProfileAction)
 			})
 
 			f.Get("/logout", auth.Logout)
