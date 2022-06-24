@@ -28,6 +28,11 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 	var avatarURL string
 	avatarFile, avatarFileHeader, err := ctx.Request().FormFile("avatar")
 	if err == nil {
+		if avatarFileHeader.Size > storage.MaxAvatarSize {
+			ctx.SetError(errors.New("头像文件太大，最大支持 2MB"))
+			ctx.Success("user/profile")
+			return
+		}
 		avatarURL, err = storage.UploadPicture(avatarFile, avatarFileHeader)
 		if err != nil {
 			log.Error("Failed to upload avatar: %v", err)
@@ -37,6 +42,11 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 	var backgroundURL string
 	backgroundFile, backgroundFileHeader, err := ctx.Request().FormFile("background")
 	if err == nil {
+		if backgroundFileHeader.Size > storage.MaxBackgroundSize {
+			ctx.SetError(errors.New("背景图文件太大，最大支持 2MB"))
+			ctx.Success("user/profile")
+			return
+		}
 		backgroundURL, err = storage.UploadPicture(backgroundFile, backgroundFileHeader)
 		if err != nil {
 			log.Error("Failed to upload background: %v", err)

@@ -429,8 +429,6 @@ github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijb
 github.com/urfave/cli v1.22.1/go.mod h1:Gos4lmkARVdJ6EkW0WaNv/tZAAMe9V7XWyB60NtXRu0=
 github.com/wuhan005/gadget v0.0.0-20210723152124-0fc7e8810653 h1:OFr/Ozr8OiiubBGJHAa8Ky3vObJGyJt0AwHhL6GJKyk=
 github.com/wuhan005/gadget v0.0.0-20210723152124-0fc7e8810653/go.mod h1:vmC2IdgzTpIRwn1ZpuV/I3k9AIbRJ7oqTHFenq/qwkE=
-github.com/wuhan005/govalid v0.0.0-20220201123025-829904afbd35 h1:0e9w1DpX5nDXB7CKUD8tkhQCYkt8cFREo5cDuwi03ZY=
-github.com/wuhan005/govalid v0.0.0-20220201123025-829904afbd35/go.mod h1:HWxPkoDo8lMnTdCCt0MiQU1jD1v0gEzlBAIeBAySwns=
 github.com/wuhan005/govalid v0.0.0-20220315191209-043a899c3c7a h1:9vhVeLzwzrFm/pGinLXh2zCSDRO7ElnawEG4p527itQ=
 github.com/wuhan005/govalid v0.0.0-20220315191209-043a899c3c7a/go.mod h1:zRrIdMbJM3Xe4lmXyrUi2xF9CE0+D4Y0OpQIMpjC0Vo=
 github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT5RDeI=

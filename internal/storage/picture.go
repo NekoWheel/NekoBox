@@ -17,6 +17,12 @@ import (
 	"github.com/NekoWheel/NekoBox/internal/conf"
 )
 
+// MaxAvatarSize is the max avatar size which is 2MB.
+const MaxAvatarSize = 2 * 1024 * 1024
+
+// MaxBackgroundSize is the max background size which is 2MB.
+const MaxBackgroundSize = 2 * 1024 * 1024
+
 type uploadPictureCallBack struct {
 	Code int `json:"code"`
 	Data struct {
