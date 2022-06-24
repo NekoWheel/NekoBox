@@ -207,5 +207,14 @@ func DeactivateProfile(ctx context.Context) {
 }
 
 func DeactivateProfileAction(ctx context.Context) {
+	if err := db.Users.Deactivate(ctx.Request().Context(), ctx.User.ID); err != nil {
+		log.Error("Failed to deactivate user: %v", err)
 
+		ctx.SetError(errors.New("服务器内部错误，注销用户失败"))
+		ctx.Success("user/deactivate")
+		return
+	}
+	ctx.Session.Flush()
+	ctx.SetSuccessFlash("您的账号已停用，感谢您使用 NekoBox。期待未来还能再见 👋🏻")
+	ctx.Redirect("/login")
 }

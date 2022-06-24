@@ -27,6 +27,7 @@ type UsersStore interface {
 	Authenticate(ctx context.Context, email, password string) (*User, error)
 	ChangePassword(ctx context.Context, id uint, oldPassword, newPassword string) error
 	UpdatePassword(ctx context.Context, id uint, newPassword string) error
+	Deactivate(ctx context.Context, id uint) error
 }
 
 func NewUsersStore(db *gorm.DB) UsersStore {
@@ -203,6 +204,18 @@ func (db *users) UpdatePassword(ctx context.Context, id uint, newPassword string
 
 	if err := db.WithContext(ctx).Model(&User{}).Where("id = ?", u.ID).Update("password", u.Password).Error; err != nil {
 		return errors.Wrap(err, "change password")
+	}
+	return nil
+}
+
+func (db *users) Deactivate(ctx context.Context, id uint) error {
+	u, err := db.GetByID(ctx, id)
+	if err != nil {
+		return errors.Wrap(err, "get user by id")
+	}
+
+	if err := db.WithContext(ctx).Model(&User{}).Delete("id = ?", u.ID).Error; err != nil {
+		return errors.Wrap(err, "delete user")
 	}
 	return nil
 }
