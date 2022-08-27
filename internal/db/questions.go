@@ -32,6 +32,7 @@ type questions struct {
 
 type Question struct {
 	gorm.Model
+	FromIP  string
 	UserID  uint
 	Content string
 	Token   string
@@ -39,12 +40,14 @@ type Question struct {
 }
 
 type CreateQuestionOptions struct {
+	FromIP  string
 	UserID  uint
 	Content string
 }
 
 func (db *questions) Create(ctx context.Context, opts CreateQuestionOptions) (*Question, error) {
 	question := Question{
+		FromIP:  opts.FromIP,
 		UserID:  opts.UserID,
 		Token:   randstr.String(6),
 		Content: opts.Content,
