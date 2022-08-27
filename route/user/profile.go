@@ -37,7 +37,7 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 			ctx.Success("user/profile")
 			return
 		}
-		avatarURL, err = storage.UploadPicture(avatarFile, avatarFileHeader)
+		avatarURL, err = storage.UploadPictureToOSS(avatarFile, avatarFileHeader)
 		if err != nil {
 			log.Error("Failed to upload avatar: %v", err)
 		}
@@ -51,7 +51,7 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 			ctx.Success("user/profile")
 			return
 		}
-		backgroundURL, err = storage.UploadPicture(backgroundFile, backgroundFileHeader)
+		backgroundURL, err = storage.UploadPictureToOSS(backgroundFile, backgroundFileHeader)
 		if err != nil {
 			log.Error("Failed to upload background: %v", err)
 		}

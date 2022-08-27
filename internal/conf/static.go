@@ -39,10 +39,14 @@ var (
 	}
 
 	Upload struct {
-		Token             string `ini:"token"`
-		URL               string `ini:"url"`
-		DefaultAvatarURL  string `ini:"default_avatar"`
-		DefaultBackground string `ini:"default_background"`
+		Token              string `ini:"token"`
+		URL                string `ini:"url"`
+		DefaultAvatarURL   string `ini:"default_avatar"`
+		DefaultBackground  string `ini:"default_background"`
+		AliyunEndpoint     string `ini:"aliyun_endpoint"`
+		AliyunAccessID     string `ini:"aliyun_access_id"`
+		AliyunAccessSecret string `ini:"aliyun_access_secret"`
+		AliyunBucket       string `ini:"aliyun_bucket"`
 	}
 
 	Mail struct {
