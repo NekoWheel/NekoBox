@@ -90,6 +90,10 @@ func New() *flamego.Flame {
 			})
 
 			f.Get("/logout", auth.Logout)
+
+			f.Get("/robot.txt", func(c context.Context) {
+				_, _ = c.ResponseWriter().Write([]byte("User-agent: *\nDisallow: /_/*"))
+			})
 		}, reqUserSignIn)
 	},
 		cache.Cacher(),
