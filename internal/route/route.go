@@ -15,7 +15,7 @@ import (
 	"github.com/flamego/session"
 	"github.com/flamego/session/mysql"
 	"github.com/flamego/template"
-	log "unknwon.dev/clog/v2"
+	"github.com/sirupsen/logrus"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/context"
@@ -36,7 +36,7 @@ func New() *flamego.Flame {
 
 	templateFS, err := template.EmbedFS(templates.FS, ".", []string{".html"})
 	if err != nil {
-		log.Fatal("Failed to embed templates file system: %v", err)
+		logrus.WithError(err).Fatal("Failed to embed templates file system")
 	}
 
 	// We prefer to save session into database,

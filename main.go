@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"strconv"
 
+	"github.com/sirupsen/logrus"
 	"github.com/uptrace/opentelemetry-go-extra/otelplay"
 	"github.com/uptrace/uptrace-go/uptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	log "unknwon.dev/clog/v2"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/db"
@@ -16,18 +17,13 @@ import (
 )
 
 func main() {
-	defer log.Stop()
-	if err := log.NewConsole(); err != nil {
-		panic("init console logger: " + err.Error())
-	}
-
 	if err := conf.Init(); err != nil {
-		log.Fatal("Failed to load configuration: %v", err)
+		logrus.WithError(err).Fatal("Failed to load configuration")
 	}
 
 	_, err := db.Init()
 	if err != nil {
-		log.Fatal("Failed to connect database: %v", err)
+		logrus.WithError(err).Fatal("Failed to connect database")
 	}
 
 	ctx := context.Background()

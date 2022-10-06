@@ -5,7 +5,7 @@
 package user
 
 import (
-	log "unknwon.dev/clog/v2"
+	"github.com/sirupsen/logrus"
 
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
@@ -14,7 +14,7 @@ import (
 func QuestionList(ctx context.Context) {
 	questions, err := db.Questions.GetByUserID(ctx.Request().Context(), ctx.User.ID, false)
 	if err != nil {
-		log.Error("Failed to get questions by user ID: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get questions by user ID")
 		ctx.Redirect("/")
 		return
 	}

@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
-	log "unknwon.dev/clog/v2"
 
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
@@ -39,7 +39,7 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 		}
 		avatarURL, err = storage.UploadPictureToOSS(avatarFile, avatarFileHeader)
 		if err != nil {
-			log.Error("Failed to upload avatar: %v", err)
+			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to upload avatar")
 		}
 	}
 
@@ -53,7 +53,7 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 		}
 		backgroundURL, err = storage.UploadPictureToOSS(backgroundFile, backgroundFileHeader)
 		if err != nil {
-			log.Error("Failed to upload background: %v", err)
+			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to upload background")
 		}
 	}
 
@@ -62,7 +62,7 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 			if errors.Is(err, db.ErrBadCredential) {
 				ctx.SetError(errors.New("旧密码输入错误"))
 			} else {
-				log.Error("Failed to update password: %v", err)
+				logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update password")
 				ctx.SetError(errors.New("系统内部错误"))
 			}
 			ctx.Success("user/profile")
@@ -94,7 +94,7 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 func ExportProfile(ctx context.Context) {
 	user, err := db.Users.GetByID(ctx.Request().Context(), ctx.User.ID)
 	if err != nil {
-		log.Error("Failed to get user: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get user")
 
 		ctx.SetError(errors.New("导出失败：获取用户信息失败"))
 		ctx.Success("user/profile")
@@ -103,7 +103,7 @@ func ExportProfile(ctx context.Context) {
 
 	questions, err := db.Questions.GetByUserID(ctx.Request().Context(), user.ID, false)
 	if err != nil {
-		log.Error("Failed to get questions: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get questions")
 
 		ctx.SetError(errors.New("导出失败：获取问题信息失败"))
 		ctx.Success("user/profile")
@@ -112,7 +112,7 @@ func ExportProfile(ctx context.Context) {
 
 	f, err := createExportExcelFile(user, questions)
 	if err != nil {
-		log.Error("Failed to create excel file: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to create excel file")
 
 		ctx.SetError(errors.New("导出失败：创建Excel文件失败"))
 		ctx.Success("user/profile")
@@ -124,7 +124,7 @@ func ExportProfile(ctx context.Context) {
 	ctx.ResponseWriter().Header().Set("Content-Disposition", "attachment; filename*=UTF-8''"+url.QueryEscape(fileName))
 
 	if err := f.Write(ctx.ResponseWriter()); err != nil {
-		log.Error("Failed to write excel file: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to write excel file")
 
 		ctx.SetError(errors.New("导出失败：写入Excel文件失败"))
 		ctx.Success("user/profile")
@@ -208,7 +208,7 @@ func DeactivateProfile(ctx context.Context) {
 
 func DeactivateProfileAction(ctx context.Context) {
 	if err := db.Users.Deactivate(ctx.Request().Context(), ctx.User.ID); err != nil {
-		log.Error("Failed to deactivate user: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to deactivate user")
 
 		ctx.SetError(errors.New("服务器内部错误，注销用户失败"))
 		ctx.Success("user/deactivate")
