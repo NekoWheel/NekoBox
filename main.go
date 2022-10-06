@@ -37,7 +37,7 @@ func main() {
 		uptrace.WithServiceVersion(conf.BuildCommit),
 	)
 	handler := otelhttp.NewHandler(r, "NekoBox")
-	server := &http.Server{l
+	server := &http.Server{
 		Addr:    "0.0.0.0:" + strconv.Itoa(conf.Server.Port),
 		Handler: handler,
 	}
