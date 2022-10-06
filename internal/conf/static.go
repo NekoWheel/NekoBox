@@ -16,6 +16,7 @@ var (
 	App struct {
 		Production bool   `ini:"production"`
 		ICP        string `ini:"icp"`
+		UptraceDSN string `ini:"uptrace_dsn"`
 	}
 
 	Server struct {

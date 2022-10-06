@@ -11,6 +11,8 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
+	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
+
 	"github.com/NekoWheel/NekoBox/internal/conf"
 )
 
@@ -34,6 +36,12 @@ func Init() (*gorm.DB, error) {
 
 	Users = NewUsersStore(db)
 	Questions = NewQuestionsStore(db)
+
+	if err := db.Use(otelgorm.NewPlugin(
+		otelgorm.WithDBName(conf.Database.Name),
+	)); err != nil {
+		return nil, errors.Wrap(err, "register otelgorm plugin")
+	}
 
 	return db, nil
 }
