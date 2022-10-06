@@ -41,7 +41,7 @@ func main() {
 
 	uptrace.ConfigureOpentelemetry(
 		uptrace.WithDSN(conf.App.UptraceDSN),
-		uptrace.WithServiceName("neko-box-http-server"),
+		uptrace.WithServiceName("nekobox-http-server"),
 		uptrace.WithServiceVersion(conf.BuildCommit),
 	)
 	handler := otelhttp.NewHandler(r, "NekoBox")
