@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -38,11 +37,11 @@ func main() {
 		uptrace.WithServiceVersion(conf.BuildCommit),
 	)
 	handler := otelhttp.NewHandler(r, "NekoBox")
-	server := &http.Server{
+	server := &http.Server{l
 		Addr:    "0.0.0.0:" + strconv.Itoa(conf.Server.Port),
 		Handler: handler,
 	}
 	if err := server.ListenAndServe(); err != nil {
-		log.Fatal("Failed to start server: %v", err)
+		logrus.WithContext(ctx).WithError(err).Fatal("Failed to start server")
 	}
 }
