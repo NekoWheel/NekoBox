@@ -12,7 +12,6 @@ import (
 	"github.com/flamego/recaptcha"
 	"github.com/pkg/errors"
 	"github.com/thanhpk/randstr"
-	log "unknwon.dev/clog/v2"
 
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
@@ -28,7 +27,7 @@ func ForgotPasswordAction(ctx context.Context, f form.ForgotPassword, cache cach
 	// Check recaptcha code.
 	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
 	if err != nil {
-		log.Error("Failed to check recaptcha: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")
 		ctx.SetErrorFlash("内部错误，请稍后再试")
 		ctx.Redirect("/forgot-password")
 		return
@@ -59,7 +58,7 @@ func ForgotPasswordAction(ctx context.Context, f form.ForgotPassword, cache cach
 	_, err = cache.Get(ctx.Request().Context(), emailSentCacheKey)
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
-			log.Error("Failed to read password recovery email sent cache: %v", err)
+			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to read password recovery email sent cache")
 		}
 	} else {
 		ctx.SetErrorFlash("邮件发送太频繁，请稍后再试")
@@ -70,21 +69,21 @@ func ForgotPasswordAction(ctx context.Context, f form.ForgotPassword, cache cach
 	code := randstr.String(64)
 	recoveryCodeCacheKey := "forgot-password-recovery-code:" + code
 	if err := cache.Set(ctx.Request().Context(), recoveryCodeCacheKey, user.ID, 24*time.Hour); err != nil {
-		log.Error("Failed to set password recovery code cache: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to set password recovery code cache")
 		ctx.SetErrorFlash("内部错误，请稍后再试")
 		ctx.Redirect("/forgot-password")
 		return
 	}
 
 	if err := mail.SendPasswordRecoveryMail(user.Email, code); err != nil {
-		log.Error("Failed to send password recovery mail: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to send password recovery mail")
 		ctx.SetErrorFlash("邮件发送失败，请稍后再试")
 		ctx.Redirect("/forgot-password")
 		return
 	}
 
 	if err := cache.Set(ctx.Request().Context(), emailSentCacheKey, time.Now(), 2*time.Minute); err != nil {
-		log.Error("Failed to set password recovery email cache: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to set password recovery email cache")
 	}
 
 	ctx.Data["email"] = user.Email
@@ -99,7 +98,7 @@ func checkRecoverPasswordCode(ctx context.Context, cache cache.Cache) (*db.User,
 		if errors.Is(err, os.ErrNotExist) {
 			ctx.SetErrorFlash("验证码已过期")
 		} else {
-			log.Error("Failed to read password recovery code cache: %v", err)
+			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to read password recovery code cache")
 			ctx.SetErrorFlash("内部错误，请稍后再试")
 		}
 		ctx.Redirect("/login")
@@ -147,7 +146,7 @@ func RecoverPasswordAction(ctx context.Context, cache cache.Cache, f form.Recove
 	code := ctx.Query("code")
 	recoveryCodeCacheKey := "forgot-password-recovery-code:" + code
 	if err := cache.Delete(ctx.Request().Context(), recoveryCodeCacheKey); err != nil {
-		log.Error("Failed to delete password recovery code cache: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to delete password recovery code cache")
 		ctx.SetErrorFlash("内部错误，请稍后再试")
 		ctx.Redirect("/login")
 		return

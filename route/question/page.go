@@ -7,7 +7,6 @@ package question
 import (
 	"github.com/flamego/recaptcha"
 	"github.com/pkg/errors"
-	log "unknwon.dev/clog/v2"
 
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
@@ -24,7 +23,7 @@ func Pager(ctx context.Context) {
 			ctx.Redirect("/")
 			return
 		} else {
-			log.Error("Failed to get user by domain: %v", err)
+			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get user by domain")
 			ctx.SetError(errors.New("服务器错误！"))
 		}
 		ctx.Success("question/page")
@@ -34,7 +33,7 @@ func Pager(ctx context.Context) {
 
 	pageQuestions, err := db.Questions.GetByUserID(ctx.Request().Context(), pageUser.ID, true)
 	if err != nil {
-		log.Error("Failed to get questions by page id: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get questions by page id")
 		ctx.SetError(errors.New("服务器错误！"))
 		ctx.Success("question/page")
 		return
@@ -53,7 +52,7 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 	// Check recaptcha code.
 	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
 	if err != nil {
-		log.Error("Failed to check recaptcha: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")
 		ctx.SetErrorFlash("内部错误，请稍后再试")
 		ctx.Redirect("/_/" + pageUser.Domain)
 		return
@@ -76,7 +75,7 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 		Content: f.Content,
 	})
 	if err != nil {
-		log.Error("Failed to create new question: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to create new question")
 		ctx.SetError(errors.New("服务器错误！"))
 		ctx.Success("question/list")
 		return
@@ -86,7 +85,7 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 		if pageUser.Notify == db.NotifyTypeEmail {
 			// Send notification to page user.
 			if err := mail.SendNewQuestionMail(pageUser.Email, pageUser.Domain, question.ID, question.Content); err != nil {
-				log.Error("Failed to send new question mail to user: %v", err)
+				logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to send new question mail to user")
 			}
 		}
 	}()

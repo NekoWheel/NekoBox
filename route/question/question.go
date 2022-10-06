@@ -8,7 +8,6 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
-	log "unknwon.dev/clog/v2"
 
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
@@ -20,7 +19,7 @@ func Questioner(ctx context.Context, pageUser *db.User) {
 	question, err := db.Questions.GetByID(ctx.Request().Context(), questionID)
 	if err != nil {
 		if !errors.Is(err, db.ErrQuestionNotExist) {
-			log.Error("Failed to get question by ID: %v", err)
+			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get question by ID")
 		}
 
 		ctx.Redirect("/")
@@ -61,7 +60,7 @@ func PublishAnswer(ctx context.Context, pageUser *db.User, question *db.Question
 	}
 
 	if err := db.Questions.AnswerByID(ctx.Request().Context(), question.ID, f.Answer); err != nil {
-		log.Error("Failed to answer question: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to answer question")
 		ctx.SetError(errors.New("服务器错误！"))
 		ctx.Success("question/item")
 		return
@@ -78,7 +77,7 @@ func Delete(ctx context.Context, pageUser *db.User, question *db.Question, canDe
 	}
 
 	if err := db.Questions.DeleteByID(ctx.Request().Context(), question.ID); err != nil {
-		log.Error("Failed to delete question: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to delete question")
 		ctx.SetError(errors.New("服务器错误！"))
 		ctx.Success("question/item")
 		return

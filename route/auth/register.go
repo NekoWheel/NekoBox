@@ -8,8 +8,6 @@ import (
 	"github.com/flamego/recaptcha"
 	"github.com/pkg/errors"
 
-	log "unknwon.dev/clog/v2"
-
 	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
@@ -24,7 +22,7 @@ func RegisterAction(ctx context.Context, f form.Register, recaptcha recaptcha.Re
 	// Check recaptcha code.
 	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
 	if err != nil {
-		log.Error("Failed to check recaptcha: %v", err)
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")
 		ctx.SetErrorFlash("内部错误，请稍后再试")
 		ctx.Redirect("/register")
 		return
@@ -57,7 +55,7 @@ func RegisterAction(ctx context.Context, f form.Register, recaptcha recaptcha.Re
 			ctx.SetError(errors.Cause(err))
 
 		default:
-			log.Error("Failed to create new user: %v", err)
+			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to create new user")
 			ctx.SetError(errors.New("系统内部错误"))
 		}
 
