@@ -61,6 +61,7 @@ func New() *flamego.Flame {
 
 	f.Group("", func() {
 		f.Get("/", route.Home)
+		f.Get("/sponsor", route.Sponsor)
 
 		f.Group("", func() {
 			f.Combo("/register").Get(auth.Register).Post(form.Bind(form.Register{}), auth.RegisterAction)
