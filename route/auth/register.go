@@ -7,6 +7,7 @@ package auth
 import (
 	"github.com/flamego/recaptcha"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/context"
