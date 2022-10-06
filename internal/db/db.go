@@ -8,10 +8,9 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-
-	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 )

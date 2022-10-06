@@ -17,16 +17,22 @@ import (
 )
 
 func main() {
+	if err := conf.Init(); err != nil {
+		logrus.WithError(err).Fatal("Failed to load configuration")
+	}
+	
+	uptrace.ConfigureOpentelemetry(
+		uptrace.WithDSN(conf.App.UptraceDSN),
+		uptrace.WithServiceName("nekobox"),
+		uptrace.WithServiceVersion(conf.BuildCommit),
+	)
+
 	logrus.AddHook(otellogrus.NewHook(otellogrus.WithLevels(
 		logrus.PanicLevel,
 		logrus.FatalLevel,
 		logrus.ErrorLevel,
 		logrus.WarnLevel,
 	)))
-
-	if err := conf.Init(); err != nil {
-		logrus.WithError(err).Fatal("Failed to load configuration")
-	}
 
 	_, err := db.Init()
 	if err != nil {
@@ -39,11 +45,6 @@ func main() {
 
 	r := route.New()
 
-	uptrace.ConfigureOpentelemetry(
-		uptrace.WithDSN(conf.App.UptraceDSN),
-		uptrace.WithServiceName("nekobox-http-server"),
-		uptrace.WithServiceVersion(conf.BuildCommit),
-	)
 	handler := otelhttp.NewHandler(r, "NekoBox")
 	server := &http.Server{
 		Addr:    "0.0.0.0:" + strconv.Itoa(conf.Server.Port),
