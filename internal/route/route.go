@@ -96,6 +96,10 @@ func New() *flamego.Flame {
 				_, _ = c.ResponseWriter().Write([]byte("User-agent: *\nDisallow: /_/*"))
 			})
 		}, reqUserSignIn)
+
+		f.Get("/500", func(c context.Context) {
+			panic("test panic")
+		})
 	},
 		cache.Cacher(),
 		recaptcha.V2(

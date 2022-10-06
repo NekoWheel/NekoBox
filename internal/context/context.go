@@ -11,6 +11,8 @@ import (
 	"github.com/flamego/flamego"
 	"github.com/flamego/session"
 	"github.com/flamego/template"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/db"
@@ -41,6 +43,13 @@ func (c *Context) HasError() bool {
 func (c *Context) SetError(err error) {
 	c.Data["HasError"] = true
 	c.Data["Error"] = err.Error()
+
+	span := trace.SpanFromContext(c.Request().Context())
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("nekobox.error", err.Error()),
+		)
+	}
 }
 
 // Success renders HTML template with given name with 200 OK status code.
@@ -73,16 +82,28 @@ func Contexter() flamego.Handler {
 		// Get user from session or header when possible
 		c.User = authenticatedUser(c.Context, c.Session)
 
+		var userID uint
 		if c.User != nil {
 			c.IsLogged = true
 			c.Data["IsLogged"] = c.IsLogged
 			c.Data["LoggedUser"] = c.User
 			c.Data["LoggedUserID"] = c.User.ID
 			c.Data["LoggedUserName"] = c.User.Name
+
+			userID = c.User.ID
 		} else {
 			c.Data["LoggedUserID"] = 0
 			c.Data["LoggedUserName"] = ""
 		}
+
+		span := trace.SpanFromContext(ctx.Request().Context())
+		if span.IsRecording() {
+			span.SetAttributes(
+				attribute.Bool("nekobox.user.is-login", c.IsLogged),
+				attribute.Int("nekobox.user.id", int(userID)),
+			)
+		}
+		c.ResponseWriter().Header().Set("Trace-ID", span.SpanContext().TraceID().String())
 
 		// If request sends files, parse them here otherwise the Query() can't be parsed and the CsrfToken will be invalid.
 		//if c.Request().Method == http.MethodPost && strings.Contains(c.Request().Header.Get("Content-Type"), "multipart/form-data") {

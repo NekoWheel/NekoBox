@@ -1,6 +1,13 @@
 package main
 
 import (
+	"context"
+	"net/http"
+	"strconv"
+
+	"github.com/uptrace/opentelemetry-go-extra/otelplay"
+	"github.com/uptrace/uptrace-go/uptrace"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	log "unknwon.dev/clog/v2"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
@@ -23,7 +30,23 @@ func main() {
 		log.Fatal("Failed to connect database: %v", err)
 	}
 
+	ctx := context.Background()
+	shutdown := otelplay.ConfigureOpentelemetry(ctx)
+	defer shutdown()
+
 	r := route.New()
 
-	r.Run("0.0.0.0", conf.Server.Port)
+	uptrace.ConfigureOpentelemetry(
+		uptrace.WithDSN(conf.App.UptraceDSN),
+		uptrace.WithServiceName("neko-box-http-server"),
+		uptrace.WithServiceVersion(conf.BuildCommit),
+	)
+	handler := otelhttp.NewHandler(r, "NekoBox")
+	server := &http.Server{
+		Addr:    "0.0.0.0:" + strconv.Itoa(conf.Server.Port),
+		Handler: handler,
+	}
+	if err := server.ListenAndServe(); err != nil {
+		log.Fatal("Failed to start server: %v", err)
+	}
 }
