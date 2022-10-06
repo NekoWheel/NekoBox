@@ -10,6 +10,7 @@ require (
 	github.com/flamego/session v1.1.0
 	github.com/flamego/template v1.0.0
 	github.com/pkg/errors v0.9.1
+	github.com/sirupsen/logrus v1.4.2
 	github.com/thanhpk/randstr v1.0.4
 	github.com/unknwon/com v1.0.1
 	github.com/wuhan005/gadget v0.0.0-20210723152124-0fc7e8810653
@@ -18,7 +19,6 @@ require (
 	gopkg.in/ini.v1 v1.62.0
 	gorm.io/driver/mysql v1.3.6
 	gorm.io/gorm v1.23.8
-	unknwon.dev/clog/v2 v2.2.0
 )
 
 require (
@@ -27,6 +27,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/mattn/go-colorable v0.1.9 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
