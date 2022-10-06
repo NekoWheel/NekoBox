@@ -1,6 +1,6 @@
 module github.com/NekoWheel/NekoBox
 
-go 1.17
+go 1.19
 
 require (
 	github.com/flamego/cache v1.1.0
@@ -19,6 +19,26 @@ require (
 	gorm.io/driver/mysql v1.3.6
 	gorm.io/gorm v1.23.8
 	unknwon.dev/clog/v2 v2.2.0
+)
+
+require (
+	github.com/alecthomas/participle/v2 v2.0.0-alpha9 // indirect
+	github.com/fatih/color v1.13.0 // indirect
+	github.com/go-sql-driver/mysql v1.6.0 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/mattn/go-colorable v0.1.9 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
+	github.com/richardlehane/mscfb v1.0.4 // indirect
+	github.com/richardlehane/msoleps v1.0.1 // indirect
+	github.com/xuri/efp v0.0.0-20220407160117-ad0f7a785be8 // indirect
+	github.com/xuri/nfp v0.0.0-20220409054826-5e722a1d9e22 // indirect
+	golang.org/x/crypto v0.0.0-20220408190544-5352b0902921 // indirect
+	golang.org/x/net v0.0.0-20220407224826-aac1ed45d8e3 // indirect
+	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
+	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 )
 
 require (
