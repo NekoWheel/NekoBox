@@ -11,3 +11,7 @@ import (
 func Home(ctx context.Context) {
 	ctx.Success("home")
 }
+
+func Sponsor(ctx context.Context) {
+	ctx.Success("sponsor")
+}
