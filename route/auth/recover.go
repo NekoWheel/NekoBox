@@ -11,6 +11,7 @@ import (
 	"github.com/flamego/cache"
 	"github.com/flamego/recaptcha"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/thanhpk/randstr"
 
 	"github.com/NekoWheel/NekoBox/internal/context"
