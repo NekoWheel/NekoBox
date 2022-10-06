@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/sirupsen/logrus"
+	"github.com/uptrace/opentelemetry-go-extra/otellogrus"
 	"github.com/uptrace/opentelemetry-go-extra/otelplay"
 	"github.com/uptrace/uptrace-go/uptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -16,6 +17,13 @@ import (
 )
 
 func main() {
+	logrus.AddHook(otellogrus.NewHook(otellogrus.WithLevels(
+		logrus.PanicLevel,
+		logrus.FatalLevel,
+		logrus.ErrorLevel,
+		logrus.WarnLevel,
+	)))
+
 	if err := conf.Init(); err != nil {
 		logrus.WithError(err).Fatal("Failed to load configuration")
 	}
