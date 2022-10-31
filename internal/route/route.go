@@ -48,7 +48,8 @@ func New() *flamego.Flame {
 	if conf.Database.DSN != "" {
 		initer = mysql.Initer()
 		sessionStorage = mysql.Config{
-			DSN: conf.Database.DSN,
+			DSN:      conf.Database.DSN,
+			Lifetime: 7 * 24 * time.Hour,
 		}
 	}
 	sessioner := session.Sessioner(session.Options{

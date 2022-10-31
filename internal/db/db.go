@@ -24,7 +24,9 @@ func Init() (*gorm.DB, error) {
 	)
 	conf.Database.DSN = dsn
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		SkipDefaultTransaction: true,
+	})
 	if err != nil {
 		return nil, errors.Wrap(err, "connect to database")
 	}
