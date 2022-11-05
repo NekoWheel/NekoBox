@@ -5,6 +5,8 @@
 package conf
 
 import (
+	"os"
+
 	"github.com/pkg/errors"
 	"gopkg.in/ini.v1"
 )
@@ -13,12 +15,17 @@ import (
 var File *ini.File
 
 func Init() error {
+	configFile := os.Getenv("NEKOBOX_CONFIG_PATH")
+	if configFile == "" {
+		configFile = "conf/app.ini"
+	}
+
 	var err error
 	File, err = ini.LoadSources(ini.LoadOptions{
 		IgnoreInlineComment: true,
-	}, "conf/app.ini")
+	}, configFile)
 	if err != nil {
-		return errors.Wrap(err, "parse 'conf/app.ini'")
+		return errors.Wrapf(err, "parse %q", configFile)
 	}
 
 	if err := File.Section("app").MapTo(&App); err != nil {
