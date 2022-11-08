@@ -1,0 +1,15 @@
+{{template "base/header" .}}
+<div class="uk-card uk-card-default uk-card-body">
+  <h2>NekoBox 开发日记</h2>
+  <div>
+    <p>这里记录了 NekoBox 的功能迭代历史以及我的一些碎碎念。</p>
+  </div>
+
+  <dl class="uk-description-list uk-description-list-divider">
+    <template
+            x-for="log in (await(await fetch('https://db.n3ko.co/nekobox-changelogs/_design/data/_view/list?descending=true')).json()).rows">
+    <div x-html="`<br><hr><dt>${log.value.created_at_str}</dt><dd class=uk-text-small>${log.value.content}</dd>`"></div>
+    </template>
+  </dl>
+</div>
+{{template "base/footer" .}}

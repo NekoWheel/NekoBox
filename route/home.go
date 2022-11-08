@@ -15,3 +15,7 @@ func Home(ctx context.Context) {
 func Sponsor(ctx context.Context) {
 	ctx.Success("sponsor")
 }
+
+func ChangeLogs(ctx context.Context) {
+	ctx.Success("change-logs")
+}

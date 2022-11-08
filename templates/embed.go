@@ -8,5 +8,5 @@ import (
 	"embed"
 )
 
-//go:embed auth base mail question user home.html sponsor.html
+//go:embed auth base mail question user home.html sponsor.html change-logs.html
 var FS embed.FS
