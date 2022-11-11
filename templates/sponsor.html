@@ -65,7 +65,6 @@
     <div>
       <p>NekoBox 创立于 2020 年疫情初期，一开始是我疫情在家花了三天时间随手写得一个匿名留言箱。</p>
       <p>目前 NekoBox 的服务器、CDN 开销还是我一个人承担，如果你也想为我分担一些，欢迎给 NekoBox 打钱！👏🏻</p>
-      <p style="color: gray">我在想如果你备注了自己的名称或留言箱，或许我可以放在下面的感谢清单里（？</p>
     </div>
     <div>
       <div class="sponsor">
@@ -84,5 +83,26 @@
       </div>
     </div>
   </div>
+  <div uk-alert class="uk-text-small">感谢以下小伙伴对 NekoBox 的支持！</div>
+  <table class="uk-table uk-table-small uk-table-divider">
+    <thead>
+    <tr>
+      <th>日期</th>
+      <th>附言</th>
+      <th>金额</th>
+    </tr>
+    </thead>
+    <tbody x-html="
+    await (async () => {
+      let html = '';
+      let items = (await(await fetch('https://db.n3ko.co/nekobox-sponsors/data/')).json()).data;
+      items.forEach(item => {
+        html += `<tr class=uk-text-meta><td>${item.date}</td><td>${item.desc}</td><td>¥ ${item.price.toFixed(2)}</td></tr>`;
+      })
+      return html;
+    })()
+  ">
+    </tbody>
+  </table>
 </div>
 {{template "base/footer" .}}
