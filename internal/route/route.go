@@ -6,6 +6,8 @@ package route
 
 import (
 	"encoding/gob"
+	"io"
+	"net/http"
 	"time"
 
 	"github.com/flamego/cache"
@@ -25,6 +27,7 @@ import (
 	"github.com/NekoWheel/NekoBox/route/auth"
 	"github.com/NekoWheel/NekoBox/route/question"
 	"github.com/NekoWheel/NekoBox/route/user"
+	"github.com/NekoWheel/NekoBox/static"
 	"github.com/NekoWheel/NekoBox/templates"
 )
 
@@ -57,6 +60,11 @@ func New() *flamego.Flame {
 		Config: sessionStorage,
 	})
 
+	f.Use(flamego.Static(flamego.StaticOptions{
+		FileSystem: http.FS(static.FS),
+		Prefix:     "/static",
+	}))
+
 	reqUserSignOut := context.Toggle(&context.ToggleOptions{UserSignOutRequired: true})
 	reqUserSignIn := context.Toggle(&context.ToggleOptions{UserSignInRequired: true})
 
@@ -66,6 +74,12 @@ func New() *flamego.Flame {
 		f.Get("/change-logs", route.ChangeLogs)
 		f.Get("/robots.txt", func(c context.Context) {
 			_, _ = c.ResponseWriter().Write([]byte("User-agent: *\nDisallow: /_/"))
+		})
+		f.Get("/favicon.ico", func(c context.Context) {
+			fs, _ := static.FS.Open("favicon.ico")
+			defer func() { _ = fs.Close() }()
+			c.ResponseWriter().Header().Set("Content-Type", "image/x-icon")
+			_, _ = io.Copy(c.ResponseWriter(), fs)
 		})
 
 		f.Group("", func() {
