@@ -64,6 +64,9 @@ func New() *flamego.Flame {
 		f.Get("/", route.Home)
 		f.Get("/sponsor", route.Sponsor)
 		f.Get("/change-logs", route.ChangeLogs)
+		f.Get("/robots.txt", func(c context.Context) {
+			_, _ = c.ResponseWriter().Write([]byte("User-agent: *\nDisallow: /_/"))
+		})
 
 		f.Group("", func() {
 			f.Combo("/register").Get(auth.Register).Post(form.Bind(form.Register{}), auth.RegisterAction)
@@ -93,10 +96,6 @@ func New() *flamego.Flame {
 			})
 
 			f.Get("/logout", auth.Logout)
-
-			f.Get("/robot.txt", func(c context.Context) {
-				_, _ = c.ResponseWriter().Write([]byte("User-agent: *\nDisallow: /_/*"))
-			})
 		}, reqUserSignIn)
 	},
 		cache.Cacher(),
