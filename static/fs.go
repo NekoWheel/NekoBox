@@ -8,5 +8,5 @@ import (
 	"embed"
 )
 
-//go:embed favicon.ico
+//go:embed favicon.ico images
 var FS embed.FS

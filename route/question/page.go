@@ -5,6 +5,8 @@
 package question
 
 import (
+	"fmt"
+
 	"github.com/flamego/recaptcha"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -39,6 +41,8 @@ func Pager(ctx context.Context) {
 		ctx.Success("question/page")
 		return
 	}
+
+	ctx.SetTitle(fmt.Sprintf("%s的提问箱 - NekoBox", pageUser.Name))
 
 	ctx.Data["IsOwnPage"] = ctx.IsLogged && ctx.User.ID == pageUser.ID
 	ctx.Data["PageUser"] = pageUser
