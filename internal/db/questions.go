@@ -37,12 +37,12 @@ type questions struct {
 type Question struct {
 	gorm.Model
 	FromIP                string
-	UserID                uint `gorm:"index:idx_question_user_id_answer; index:idx_question_user_id"`
+	UserID                uint
 	Content               string
 	ContentCensorMetadata datatypes.JSON
 	ContentCensorPass     bool `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(content_censor_metadata->'$.pass' = true, false)) STORED NOT NULL"`
 	Token                 string
-	Answer                string `gorm:"index:idx_question_user_id_answer"`
+	Answer                string
 	AnswerCensorMetadata  datatypes.JSON
 	AnswerCensorPass      bool `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(answer_censor_metadata->'$.pass' = true, false)) STORED NOT NULL"`
 }
