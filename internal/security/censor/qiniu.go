@@ -145,7 +145,7 @@ func QiniuTextCensorParser(raw []byte) (*TextCensorResponse, error) {
 		ForbiddenType: formatQiniuForbiddenType(detailKey),
 		Hint:          hint,
 		Confidence:    confidence,
-		Metadata:      raw,
+		RawResponse:   raw,
 	}, nil
 }
 

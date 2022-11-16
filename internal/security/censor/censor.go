@@ -52,7 +52,7 @@ func Text(ctx context.Context, text string) (*TextCensorResponse, error) {
 		SourceName:  sourceName,
 		Input:       text,
 		Pass:        response.Pass,
-		RawResponse: response.Metadata,
+		RawResponse: response.RawResponse,
 	}); err != nil {
 		logrus.WithContext(ctx).WithError(err).Error("Failed to save censor log")
 	}

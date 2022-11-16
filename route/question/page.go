@@ -82,15 +82,8 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to censor text")
 	}
 	if err == nil && !censorResponse.Pass {
-		errorMessage := "内容安全检查不通过 "
-		if censorResponse.ForbiddenType != "" {
-			errorMessage += fmt.Sprintf("[%s]", censorResponse.ForbiddenType.String())
-		}
-		if censorResponse.Hint != "" {
-			errorMessage += "，包含敏感词：%q" + censorResponse.Hint
-		}
-
-		ctx.SetError(errors.New(errorMessage))
+		errorMessage := censorResponse.ErrorMessage()
+		ctx.SetError(errors.New(errorMessage), f)
 		ctx.Success("question/list")
 		return
 	}
@@ -103,9 +96,16 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 	})
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to create new question")
-		ctx.SetError(errors.New("服务器错误！"))
+		ctx.SetError(errors.New("服务器错误！"), f)
 		ctx.Success("question/list")
 		return
+	}
+
+	// Update censor result.
+	if err := db.Questions.UpdateCensor(ctx.Request().Context(), question.ID, db.UpdateQuestionCensorOptions{
+		ContentCensorMetadata: censorResponse.ToJSON(),
+	}); err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update question censor result")
 	}
 
 	go func() {

@@ -37,7 +37,7 @@
         {{ .CSRFTokenHTML }}
         <div class="uk-margin uk-text-center">
               <textarea name="answer" class="uk-textarea" rows="5" maxlength="1000"
-                        placeholder="在此处撰写你的回答...">{{.Question.Answer}}</textarea>
+                        placeholder="在此处撰写你的回答...">{{ if ne .Question.Answer "" }}{{ .Question.Answer }}{{ else }}{{ .answer }}{{ end }}</textarea>
         </div>
         <div class="uk-margin uk-text-center">
           <button type="submit" class="uk-button uk-button-primary">{{if ne .Question.Answer ""}}更新{{end}}回答</button>

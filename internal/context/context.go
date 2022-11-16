@@ -6,11 +6,13 @@ package context
 
 import (
 	"net/http"
+	"reflect"
 
 	"github.com/flamego/csrf"
 	"github.com/flamego/flamego"
 	"github.com/flamego/session"
 	"github.com/flamego/template"
+	"github.com/unknwon/com"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 
@@ -40,9 +42,28 @@ func (c *Context) HasError() bool {
 	return hasErr.(bool)
 }
 
-func (c *Context) SetError(err error) {
+func (c *Context) SetError(err error, f ...interface{}) {
 	c.Data["HasError"] = true
 	c.Data["Error"] = err.Error()
+
+	// Set back the form data.
+	if len(f) > 0 {
+		form := f[0]
+		typ := reflect.TypeOf(form)
+		val := reflect.ValueOf(form)
+
+		if typ.Kind() == reflect.Ptr {
+			typ = typ.Elem()
+			val = val.Elem()
+		}
+
+		for i := 0; i < typ.NumField(); i++ {
+			field := typ.Field(i)
+			fieldName := com.ToSnakeCase(field.Name)
+
+			c.Data[fieldName] = val.Field(i).Interface()
+		}
+	}
 
 	span := trace.SpanFromContext(c.Request().Context())
 	if span.IsRecording() {

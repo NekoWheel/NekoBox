@@ -5,9 +5,9 @@
 package censor
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 )
 
 type ForbiddenType string
@@ -44,7 +44,7 @@ type TextCensorResponse struct {
 	ForbiddenType ForbiddenType   `json:"forbidden_type"`
 	Hint          string          `json:"hint"`
 	Confidence    float64         `json:"confidence"`
-	Metadata      json.RawMessage `json:"metadata"`
+	RawResponse   json.RawMessage `json:"raw_response"`
 }
 
 func (r *TextCensorResponse) ToJSON() []byte {
@@ -52,20 +52,15 @@ func (r *TextCensorResponse) ToJSON() []byte {
 	return jsonBytes
 }
 
-func CheckTextCensorResponseValid(raw json.RawMessage) bool {
-	if len(raw) == 0 {
-		return false
+func (r *TextCensorResponse) ErrorMessage() string {
+	errorMessage := "内容安全检查不通过"
+	if r.ForbiddenType != "" {
+		errorMessage += fmt.Sprintf(" [%s]", r.ForbiddenType.String())
 	}
-
-	if bytes.EqualFold(raw, []byte("null")) {
-		return false
+	if r.Hint != "" {
+		errorMessage += fmt.Sprintf("，相关标签：%q", r.Hint)
 	}
-
-	var r TextCensorResponse
-	if err := json.Unmarshal(raw, &r); err != nil {
-		return false
-	}
-	return r.SourceName != ""
+	return errorMessage
 }
 
 type TextCensor interface {

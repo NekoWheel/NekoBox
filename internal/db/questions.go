@@ -5,6 +5,7 @@
 package db
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 
@@ -12,8 +13,6 @@ import (
 	"github.com/thanhpk/randstr"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
-
-	"github.com/NekoWheel/NekoBox/internal/security/censor"
 )
 
 var Questions QuestionsStore
@@ -41,11 +40,11 @@ type Question struct {
 	UserID                uint
 	Content               string
 	ContentCensorMetadata datatypes.JSON
-	ContentCensorPass     bool `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(content_censor_metadata->'$.pass', false)) STORED NOT NULL"`
+	ContentCensorPass     bool `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(content_censor_metadata->'$.pass' = true, false)) STORED NOT NULL"`
 	Token                 string
 	Answer                string
 	AnswerCensorMetadata  datatypes.JSON
-	AnswerCensorPass      bool `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(answer_censor_metadata->'$.pass', false)) STORED NOT NULL"`
+	AnswerCensorPass      bool `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(answer_censor_metadata->'$.pass' = true, false)) STORED NOT NULL"`
 }
 
 type CreateQuestionOptions struct {
@@ -76,11 +75,11 @@ func (db *questions) UpdateCensor(ctx context.Context, id uint, opts UpdateQuest
 	}
 
 	contentCensorMetadata := question.ContentCensorMetadata
-	if censor.CheckTextCensorResponseValid(opts.ContentCensorMetadata) {
+	if checkTextCensorResponseValid(opts.ContentCensorMetadata) {
 		contentCensorMetadata = datatypes.JSON(opts.ContentCensorMetadata)
 	}
 	answerCensorMetadata := question.AnswerCensorMetadata
-	if censor.CheckTextCensorResponseValid(opts.AnswerCensorMetadata) {
+	if checkTextCensorResponseValid(opts.AnswerCensorMetadata) {
 		answerCensorMetadata = datatypes.JSON(opts.AnswerCensorMetadata)
 	}
 
@@ -88,6 +87,24 @@ func (db *questions) UpdateCensor(ctx context.Context, id uint, opts UpdateQuest
 		ContentCensorMetadata: contentCensorMetadata,
 		AnswerCensorMetadata:  answerCensorMetadata,
 	}).Error
+}
+
+func checkTextCensorResponseValid(raw json.RawMessage) bool {
+	if len(raw) == 0 {
+		return false
+	}
+
+	if bytes.EqualFold(raw, []byte("null")) {
+		return false
+	}
+
+	var response struct {
+		SourceName string `json:"source_name"`
+	}
+	if err := json.Unmarshal(raw, &response); err != nil {
+		return false
+	}
+	return response.SourceName != ""
 }
 
 var ErrQuestionNotExist = errors.New("提问不存在")

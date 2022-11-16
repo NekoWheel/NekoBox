@@ -44,7 +44,7 @@ func (db *censorLogs) GetByText(ctx context.Context, text string, noLongerThan .
 	hash := hashText(text)
 
 	var censorLog CensorLog
-	q := db.WithContext(ctx).Where("hash = ?", hash)
+	q := db.WithContext(ctx).Where("input_hash = ?", hash)
 	if len(noLongerThan) > 0 && !noLongerThan[0].IsZero() {
 		q = q.Where("created_at > ?", noLongerThan[0])
 	}
