@@ -15,6 +15,7 @@ import (
 	"github.com/NekoWheel/NekoBox/internal/db"
 	"github.com/NekoWheel/NekoBox/internal/form"
 	"github.com/NekoWheel/NekoBox/internal/mail"
+	"github.com/NekoWheel/NekoBox/internal/security/censor"
 )
 
 func Pager(ctx context.Context) {
@@ -73,17 +74,38 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 		return
 	}
 
+	content := f.Content
+
+	// 🚨 Content security check.
+	censorResponse, err := censor.Text(ctx.Request().Context(), content)
+	if err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to censor text")
+	}
+	if err == nil && !censorResponse.Pass {
+		errorMessage := censorResponse.ErrorMessage()
+		ctx.SetError(errors.New(errorMessage), f)
+		ctx.Success("question/list")
+		return
+	}
+
 	fromIP := ctx.Request().Header.Get("X-Real-IP")
 	question, err := db.Questions.Create(ctx.Request().Context(), db.CreateQuestionOptions{
 		FromIP:  fromIP,
 		UserID:  pageUser.ID,
-		Content: f.Content,
+		Content: content,
 	})
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to create new question")
-		ctx.SetError(errors.New("服务器错误！"))
+		ctx.SetError(errors.New("服务器错误！"), f)
 		ctx.Success("question/list")
 		return
+	}
+
+	// Update censor result.
+	if err := db.Questions.UpdateCensor(ctx.Request().Context(), question.ID, db.UpdateQuestionCensorOptions{
+		ContentCensorMetadata: censorResponse.ToJSON(),
+	}); err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update question censor result")
 	}
 
 	go func() {

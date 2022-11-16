@@ -5,10 +5,13 @@
 package db
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 
 	"github.com/pkg/errors"
 	"github.com/thanhpk/randstr"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -20,6 +23,7 @@ type QuestionsStore interface {
 	GetByUserID(ctx context.Context, userID uint, answered bool) ([]*Question, error)
 	AnswerByID(ctx context.Context, id uint, answer string) error
 	DeleteByID(ctx context.Context, id uint) error
+	UpdateCensor(ctx context.Context, id uint, opts UpdateQuestionCensorOptions) error
 }
 
 func NewQuestionsStore(db *gorm.DB) QuestionsStore {
@@ -32,11 +36,15 @@ type questions struct {
 
 type Question struct {
 	gorm.Model
-	FromIP  string
-	UserID  uint
-	Content string
-	Token   string
-	Answer  string
+	FromIP                string
+	UserID                uint
+	Content               string
+	ContentCensorMetadata datatypes.JSON
+	ContentCensorPass     bool `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(content_censor_metadata->'$.pass' = true, false)) STORED NOT NULL"`
+	Token                 string
+	Answer                string
+	AnswerCensorMetadata  datatypes.JSON
+	AnswerCensorPass      bool `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(answer_censor_metadata->'$.pass' = true, false)) STORED NOT NULL"`
 }
 
 type CreateQuestionOptions struct {
@@ -53,6 +61,50 @@ func (db *questions) Create(ctx context.Context, opts CreateQuestionOptions) (*Q
 		Content: opts.Content,
 	}
 	return &question, db.WithContext(ctx).Create(&question).Error
+}
+
+type UpdateQuestionCensorOptions struct {
+	ContentCensorMetadata json.RawMessage
+	AnswerCensorMetadata  json.RawMessage
+}
+
+func (db *questions) UpdateCensor(ctx context.Context, id uint, opts UpdateQuestionCensorOptions) error {
+	question, err := db.GetByID(ctx, id)
+	if err != nil {
+		return errors.Wrap(err, "get by ID")
+	}
+
+	contentCensorMetadata := question.ContentCensorMetadata
+	if checkTextCensorResponseValid(opts.ContentCensorMetadata) {
+		contentCensorMetadata = datatypes.JSON(opts.ContentCensorMetadata)
+	}
+	answerCensorMetadata := question.AnswerCensorMetadata
+	if checkTextCensorResponseValid(opts.AnswerCensorMetadata) {
+		answerCensorMetadata = datatypes.JSON(opts.AnswerCensorMetadata)
+	}
+
+	return db.WithContext(ctx).Model(&Question{}).Where("id = ?", id).Updates(&Question{
+		ContentCensorMetadata: contentCensorMetadata,
+		AnswerCensorMetadata:  answerCensorMetadata,
+	}).Error
+}
+
+func checkTextCensorResponseValid(raw json.RawMessage) bool {
+	if len(raw) == 0 {
+		return false
+	}
+
+	if bytes.EqualFold(raw, []byte("null")) {
+		return false
+	}
+
+	var response struct {
+		SourceName string `json:"source_name"`
+	}
+	if err := json.Unmarshal(raw, &response); err != nil {
+		return false
+	}
+	return response.SourceName != ""
 }
 
 var ErrQuestionNotExist = errors.New("提问不存在")

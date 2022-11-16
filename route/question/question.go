@@ -13,6 +13,7 @@ import (
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
 	"github.com/NekoWheel/NekoBox/internal/form"
+	"github.com/NekoWheel/NekoBox/internal/security/censor"
 )
 
 func Questioner(ctx context.Context, pageUser *db.User) {
@@ -60,11 +61,32 @@ func PublishAnswer(ctx context.Context, pageUser *db.User, question *db.Question
 		return
 	}
 
-	if err := db.Questions.AnswerByID(ctx.Request().Context(), question.ID, f.Answer); err != nil {
-		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to answer question")
-		ctx.SetError(errors.New("服务器错误！"))
+	answer := f.Answer
+
+	// 🚨 Content security check.
+	censorResponse, err := censor.Text(ctx.Request().Context(), answer)
+	if err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to censor text")
+	}
+	if err == nil && !censorResponse.Pass {
+		errorMessage := censorResponse.ErrorMessage()
+		ctx.SetError(errors.New(errorMessage), f)
 		ctx.Success("question/item")
 		return
+	}
+
+	if err := db.Questions.AnswerByID(ctx.Request().Context(), question.ID, f.Answer); err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to answer question")
+		ctx.SetError(errors.New("服务器错误！"), f)
+		ctx.Success("question/item")
+		return
+	}
+
+	// Update censor result.
+	if err := db.Questions.UpdateCensor(ctx.Request().Context(), question.ID, db.UpdateQuestionCensorOptions{
+		AnswerCensorMetadata: censorResponse.ToJSON(),
+	}); err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update answer censor result")
 	}
 
 	ctx.SetSuccessFlash("回答发布成功！")
