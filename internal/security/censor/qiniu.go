@@ -63,10 +63,7 @@ func (r *QiniuTextCensorResponse) IsPass() bool {
 	}
 
 	// ⚠️ Right now, we allow `review` and `pass` to pass the censor.
-	if r.Result.Scenes.Antispam.Suggestion == "block" {
-		return false
-	}
-	return true
+	return r.Result.Scenes.Antispam.Suggestion != "block"
 }
 
 // Censor censors text with Qiniu API.
