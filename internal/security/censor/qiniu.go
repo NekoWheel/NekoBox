@@ -6,12 +6,14 @@ package censor
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
 
 	"github.com/pkg/errors"
 	"github.com/qiniu/go-sdk/v7/auth"
+	"github.com/samber/lo"
 )
 
 type QiniuTextCensor struct {
@@ -49,9 +51,27 @@ type QiniuTextCensorResponse struct {
 	} `json:"result"`
 }
 
+func (r *QiniuTextCensorResponse) IsPass() bool {
+	for _, detail := range r.Result.Scenes.Antispam.Details {
+		label := detail.Label
+
+		// These are absolutely not allowed to display to users.
+		blockedLabels := []string{"politics", "terrorism", "porn"}
+		if lo.Contains(blockedLabels, label) {
+			return false
+		}
+	}
+
+	// ⚠️ Right now, we allow `review` and `pass` to pass the censor.
+	if r.Result.Scenes.Antispam.Suggestion == "block" {
+		return false
+	}
+	return true
+}
+
 // Censor censors text with Qiniu API.
 // https://developer.qiniu.com/censor/7260/api-text-censor
-func (c *QiniuTextCensor) Censor(text string) (*TextCensorResponse, error) {
+func (c *QiniuTextCensor) Censor(ctx context.Context, text string) (*TextCensorResponse, error) {
 	var bodyBuffer bytes.Buffer
 	if err := json.NewEncoder(&bodyBuffer).Encode(map[string]interface{}{
 		"data": map[string]interface{}{
@@ -68,6 +88,7 @@ func (c *QiniuTextCensor) Censor(text string) (*TextCensorResponse, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "new request")
 	}
+	request = request.WithContext(ctx)
 
 	credentials := auth.New(c.accessKey, c.accessSecret)
 	token, err := credentials.SignRequestV2(request)
@@ -92,8 +113,12 @@ func (c *QiniuTextCensor) Censor(text string) (*TextCensorResponse, error) {
 		return nil, errors.Errorf("unexpected error code: %d, response body: %s", resp.StatusCode, string(bodyBytes))
 	}
 
+	return QiniuTextCensorParser(bodyBytes)
+}
+
+func QiniuTextCensorParser(raw []byte) (*TextCensorResponse, error) {
 	var responseJSON QiniuTextCensorResponse
-	if err := json.Unmarshal(bodyBytes, &responseJSON); err != nil {
+	if err := json.Unmarshal(raw, &responseJSON); err != nil {
 		return nil, errors.Wrap(err, "decode response body")
 	}
 
@@ -116,11 +141,11 @@ func (c *QiniuTextCensor) Censor(text string) (*TextCensorResponse, error) {
 
 	return &TextCensorResponse{
 		SourceName:    "qiniu",
-		Pass:          responseJSON.Result.Scenes.Antispam.Suggestion == "pass",
+		Pass:          responseJSON.IsPass(),
 		ForbiddenType: formatQiniuForbiddenType(detailKey),
 		Hint:          hint,
 		Confidence:    confidence,
-		Metadata:      bodyBytes,
+		Metadata:      raw,
 	}, nil
 }
 

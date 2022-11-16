@@ -5,6 +5,8 @@
 package censor
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 )
 
@@ -22,6 +24,20 @@ const (
 	ForbiddenTypeMeaningless ForbiddenType = "meaningless"
 )
 
+func (f ForbiddenType) String() string {
+	return map[ForbiddenType]string{
+		ForbiddenTypeSpam:        "含垃圾信息",
+		ForbiddenTypeAd:          "广告",
+		ForbiddenTypePolitics:    "涉政",
+		ForbiddenTypeTerrorism:   "暴恐",
+		ForbiddenTypeAbuse:       "辱骂",
+		ForbiddenTypePorn:        "色情",
+		ForbiddenTypeFlood:       "灌水",
+		ForbiddenTypeContraband:  "违禁",
+		ForbiddenTypeMeaningless: "无意义",
+	}[f]
+}
+
 type TextCensorResponse struct {
 	SourceName    string          `json:"source_name"`
 	Pass          bool            `json:"pass"`
@@ -31,6 +47,27 @@ type TextCensorResponse struct {
 	Metadata      json.RawMessage `json:"metadata"`
 }
 
+func (r *TextCensorResponse) ToJSON() []byte {
+	jsonBytes, _ := json.Marshal(r)
+	return jsonBytes
+}
+
+func CheckTextCensorResponseValid(raw json.RawMessage) bool {
+	if len(raw) == 0 {
+		return false
+	}
+
+	if bytes.EqualFold(raw, []byte("null")) {
+		return false
+	}
+
+	var r TextCensorResponse
+	if err := json.Unmarshal(raw, &r); err != nil {
+		return false
+	}
+	return r.SourceName != ""
+}
+
 type TextCensor interface {
-	Censor(text string) (*TextCensorResponse, error)
+	Censor(ctx context.Context, text string) (*TextCensorResponse, error)
 }

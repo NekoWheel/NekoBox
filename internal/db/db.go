@@ -31,12 +31,13 @@ func Init() (*gorm.DB, error) {
 		return nil, errors.Wrap(err, "connect to database")
 	}
 
-	if err := db.AutoMigrate(&User{}, &Question{}); err != nil {
+	if err := db.AutoMigrate(&User{}, &Question{}, &CensorLog{}); err != nil {
 		return nil, errors.Wrap(err, "auto migrate")
 	}
 
 	Users = NewUsersStore(db)
 	Questions = NewQuestionsStore(db)
+	CensorLogs = NewCensorLogsStore(db)
 
 	if err := db.Use(otelgorm.NewPlugin(
 		otelgorm.WithDBName(conf.Database.Name),

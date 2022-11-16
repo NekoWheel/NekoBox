@@ -63,6 +63,7 @@ require (
 	github.com/qiniu/go-sdk/v7 v7.13.0 // indirect
 	github.com/richardlehane/mscfb v1.0.4 // indirect
 	github.com/richardlehane/msoleps v1.0.1 // indirect
+	github.com/samber/lo v1.34.0 // indirect
 	github.com/smartystreets/assertions v1.0.1 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.1.16 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelutil v0.1.16 // indirect
@@ -78,6 +79,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v0.31.0 // indirect
 	go.opentelemetry.io/proto/otlp v0.19.0 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
+	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
 	golang.org/x/sys v0.1.0 // indirect
