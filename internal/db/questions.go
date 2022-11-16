@@ -37,7 +37,7 @@ type questions struct {
 type Question struct {
 	gorm.Model
 	FromIP                string
-	UserID                uint `gorm:"index"`
+	UserID                uint `gorm:"index:idx_question_user_id"`
 	Content               string
 	ContentCensorMetadata datatypes.JSON
 	ContentCensorPass     bool `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(content_censor_metadata->'$.pass' = true, false)) STORED NOT NULL"`
