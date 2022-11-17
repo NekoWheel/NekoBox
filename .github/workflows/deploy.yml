@@ -26,7 +26,6 @@ jobs:
       - name: Build
         run: |
           CGO_ENABLED=0 go build -v -ldflags "-w -s -extldflags '-static' -X 'github.com/NekoWheel/NekoBox/internal/conf.BuildCommit=$GITHUB_SHA'" -o NekoBox .
-          pwd
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v1
@@ -34,18 +33,12 @@ jobs:
           name: NekoBox
           path: /home/runner/work/NekoBox/NekoBox
 
-      - name: Set env
-        run: echo "IMAGE_TAG=$(date -u '+%Y%m%d-%I%M%S')" >> $GITHUB_ENV
-
-      - name: Create Docker tag
-        run: |
-          echo "::set-output name=tags::latest,$IMAGE_TAG"
-
       - name: Build & Publish to Registry
-        uses: elgohr/Publish-Docker-Github-Action@master
+        uses: wuhan005/publish-docker-action@master
         with:
-          name: ${{ secrets.DOCKER_NAME }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: ${{ secrets.DOCKER_REGISTRY }}
-          tags: ${{ steps.create_docker_tags.outputs.tags }}
+          repository: ${{ secrets.DOCKER_NAME }}
+          auto_tag: true
+          tag_format: "%YYYY%%MM%%DD%-%H%%m%%s%"
