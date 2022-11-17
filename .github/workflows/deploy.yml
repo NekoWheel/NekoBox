@@ -78,4 +78,4 @@ jobs:
             commit_user_email: bot@github.red
             commit_author: Eggplant Bot <bot@github.red>
             file_pattern: '*.yaml'
-            branch: master
+            branch: main
