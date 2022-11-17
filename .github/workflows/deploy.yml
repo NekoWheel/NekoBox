@@ -17,7 +17,7 @@ jobs:
         id: go
 
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
 
       - name: Get dependencies
         run: |
@@ -26,6 +26,10 @@ jobs:
       - name: Build
         run: |
           CGO_ENABLED=0 go build -v -ldflags "-w -s -extldflags '-static' -X 'github.com/NekoWheel/NekoBox/internal/conf.BuildCommit=$GITHUB_SHA'" -o NekoBox .
+
+      - name: Set image tag
+        id: image-tag
+        run: echo "tag=$(date -u '+%Y%m%d-%I%M%S')" >> GITHUB_OUTPUT
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v1
@@ -41,4 +45,33 @@ jobs:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           repository: ${{ secrets.DOCKER_NAME }}
           auto_tag: true
-          tag_format: "%YYYY%%MM%%DD%-%H%%m%%s%"
+          tag_format: ${{ steps.image-tag.outputs.tag }}
+
+  deploy:
+    - name: Check out code
+      uses: actions/checkout@v3
+      with:
+        repository: github.com/light-cube/app-deployment
+        token: ${{ secrets.BOT_GITHUB_TOKEN }}
+
+    - name: Setup Kustomize
+      uses: imranismail/setup-kustomize@v1
+      with:
+        kustomize-version: "3.6.1"
+
+    - name: Update deployment.yaml
+      run: |
+          cd nekobox
+          kustomize edit set image nekobox=${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAME }}:${{ steps.image-tag.outputs.tag }}
+          cd ..
+
+    - name: Push changes
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+          commit_message: Bump docker tag for NekoBox
+          commit_options: '--no-verify'
+          commit_user_name: Eggplant Bot
+          commit_user_email: bot@github.red
+          commit_author: Eggplant Bot <bot@github.red>
+          file_pattern: deployment.yaml
+          branch: master
