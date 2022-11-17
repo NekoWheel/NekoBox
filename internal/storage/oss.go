@@ -43,5 +43,8 @@ func UploadPictureToOSS(file multipart.File, _ *multipart.FileHeader) (string, e
 		return "", errors.Wrap(err, "put object")
 	}
 
+	if conf.Upload.AliyunBucketCDNHost != "" {
+		return fmt.Sprintf("https://%s/%s", conf.Upload.AliyunBucketCDNHost, key), nil
+	}
 	return fmt.Sprintf("https://%s.%s/%s", conf.Upload.AliyunBucket, conf.Upload.AliyunEndpoint, key), nil
 }
