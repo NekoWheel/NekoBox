@@ -55,7 +55,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
         with:
-          repository: github.com/light-cube/app-deployment
+          repository: light-cube/app-deployment
           token: ${{ secrets.BOT_GITHUB_TOKEN }}
 
       - name: Setup Kustomize
