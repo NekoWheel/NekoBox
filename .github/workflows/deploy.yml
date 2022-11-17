@@ -9,6 +9,8 @@ jobs:
   build:
     name: Build Binary
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.image-tag.outputs.tag }}
     steps:
       - name: Set up Go 1.19
         uses: actions/setup-go@v1
@@ -66,7 +68,7 @@ jobs:
       - name: Update deployment.yaml
         run: |
             cd nekobox
-            kustomize edit set image nekobox=${{ secrets.DOCKER_NAME }}:${{ needs.build.outputs.tag }}
+            kustomize edit set image nekobox=${{ secrets.DOCKER_NAME }}:${{ needs.build.outputs.image_tag }}
             cd ..
 
       - name: Push changes
