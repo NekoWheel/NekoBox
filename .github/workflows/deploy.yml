@@ -66,7 +66,7 @@ jobs:
       - name: Update deployment.yaml
         run: |
             cd nekobox
-            kustomize edit set image nekobox=${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAME }}:${{ steps.image-tag.outputs.tag }}
+            kustomize edit set image nekobox=${{ secrets.DOCKER_NAME }}:${{ needs.build.outputs.tag }}
             cd ..
 
       - name: Push changes
