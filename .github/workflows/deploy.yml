@@ -34,9 +34,12 @@ jobs:
           name: NekoBox
           path: /home/runner/work/NekoBox/NekoBox
 
+      - name: Set env
+        run: echo "IMAGE_TAG=$(date -u '+%Y%m%d-%I%M%S')" >> $GITHUB_ENV
+
       - name: Create Docker tag
         run: |
-          echo "::set-output name=tags::latest,$(git tag -l --sort=-v:refname | head -1 | cut -c 2-)"
+          echo "::set-output name=tags::latest,$IMAGE_TAG"
 
       - name: Build & Publish to Registry
         uses: elgohr/Publish-Docker-Github-Action@master
