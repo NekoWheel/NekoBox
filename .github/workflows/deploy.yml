@@ -29,7 +29,7 @@ jobs:
 
       - name: Set image tag
         id: image-tag
-        run: echo "tag=$(date -u '+%Y%m%d-%I%M%S')" >> GITHUB_OUTPUT
+        run: echo "tag=$(date -u '+%Y%m%d-%I%M%S')" >> $GITHUB_OUTPUT
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v1
