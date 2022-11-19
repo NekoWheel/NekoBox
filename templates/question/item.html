@@ -23,12 +23,19 @@
       {{template "base/alert" .}}
 
       {{ if .CanDelete }}
-      <form class="uk-float-right"
-            method="post"
-            action="/_/{{ .PageUser.Domain }}/{{ .Question.ID }}/delete">
-        {{ .CSRFTokenHTML }}
-        <button class="uk-button uk-button-danger uk-button-small">删除提问</button>
-      </form>
+      <a class="uk-button uk-button-danger uk-button-small" href="#">删除提问</a>
+      <div class="uk-dropbar uk-dropbar-top" uk-drop="stretch: x; mode: click">
+        <div class="uk-card uk-card-default uk-card-body">
+          <h3 class="uk-card-title">危险！</h3>
+          <p>你确定要删除这个提问吗？该操作不可恢复，请谨慎操作。</p>
+          <form class="uk-float-right"
+                method="post"
+                action="/_/{{ .PageUser.Domain }}/{{ .Question.ID }}/delete">
+            {{ .CSRFTokenHTML }}
+            <button class="uk-button uk-button-danger">确认删除</button>
+          </form>
+        </div>
+      </div>
       {{ end }}
 
       {{ if .IsOwnPage}}
