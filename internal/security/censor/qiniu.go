@@ -113,7 +113,7 @@ func (c *QiniuTextCensor) Censor(ctx context.Context, text string) (*TextCensorR
 	return QiniuTextCensorParser(bodyBytes)
 }
 
-func (c *QiniuTextCensor) String() string {
+func (*QiniuTextCensor) String() string {
 	return "qiniu"
 }
 

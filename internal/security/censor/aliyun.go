@@ -66,7 +66,7 @@ func (r *AliyunTextCensorResponse) IsPass() bool {
 
 // Censor censors text with Aliyun API.
 // https://developer.qiniu.com/censor/7260/api-text-censor
-func (c *AliyunTextCensor) Censor(ctx context.Context, text string) (*TextCensorResponse, error) {
+func (c *AliyunTextCensor) Censor(_ context.Context, text string) (*TextCensorResponse, error) {
 	client, err := green.NewClientWithAccessKey("cn-shanghai", c.accessKey, c.accessKeySecret)
 	if err != nil {
 		return nil, errors.Wrap(err, "new client with access key")
@@ -98,7 +98,7 @@ func (c *AliyunTextCensor) Censor(ctx context.Context, text string) (*TextCensor
 	return AliyunTextCensorParser(resp.GetHttpContentBytes())
 }
 
-func (c *AliyunTextCensor) String() string {
+func (*AliyunTextCensor) String() string {
 	return "aliyun"
 }
 
