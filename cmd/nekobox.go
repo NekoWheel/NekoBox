@@ -5,40 +5,23 @@
 package main
 
 import (
-	"github.com/sirupsen/logrus"
-	"github.com/uptrace/opentelemetry-go-extra/otellogrus"
-	"github.com/uptrace/uptrace-go/uptrace"
+	"os"
 
-	"github.com/NekoWheel/NekoBox/internal/conf"
-	"github.com/NekoWheel/NekoBox/internal/db"
-	"github.com/NekoWheel/NekoBox/internal/route"
-	"github.com/NekoWheel/NekoBox/internal/tracing"
+	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
+
+	"github.com/NekoWheel/NekoBox/internal/cmd"
 )
 
 func main() {
-	if err := conf.Init(); err != nil {
-		logrus.WithError(err).Fatal("Failed to load configuration")
+	app := cli.NewApp()
+	app.Name = "NekoBox"
+	app.Description = "Anonymous question box"
+
+	app.Commands = []*cli.Command{
+		cmd.Web,
 	}
-
-	uptrace.ConfigureOpentelemetry(
-		uptrace.WithDSN(conf.App.UptraceDSN),
-		uptrace.WithServiceName("nekobox"),
-		uptrace.WithServiceVersion(conf.BuildCommit),
-	)
-
-	logrus.AddHook(otellogrus.NewHook(otellogrus.WithLevels(
-		logrus.PanicLevel,
-		logrus.FatalLevel,
-		logrus.ErrorLevel,
-		logrus.WarnLevel,
-	)))
-
-	_, err := db.Init()
-	if err != nil {
-		logrus.WithError(err).Fatal("Failed to connect database")
+	if err := app.Run(os.Args); err != nil {
+		logrus.WithError(err).Fatal("Failed to start application")
 	}
-
-	r := route.New()
-	r.Use(tracing.Middleware("NekoBox"))
-	r.Run(conf.Server.Port)
 }

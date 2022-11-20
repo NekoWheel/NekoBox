@@ -8,5 +8,5 @@ WORKDIR /home/app
 
 RUN chmod 777 /home/app/NekoBox
 
-ENTRYPOINT ["./NekoBox"]
+ENTRYPOINT ["./NekoBox", "web"]
 EXPOSE 8080
