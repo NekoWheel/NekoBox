@@ -17,7 +17,7 @@ import (
 var CensorLogs CensorLogsStore
 
 type CensorLogsStore interface {
-	GetByText(ctx context.Context, text string, noLongerThan ...time.Time) (*CensorLog, error)
+	GetByText(ctx context.Context, sourceName, text string, noLongerThan ...time.Time) (*CensorLog, error)
 	Create(ctx context.Context, options CreateCensorLogOptions) error
 }
 
@@ -40,11 +40,11 @@ type CensorLog struct {
 
 var ErrCensorLogsNotFound = errors.New("censor logs dose not exist")
 
-func (db *censorLogs) GetByText(ctx context.Context, text string, noLongerThan ...time.Time) (*CensorLog, error) {
+func (db *censorLogs) GetByText(ctx context.Context, sourceName, text string, noLongerThan ...time.Time) (*CensorLog, error) {
 	hash := hashText(text)
 
 	var censorLog CensorLog
-	q := db.WithContext(ctx).Where("input_hash = ?", hash)
+	q := db.WithContext(ctx).Where("source_name = ? AND input_hash = ?", sourceName, hash)
 	if len(noLongerThan) > 0 && !noLongerThan[0].IsZero() {
 		q = q.Where("created_at > ?", noLongerThan[0])
 	}

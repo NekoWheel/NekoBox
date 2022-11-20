@@ -3,6 +3,7 @@ module github.com/NekoWheel/NekoBox
 go 1.19
 
 require (
+	github.com/aliyun/alibaba-cloud-sdk-go v1.62.26
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.4+incompatible
 	github.com/flamego/cache v1.1.0
 	github.com/flamego/csrf v1.0.1
@@ -29,7 +30,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.9.0
 	go.opentelemetry.io/otel/trace v1.10.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
-	gopkg.in/ini.v1 v1.62.0
+	gopkg.in/ini.v1 v1.66.2
 	gorm.io/datatypes v1.0.7
 	gorm.io/driver/mysql v1.3.6
 	gorm.io/gorm v1.23.8
@@ -49,9 +50,14 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
+	github.com/json-iterator/go v1.1.8 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
+	github.com/opentracing/opentracing-go v1.2.1-0.20220228012449-10b1cf09e00b // indirect
 	github.com/richardlehane/mscfb v1.0.4 // indirect
 	github.com/richardlehane/msoleps v1.0.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect

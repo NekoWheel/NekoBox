@@ -22,6 +22,7 @@ const (
 	ForbiddenTypeFlood       ForbiddenType = "flood"
 	ForbiddenTypeContraband  ForbiddenType = "contraband"
 	ForbiddenTypeMeaningless ForbiddenType = "meaningless"
+	ForbiddenTypeHarmful     ForbiddenType = "harmful"
 )
 
 func (f ForbiddenType) String() string {
@@ -35,6 +36,7 @@ func (f ForbiddenType) String() string {
 		ForbiddenTypeFlood:       "灌水",
 		ForbiddenTypeContraband:  "违禁",
 		ForbiddenTypeMeaningless: "无意义",
+		ForbiddenTypeHarmful:     "不良场景",
 	}[f]
 }
 
@@ -65,4 +67,5 @@ func (r *TextCensorResponse) ErrorMessage() string {
 
 type TextCensor interface {
 	Censor(ctx context.Context, text string) (*TextCensorResponse, error)
+	String() string
 }

@@ -113,6 +113,10 @@ func (c *QiniuTextCensor) Censor(ctx context.Context, text string) (*TextCensorR
 	return QiniuTextCensorParser(bodyBytes)
 }
 
+func (c *QiniuTextCensor) String() string {
+	return "qiniu"
+}
+
 func QiniuTextCensorParser(raw []byte) (*TextCensorResponse, error) {
 	var responseJSON QiniuTextCensorResponse
 	if err := json.Unmarshal(raw, &responseJSON); err != nil {
