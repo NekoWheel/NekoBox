@@ -93,7 +93,6 @@ func New() *flamego.Flame {
 			f.Combo("").Get(question.List).Post(form.Bind(form.NewQuestion{}), question.New)
 			f.Group("/{questionID}", func() {
 				f.Get("", question.Item)
-				//f.Post("/update", question.Update)
 				f.Post("/delete", question.Delete)
 				f.Post("/answer", reqUserSignIn, form.Bind(form.PublishAnswerQuestion{}), question.PublishAnswer)
 			}, question.Questioner)

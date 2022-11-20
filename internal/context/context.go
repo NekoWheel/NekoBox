@@ -126,14 +126,6 @@ func Contexter() flamego.Handler {
 		}
 		c.ResponseWriter().Header().Set("Trace-ID", span.SpanContext().TraceID().String())
 
-		// If request sends files, parse them here otherwise the Query() can't be parsed and the CsrfToken will be invalid.
-		//if c.Request().Method == http.MethodPost && strings.Contains(c.Request().Header.Get("Content-Type"), "multipart/form-data") {
-		//	if err := c.Request().ParseMultipartForm(conf.Attachment.MaxSize << 20); err != nil && !strings.Contains(err.Error(), "EOF") { // 32MB max size
-		//		c.Error(err, "parse multipart form")
-		//		return
-		//	}
-		//}
-
 		if flash != nil {
 			flash, ok := flash.(Flash)
 			if ok {
