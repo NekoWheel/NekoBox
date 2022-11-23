@@ -37,6 +37,11 @@ var (
 		Name     string `ini:"name"`
 	}
 
+	Redis struct {
+		Addr     string `ini:"addr"`
+		Password string `ini:"password"`
+	}
+
 	Recaptcha struct {
 		Domain    string `ini:"domain"`
 		SiteKey   string `ini:"site_key"`

@@ -40,6 +40,10 @@ func Init() error {
 		return errors.Wrap(err, "map 'database'")
 	}
 
+	if err := File.Section("redis").MapTo(&Redis); err != nil {
+		return errors.Wrap(err, "map 'redis'")
+	}
+
 	if err := File.Section("recaptcha").MapTo(&Recaptcha); err != nil {
 		return errors.Wrap(err, "map 'recaptcha'")
 	}

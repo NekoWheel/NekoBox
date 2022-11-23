@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/flamego/cache"
+	"github.com/flamego/cache/redis"
 	"github.com/flamego/csrf"
 	"github.com/flamego/flamego"
 	"github.com/flamego/recaptcha"
@@ -111,7 +112,16 @@ func New() *flamego.Flame {
 			f.Get("/logout", auth.Logout)
 		}, reqUserSignIn)
 	},
-		cache.Cacher(),
+		cache.Cacher(cache.Options{
+			Initer: redis.Initer(),
+			Config: redis.Config{
+				Options: &redis.Options{
+					Addr:     conf.Redis.Addr,
+					Password: conf.Redis.Password,
+					DB:       0,
+				},
+			},
+		}),
 		recaptcha.V2(
 			recaptcha.Options{
 				Secret:    conf.Recaptcha.ServerKey,
