@@ -11,12 +11,13 @@ import (
 	"time"
 
 	"github.com/flamego/cache"
-	"github.com/flamego/cache/redis"
+	cacheRedis "github.com/flamego/cache/redis"
 	"github.com/flamego/csrf"
 	"github.com/flamego/flamego"
 	"github.com/flamego/recaptcha"
 	"github.com/flamego/session"
 	"github.com/flamego/session/mysql"
+	sessionRedis "github.com/flamego/session/redis"
 	"github.com/flamego/template"
 	"github.com/sirupsen/logrus"
 
@@ -53,6 +54,17 @@ func New() *flamego.Flame {
 		initer = mysql.Initer()
 		sessionStorage = mysql.Config{
 			DSN:      conf.Database.DSN,
+			Lifetime: 7 * 24 * time.Hour,
+		}
+	}
+	if conf.Redis.Addr != "" {
+		initer = sessionRedis.Initer()
+		sessionStorage = sessionRedis.Config{
+			Options: &cacheRedis.Options{
+				Addr:     conf.Redis.Addr,
+				Password: conf.Redis.Password,
+				DB:       1,
+			},
 			Lifetime: 7 * 24 * time.Hour,
 		}
 	}
@@ -113,9 +125,9 @@ func New() *flamego.Flame {
 		}, reqUserSignIn)
 	},
 		cache.Cacher(cache.Options{
-			Initer: redis.Initer(),
-			Config: redis.Config{
-				Options: &redis.Options{
+			Initer: cacheRedis.Initer(),
+			Config: cacheRedis.Config{
+				Options: &cacheRedis.Options{
 					Addr:     conf.Redis.Addr,
 					Password: conf.Redis.Password,
 					DB:       0,
