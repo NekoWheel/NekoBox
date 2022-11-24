@@ -123,6 +123,18 @@ func New() *flamego.Flame {
 
 			f.Get("/logout", auth.Logout)
 		}, reqUserSignIn)
+
+		f.Group("/api/v1", func() {
+			f.Group("/user", func() {
+				f.Get("", reqUserSignIn, user.ProfileAPI)
+
+				f.Group("/{domain}", func() {
+					f.Group("/questions", func() {
+						f.Get("", question.ListAPI)
+					})
+				})
+			})
+		}, context.APIEndpoint)
 	},
 		cache.Cacher(cache.Options{
 			Initer: cacheRedis.Initer(),

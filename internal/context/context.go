@@ -5,6 +5,7 @@
 package context
 
 import (
+	"encoding/json"
 	"net/http"
 	"reflect"
 
@@ -20,6 +21,25 @@ import (
 	"github.com/NekoWheel/NekoBox/internal/db"
 	templatepkg "github.com/NekoWheel/NekoBox/internal/template"
 )
+
+type EndpointType string
+
+const (
+	EndpointAPI EndpointType = "api"
+	EndpointWeb EndpointType = "web"
+)
+
+func (e EndpointType) IsAPI() bool {
+	return e == EndpointAPI
+}
+
+func (e EndpointType) IsWeb() bool {
+	return e == EndpointWeb
+}
+
+func APIEndpoint(ctx Context) {
+	ctx.Map(EndpointAPI)
+}
 
 // Context represents context of a request.
 type Context struct {
@@ -84,6 +104,35 @@ func (c *Context) SetTitle(title string) {
 
 func (c *Context) Refresh() {
 	c.Redirect(c.Request().URL.Path)
+}
+
+func (c *Context) JSON(data interface{}) error {
+	resp := map[string]interface{}{
+		"code":    0,
+		"data":    data,
+		"message": "success",
+	}
+
+	return json.NewEncoder(c.ResponseWriter()).Encode(resp)
+}
+
+func (c *Context) ServerError() error {
+	return c.JSONError(50000, "服务器内部错误")
+}
+
+func (c *Context) JSONError(errorCode int, message string) error {
+	resp := map[string]interface{}{
+		"code":    errorCode,
+		"message": message,
+	}
+
+	statusCode := errorCode / 100
+	if statusCode < 100 || statusCode > 999 {
+		statusCode = http.StatusInternalServerError
+	}
+	c.ResponseWriter().WriteHeader(statusCode)
+
+	return json.NewEncoder(c.ResponseWriter()).Encode(resp)
 }
 
 // Contexter initializes a classic context for a request.
@@ -155,5 +204,6 @@ func Contexter() flamego.Handler {
 		c.ResponseWriter().Header().Set("X-Frame-Options", "DENY")
 
 		ctx.Map(c)
+		ctx.Map(EndpointWeb)
 	}
 }

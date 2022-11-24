@@ -8,11 +8,14 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/pkg/errors"
 	"github.com/thanhpk/randstr"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
+
+	"github.com/NekoWheel/NekoBox/internal/dbutil"
 )
 
 var Questions QuestionsStore
@@ -20,7 +23,7 @@ var Questions QuestionsStore
 type QuestionsStore interface {
 	Create(ctx context.Context, opts CreateQuestionOptions) (*Question, error)
 	GetByID(ctx context.Context, id uint) (*Question, error)
-	GetByUserID(ctx context.Context, userID uint, answered bool) ([]*Question, error)
+	GetByUserID(ctx context.Context, userID uint, opts GetQuestionsByUserIDOptions) ([]*Question, error)
 	AnswerByID(ctx context.Context, id uint, answer string) error
 	DeleteByID(ctx context.Context, id uint) error
 	UpdateCensor(ctx context.Context, id uint, opts UpdateQuestionCensorOptions) error
@@ -35,16 +38,16 @@ type questions struct {
 }
 
 type Question struct {
-	gorm.Model
-	FromIP                string
-	UserID                uint `gorm:"index:idx_question_user_id"`
-	Content               string
-	ContentCensorMetadata datatypes.JSON
-	ContentCensorPass     bool `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(content_censor_metadata->'$.pass' = true, false)) STORED NOT NULL"`
-	Token                 string
-	Answer                string
-	AnswerCensorMetadata  datatypes.JSON
-	AnswerCensorPass      bool `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(answer_censor_metadata->'$.pass' = true, false)) STORED NOT NULL"`
+	dbutil.Model
+	FromIP                string         `json:"-"`
+	UserID                uint           `gorm:"index:idx_question_user_id" json:"-"`
+	Content               string         `json:"content"`
+	ContentCensorMetadata datatypes.JSON `json:"-"`
+	ContentCensorPass     bool           `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(content_censor_metadata->'$.pass' = true, false)) STORED NOT NULL" json:"-"`
+	Token                 string         `json:"-"`
+	Answer                string         `json:"answer"`
+	AnswerCensorMetadata  datatypes.JSON `json:"-"`
+	AnswerCensorPass      bool           `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(answer_censor_metadata->'$.pass' = true, false)) STORED NOT NULL" json:"-"`
 }
 
 type CreateQuestionOptions struct {
@@ -120,16 +123,33 @@ func (db *questions) GetByID(ctx context.Context, id uint) (*Question, error) {
 	return &question, nil
 }
 
-func (db *questions) GetByUserID(ctx context.Context, userID uint, answered bool) ([]*Question, error) {
+type GetQuestionsByUserIDOptions struct {
+	*dbutil.Cursor
+	FilterAnswered bool
+}
+
+func (db *questions) GetByUserID(ctx context.Context, userID uint, opts GetQuestionsByUserIDOptions) ([]*Question, error) {
 	var questions []*Question
 	q := db.WithContext(ctx)
-	if answered {
+	if opts.FilterAnswered {
 		q = q.Where(`user_id = ? AND answer <> ""`, userID)
 	} else {
 		q = q.Where(`user_id = ?`, userID)
 	}
 
-	if err := q.Order("created_at DESC").Find(&questions).Error; err != nil {
+	if opts.Cursor != nil {
+		cursor := opts.Cursor.Value
+		if cursor != nil && fmt.Sprintf("%v", cursor) != "" {
+			// For we ordered by ID DESC, so we need to use `>` instead of `<`.
+			q = q.Where(`id < ?`, cursor)
+		}
+
+		limit := opts.Cursor.Limit()
+		q = q.Limit(limit)
+	}
+
+	q = q.Order("created_at DESC")
+	if err := q.Find(&questions).Error; err != nil {
 		return nil, errors.Wrap(err, "get questions by page ID")
 	}
 	return questions, nil

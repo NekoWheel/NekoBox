@@ -28,13 +28,16 @@ type ToggleOptions struct {
 }
 
 func Toggle(options *ToggleOptions) flamego.Handler {
-	return func(ctx Context) error {
+	return func(ctx Context, endpoint EndpointType) error {
 		if options.UserSignOutRequired && ctx.IsLogged {
 			ctx.Redirect("/")
 			return nil
 		}
 
 		if options.UserSignInRequired && !ctx.IsLogged {
+			if endpoint.IsAPI() {
+				return ctx.JSONError(40100, "请先登录")
+			}
 			ctx.SetErrorFlash("请先登录！")
 			ctx.Redirect("/login")
 			return nil

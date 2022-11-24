@@ -13,6 +13,7 @@ import (
 
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
+	"github.com/NekoWheel/NekoBox/internal/dbutil"
 	"github.com/NekoWheel/NekoBox/internal/form"
 	"github.com/NekoWheel/NekoBox/internal/mail"
 	"github.com/NekoWheel/NekoBox/internal/security/censor"
@@ -35,7 +36,9 @@ func Pager(ctx context.Context) {
 	}
 	ctx.Map(pageUser)
 
-	pageQuestions, err := db.Questions.GetByUserID(ctx.Request().Context(), pageUser.ID, true)
+	pageQuestions, err := db.Questions.GetByUserID(ctx.Request().Context(), pageUser.ID, db.GetQuestionsByUserIDOptions{
+		FilterAnswered: true,
+	})
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get questions by page id")
 		ctx.SetError(errors.New("服务器错误！"))
@@ -52,6 +55,34 @@ func Pager(ctx context.Context) {
 
 func List(ctx context.Context) {
 	ctx.Success("question/list")
+}
+
+func ListAPI(ctx context.Context) error {
+	domain := ctx.Param("domain")
+	pageSize := ctx.QueryInt("page_size")
+	cursorValue := ctx.Query("cursor")
+
+	pageUser, err := db.Users.GetByDomain(ctx.Request().Context(), domain)
+	if err != nil {
+		if errors.Is(err, db.ErrUserNotExists) {
+			return ctx.JSONError(40400, "用户不存在")
+		}
+		return ctx.ServerError()
+	}
+
+	pageQuestions, err := db.Questions.GetByUserID(ctx.Request().Context(), pageUser.ID, db.GetQuestionsByUserIDOptions{
+		Cursor: &dbutil.Cursor{
+			Value:    cursorValue,
+			PageSize: pageSize,
+		},
+		FilterAnswered: true,
+	})
+	if err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get questions by page id")
+		return ctx.ServerError()
+	}
+
+	return ctx.JSON(pageQuestions)
 }
 
 func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha recaptcha.RecaptchaV2) {

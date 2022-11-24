@@ -12,7 +12,9 @@ import (
 )
 
 func QuestionList(ctx context.Context) {
-	questions, err := db.Questions.GetByUserID(ctx.Request().Context(), ctx.User.ID, false)
+	questions, err := db.Questions.GetByUserID(ctx.Request().Context(), ctx.User.ID, db.GetQuestionsByUserIDOptions{
+		FilterAnswered: false,
+	})
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get questions by user ID")
 		ctx.Redirect("/")

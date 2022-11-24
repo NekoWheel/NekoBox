@@ -23,6 +23,10 @@ func Profile(ctx context.Context) {
 	ctx.Success("user/profile")
 }
 
+func ProfileAPI(ctx context.Context) error {
+	return ctx.JSON(ctx.User)
+}
+
 func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 	if ctx.HasError() {
 		ctx.Success("user/profile")
@@ -101,7 +105,9 @@ func ExportProfile(ctx context.Context) {
 		return
 	}
 
-	questions, err := db.Questions.GetByUserID(ctx.Request().Context(), user.ID, false)
+	questions, err := db.Questions.GetByUserID(ctx.Request().Context(), user.ID, db.GetQuestionsByUserIDOptions{
+		FilterAnswered: false,
+	})
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get questions")
 
