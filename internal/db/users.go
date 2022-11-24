@@ -39,15 +39,15 @@ type users struct {
 }
 
 type User struct {
-	gorm.Model
-	Name       string
-	Password   string
-	Email      string
-	Avatar     string
-	Domain     string
-	Background string
-	Intro      string
-	Notify     string
+	gorm.Model `json:"-"`
+	Name       string `json:"name"`
+	Password   string `json:"-"`
+	Email      string `json:"email"`
+	Avatar     string `json:"avatar"`
+	Domain     string `json:"domain"`
+	Background string `json:"background"`
+	Intro      string `json:"intro"`
+	Notify     string `json:"notify"`
 }
 
 type NotifyType string
