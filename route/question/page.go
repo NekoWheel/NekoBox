@@ -37,6 +37,7 @@ func Pager(ctx context.Context) {
 	ctx.Map(pageUser)
 
 	pageQuestions, err := db.Questions.GetByUserID(ctx.Request().Context(), pageUser.ID, db.GetQuestionsByUserIDOptions{
+		Cursor:         &dbutil.Cursor{},
 		FilterAnswered: true,
 	})
 	if err != nil {
@@ -51,6 +52,9 @@ func Pager(ctx context.Context) {
 	ctx.Data["IsOwnPage"] = ctx.IsLogged && ctx.User.ID == pageUser.ID
 	ctx.Data["PageUser"] = pageUser
 	ctx.Data["PageQuestions"] = pageQuestions
+	if len(pageQuestions) > 0 {
+		ctx.Data["PageQuestionCursor"] = pageQuestions[len(pageQuestions)-1].ID
+	}
 }
 
 func List(ctx context.Context) {

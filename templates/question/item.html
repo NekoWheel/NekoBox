@@ -71,17 +71,7 @@
 
       <hr class="uk-divider-icon">
       <p class="uk-text-left uk-text-muted uk-text-small">@{{ .PageUser.Name }}以前回答过的问题</p>
-      {{range $index, $elem := .PageQuestions}}
-      {{ if ne $elem.Answer ""}}
-      <div>
-        <hr>
-        <a class="uk-button uk-button-default uk-button-small uk-float-right"
-           href="/_/{{$.PageUser.Domain}}/{{$elem.ID}}">查看回答</a>
-        <div class="uk-text-left uk-text-small uk-text-muted">{{Date $elem.CreatedAt "Y-m-d H:i:s"}}</div>
-        <p class="uk-text-small">{{$elem.Content}}</p>
-      </div>
-      {{end}}
-      {{end}}
+      {{ template "question/history-template" . }}
     </div>
   </div>
 </div>

@@ -10,14 +10,11 @@
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.10.5/dist/cdn.min.js"/></script>
   <script src="{{.RecaptchaDomain}}/recaptcha/api.js" async defer></script>
   <script>
-      function onSubmit() {
-          document.getElementById('form').submit();
-      }
+      function onSubmit() {document.getElementById('form').submit();}
+      Alpine.store('questions', { items: [], insert(messages) {this.items.push(messages)}})
   </script>
   <style>
-      .grecaptcha-badge {
-          visibility: hidden;
-      }
+      .grecaptcha-badge {visibility: hidden;}
   </style>
 
   <meta itemprop="image" content="https://nekobox-public.oss-cn-hangzhou.aliyuncs.com/images/Neko.png"/>
