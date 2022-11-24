@@ -24,15 +24,13 @@
 
               cursor = data[data.length - 1].id
               data.forEach(question => {
-                const createdAt = new Date(question.created_at)
-                const createdAtStr = `${createdAt.getFullYear()}-${createdAt.getMonth() + 1}-${createdAt.getDate()} ${createdAt.getHours()}:${createdAt.getMinutes()}:${createdAt.getSeconds()}`
                 const div = document.createElement('div')
                 div.innerHTML = `
                   <div>
                     <hr>
                     <a class='uk-button uk-button-default uk-button-small uk-float-right'
                        href='/_/{{.PageUser.Domain}}/${question.id}'>查看回答</a>
-                    <div class='uk-text-left uk-text-small uk-text-muted'>${createdAtStr}</div>
+                    <div class='uk-text-left uk-text-small uk-text-muted'>${dayjs(question.created_at).format('YYYY-MM-DD HH:mm:ss')}</div>
                     <p class='uk-text-small'></p>
                   </div>`
                 div.getElementsByTagName('p')[0].innerText = question.content
