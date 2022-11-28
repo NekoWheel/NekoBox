@@ -39,7 +39,7 @@ func New() *flamego.Flame {
 		flamego.SetEnv(flamego.EnvTypeProd)
 	}
 
-	templateFS, err := template.EmbedFS(templates.FS, ".", []string{".html"})
+	templateFS, err := templatepkg.Minify(templates.FS, ".", []string{".html"})
 	if err != nil {
 		logrus.WithError(err).Fatal("Failed to embed templates file system")
 	}

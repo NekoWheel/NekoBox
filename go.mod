@@ -16,6 +16,7 @@ require (
 	github.com/qiniu/go-sdk/v7 v7.13.0
 	github.com/samber/lo v1.34.0
 	github.com/sirupsen/logrus v1.9.0
+	github.com/tdewolff/minify/v2 v2.12.4
 	github.com/thanhpk/randstr v1.0.4
 	github.com/unknwon/com v1.0.1
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.1.16
@@ -65,6 +66,7 @@ require (
 	github.com/richardlehane/msoleps v1.0.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/smartystreets/assertions v1.0.1 // indirect
+	github.com/tdewolff/parse/v2 v2.6.4 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.1.16 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelutil v0.1.16 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
