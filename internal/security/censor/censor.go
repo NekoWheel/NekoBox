@@ -22,6 +22,10 @@ var (
 // Text checks the text for sensitive content.
 // It will save the censor log to the database and invoke the callback function.
 func Text(ctx context.Context, text string) (*TextCensorResponse, error) {
+	if !conf.Security.EnableTextCensor {
+		return &TextCensorResponse{Pass: true}, nil
+	}
+
 	var responses []*TextCensorResponse
 
 	for _, censor := range []TextCensor{

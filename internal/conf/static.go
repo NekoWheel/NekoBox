@@ -23,6 +23,10 @@ var (
 		AliyunAccessKeySecret string `ini:"aliyun_access_key_secret"`
 	}
 
+	Security struct {
+		EnableTextCensor bool `ini:"enable_text_censor"`
+	}
+
 	Server struct {
 		Port    int    `ini:"port"`
 		Salt    string `ini:"salt"`
@@ -49,8 +53,6 @@ var (
 	}
 
 	Upload struct {
-		Token               string `ini:"token"`
-		URL                 string `ini:"url"`
 		DefaultAvatarURL    string `ini:"default_avatar"`
 		DefaultBackground   string `ini:"default_background"`
 		AliyunEndpoint      string `ini:"aliyun_endpoint"`

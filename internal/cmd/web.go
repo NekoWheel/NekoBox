@@ -23,16 +23,19 @@ var Web = &cli.Command{
 	Action: runWeb,
 }
 
-func runWeb(_ *cli.Context) error {
+func runWeb(ctx *cli.Context) error {
 	if err := conf.Init(); err != nil {
 		return errors.Wrap(err, "load configuration")
 	}
 
-	uptrace.ConfigureOpentelemetry(
-		uptrace.WithDSN(conf.App.UptraceDSN),
-		uptrace.WithServiceName("nekobox"),
-		uptrace.WithServiceVersion(conf.BuildCommit),
-	)
+	if conf.App.UptraceDSN != "" {
+		uptrace.ConfigureOpentelemetry(
+			uptrace.WithDSN(conf.App.UptraceDSN),
+			uptrace.WithServiceName("nekobox"),
+			uptrace.WithServiceVersion(conf.BuildCommit),
+		)
+		logrus.WithContext(ctx.Context).Debug("Tracing enabled.")
+	}
 
 	logrus.AddHook(otellogrus.NewHook(otellogrus.WithLevels(
 		logrus.PanicLevel,

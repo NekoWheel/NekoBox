@@ -25,6 +25,10 @@ func runCensor(ctx *cli.Context) error {
 		return errors.Wrap(err, "load configuration")
 	}
 
+	if !conf.Security.EnableTextCensor {
+		return errors.New("text censor is disabled")
+	}
+
 	database, err := db.Init()
 	if err != nil {
 		return errors.Wrap(err, "connect to database")

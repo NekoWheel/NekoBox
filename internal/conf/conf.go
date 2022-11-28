@@ -32,6 +32,10 @@ func Init() error {
 		return errors.Wrap(err, "map 'server'")
 	}
 
+	if err := File.Section("security").MapTo(&Security); err != nil {
+		return errors.Wrap(err, "map 'security'")
+	}
+
 	if err := File.Section("server").MapTo(&Server); err != nil {
 		return errors.Wrap(err, "map 'server'")
 	}
