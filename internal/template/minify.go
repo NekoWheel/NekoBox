@@ -21,7 +21,7 @@ import (
 	"github.com/tdewolff/minify/v2/js"
 )
 
-var _ template.FileSystem = (*fileSystem)(nil)
+var _ template.FileSystem = (*FileSystem)(nil)
 
 type file struct {
 	name string
@@ -33,11 +33,11 @@ func (f *file) Name() string          { return f.name }
 func (f *file) Data() ([]byte, error) { return f.data, nil }
 func (f *file) Ext() string           { return f.ext }
 
-type fileSystem struct {
+type FileSystem struct {
 	files []template.File
 }
 
-func (fs *fileSystem) Files() []template.File { return fs.files }
+func (fs *FileSystem) Files() []template.File { return fs.files }
 
 // getExt returns the extension of given name, prefixed with the dot (".").
 func getExt(name string) string {
@@ -48,7 +48,7 @@ func getExt(name string) string {
 	return name[i:]
 }
 
-func Minify(embedFS embed.FS, dir string, allowedExtensions []string) (*fileSystem, error) {
+func Minify(embedFS embed.FS, dir string, allowedExtensions []string) (*FileSystem, error) {
 	var beforeSize, afterSize int64
 
 	var files []template.File
@@ -115,7 +115,7 @@ func Minify(embedFS embed.FS, dir string, allowedExtensions []string) (*fileSyst
 		"ratio":       float64(afterSize) / float64(beforeSize),
 	}).Info("Minify succeeded")
 
-	return &fileSystem{
+	return &FileSystem{
 		files: files,
 	}, nil
 }
