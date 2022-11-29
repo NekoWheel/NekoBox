@@ -27,6 +27,7 @@ type QuestionsStore interface {
 	AnswerByID(ctx context.Context, id uint, answer string) error
 	DeleteByID(ctx context.Context, id uint) error
 	UpdateCensor(ctx context.Context, id uint, opts UpdateQuestionCensorOptions) error
+	Count(ctx context.Context, userID uint, opts GetQuestionsCountOptions) (int64, error)
 }
 
 func NewQuestionsStore(db *gorm.DB) QuestionsStore {
@@ -183,4 +184,20 @@ func (db *questions) DeleteByID(ctx context.Context, id uint) error {
 		return errors.Wrap(err, "delete question")
 	}
 	return nil
+}
+
+type GetQuestionsCountOptions struct {
+	FilterAnswered bool
+}
+
+func (db *questions) Count(ctx context.Context, userID uint, opts GetQuestionsCountOptions) (int64, error) {
+	q := db.WithContext(ctx).Model(&Question{})
+	if opts.FilterAnswered {
+		q = q.Where(`user_id = ? AND answer <> ""`, userID)
+	} else {
+		q = q.Where(`user_id = ?`, userID)
+	}
+
+	var count int64
+	return count, q.Count(&count).Error
 }

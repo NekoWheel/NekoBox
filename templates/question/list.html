@@ -38,7 +38,7 @@
 
     <hr class="uk-divider-icon">
     {{ if ne (len .PageQuestions) 0 }}
-    <p class="uk-text-left uk-text-muted uk-text-small">@{{ .PageUser.Name }} 以前回答过的问题</p>
+    <p class="uk-text-left uk-text-muted uk-text-small">@{{ .PageUser.Name }} 以前回答过的问题 ({{ .AnsweredCount }})</p>
     {{ template "question/history-template" . }}
     {{ end }}
   </div>

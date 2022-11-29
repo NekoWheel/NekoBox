@@ -47,11 +47,22 @@ func Pager(ctx context.Context) {
 		return
 	}
 
+	answeredCount, err := db.Questions.Count(ctx.Request().Context(), pageUser.ID, db.GetQuestionsCountOptions{
+		FilterAnswered: true,
+	})
+	if err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to count questions")
+		ctx.SetError(errors.New("服务器错误！"))
+		ctx.Success("question/page")
+		return
+	}
+
 	ctx.SetTitle(fmt.Sprintf("%s的提问箱 - NekoBox", pageUser.Name))
 
 	ctx.Data["IsOwnPage"] = ctx.IsLogged && ctx.User.ID == pageUser.ID
 	ctx.Data["PageUser"] = pageUser
 	ctx.Data["PageQuestions"] = pageQuestions
+	ctx.Data["AnsweredCount"] = answeredCount
 	if len(pageQuestions) > 0 {
 		ctx.Data["PageQuestionCursor"] = pageQuestions[len(pageQuestions)-1].ID
 	}
