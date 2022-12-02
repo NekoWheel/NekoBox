@@ -33,12 +33,6 @@ jobs:
         id: image-tag
         run: echo "tag=$(date -u '+%Y%m%d-%I%M%S')" >> $GITHUB_OUTPUT
 
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v1
-        with:
-          name: NekoBox
-          path: /home/runner/work/NekoBox/NekoBox
-
       - name: Build & Publish to Registry
         uses: wuhan005/publish-docker-action@master
         with:
