@@ -48,36 +48,3 @@ jobs:
           repository: ${{ secrets.DOCKER_NAME }}
           auto_tag: true
           tag_format: ${{ steps.image-tag.outputs.tag }}
-
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-        with:
-          repository: light-cube/app-deployment
-          token: ${{ secrets.BOT_GITHUB_TOKEN }}
-
-      - name: Setup Kustomize
-        uses: imranismail/setup-kustomize@v1
-        with:
-          kustomize-version: "3.6.1"
-
-      - name: Update deployment.yaml
-        run: |
-            cd nekobox
-            kustomize edit set image nekobox=${{ secrets.DOCKER_NAME }}:${{ needs.build.outputs.image_tag }}
-            cd ..
-
-      - name: Push changes
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-            commit_message: Bump docker tag for NekoBox
-            commit_options: '--no-verify'
-            commit_user_name: Eggplant Bot
-            commit_user_email: bot@github.red
-            commit_author: Eggplant Bot <bot@github.red>
-            file_pattern: '*.yaml'
-            branch: main
