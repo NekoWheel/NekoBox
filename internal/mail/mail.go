@@ -26,6 +26,15 @@ func SendNewQuestionMail(email string, domain string, questionID uint, questionC
 	return sendTemplateMail(email, "【NekoBox】您有一个新的提问", templates.FS, "mail/new-question.html", params)
 }
 
+func SendNewAnswerMail(email, domain string, questionID uint, question, answer string) error {
+	params := map[string]string{
+		"link":     fmt.Sprintf("https://box.n3ko.co/_/%s/%d", domain, questionID),
+		"question": question,
+		"answer":   answer,
+	}
+	return sendTemplateMail(email, "【NekoBox】您的提问有了回复", templates.FS, "mail/new-answer.html", params)
+}
+
 func SendPasswordRecoveryMail(email, code string) error {
 	params := map[string]string{
 		"link":  fmt.Sprintf("https://box.n3ko.co/recover-password?code=%s", code),

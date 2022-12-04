@@ -5,8 +5,10 @@
 package form
 
 type NewQuestion struct {
-	Content   string `form:"content" valid:"required;maxlen:1000" label:"问题内容"`
-	Recaptcha string `form:"g-recaptcha-response" valid:"required" label:"Recaptcha"`
+	Content              string `form:"content" valid:"required;maxlen:1000" label:"问题内容"`
+	ReceiveReplyViaEmail string
+	ReceiveReplyEmail    string `label:"接收回复的电子邮箱"`
+	Recaptcha            string `form:"g-recaptcha-response" valid:"required" label:"Recaptcha"`
 }
 
 type PublishAnswerQuestion struct {

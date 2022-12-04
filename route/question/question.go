@@ -13,6 +13,7 @@ import (
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
 	"github.com/NekoWheel/NekoBox/internal/form"
+	"github.com/NekoWheel/NekoBox/internal/mail"
 	"github.com/NekoWheel/NekoBox/internal/security/censor"
 )
 
@@ -88,6 +89,15 @@ func PublishAnswer(ctx context.Context, pageUser *db.User, question *db.Question
 	}); err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update answer censor result")
 	}
+
+	go func() {
+		if question.ReceiveReplyEmail != "" && question.Answer == "" { // We only send the email when the question has not been answered.
+			// Send notification to questioner.
+			if err := mail.SendNewAnswerMail(pageUser.Email, pageUser.Domain, question.ID, question.Content, f.Answer); err != nil {
+				logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to send receive reply mail to questioner")
+			}
+		}
+	}()
 
 	ctx.SetSuccessFlash("回答发布成功！")
 	ctx.Redirect(fmt.Sprintf("/_/%s/%d", pageUser.Domain, question.ID))

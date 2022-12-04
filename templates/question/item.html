@@ -46,6 +46,11 @@
               <textarea name="answer" class="uk-textarea" rows="5" maxlength="1000"
                         placeholder="在此处撰写你的回答...">{{ if ne .Question.Answer "" }}{{ .Question.Answer }}{{ else }}{{ .answer }}{{ end }}</textarea>
         </div>
+        {{ if ne .Question.ReceiveReplyEmail "" }}
+        <div class="uk-alert-warning uk-text-small" uk-alert>
+          <p>提问人留下了自己的电子邮箱，在你第一次回复该问题后，提问人将会收到一封邮件通知。</p>
+        </div>
+        {{ end }}
         <div class="uk-margin uk-text-center">
           <button type="submit" class="uk-button uk-button-primary">{{if ne .Question.Answer ""}}更新{{end}}回答</button>
         </div>
@@ -55,18 +60,7 @@
       <!-- Box owner can't create new question here. -->
       {{if not .IsOwnPage }}
       <h5 class="uk-text-center">再问点别的问题？</h5>
-      <form method="post" action="/_/{{.PageUser.Domain}}" id="form">
-        {{ .CSRFTokenHTML }}
-        <div class="uk-margin uk-text-center">
-            <textarea name="content" class="uk-textarea" rows="5" placeholder="在此处撰写你的问题..."
-                      maxlength="1000"></textarea>
-        </div>
-        <div class="uk-margin uk-text-center">
-          <button type="submit" class="uk-button uk-button-primary g-recaptcha" data-sitekey="{{.RecaptchaSiteKey}}"
-                  data-callback="onSubmit">发送提问
-          </button>
-        </div>
-      </form>
+      {{template "question/new-question-template" .}}
       {{ end }}
 
       <hr class="uk-divider-icon">

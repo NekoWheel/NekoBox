@@ -10,6 +10,7 @@ import (
 	"github.com/flamego/recaptcha"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/wuhan005/govalid"
 
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
@@ -101,6 +102,22 @@ func ListAPI(ctx context.Context) error {
 }
 
 func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha recaptcha.RecaptchaV2) {
+	var receiveReplyEmail string
+	if f.ReceiveReplyViaEmail != "" {
+		// Check the email address is valid.
+		if errs, ok := govalid.Check(struct {
+			Email string `valid:"required;email" label:"邮箱地址"`
+		}{
+			Email: f.ReceiveReplyEmail,
+		}); !ok {
+			ctx.SetError(errs[0], f)
+			ctx.Success("question/list")
+			return
+		}
+
+		receiveReplyEmail = f.ReceiveReplyEmail
+	}
+
 	// Check recaptcha code.
 	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
 	if err != nil {
@@ -142,9 +159,10 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 	}
 
 	question, err := db.Questions.Create(ctx.Request().Context(), db.CreateQuestionOptions{
-		FromIP:  fromIP,
-		UserID:  pageUser.ID,
-		Content: content,
+		FromIP:            fromIP,
+		UserID:            pageUser.ID,
+		Content:           content,
+		ReceiveReplyEmail: receiveReplyEmail,
 	})
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to create new question")

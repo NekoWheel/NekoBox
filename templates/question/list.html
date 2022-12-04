@@ -22,19 +22,8 @@
 <div>
   <div class="uk-card uk-card-default uk-card-small uk-card-body">
     <p class="uk-text-center uk-text-small">谁都可以以匿名的形式提问</p>
-    <form method="post" id="form">
-      {{ .CSRFTokenHTML }}
-      {{template "base/alert" .}}
-      <div class="uk-margin uk-text-center">
-        <textarea name="content" class="uk-textarea" rows="5" placeholder="在此处撰写你的问题..."
-                  maxlength="1000">{{.content}}</textarea>
-      </div>
-      <div class="uk-margin uk-text-center">
-        <button type="submit" class="uk-button uk-button-primary g-recaptcha" data-sitekey="{{.RecaptchaSiteKey}}"
-                data-callback="onSubmit">发送提问
-        </button>
-      </div>
-    </form>
+    {{template "base/alert" .}}
+    {{template "question/new-question-template" .}}
 
     <hr class="uk-divider-icon">
     {{ if ne (len .PageQuestions) 0 }}
