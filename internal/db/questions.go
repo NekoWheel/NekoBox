@@ -49,20 +49,23 @@ type Question struct {
 	Answer                string         `json:"answer"`
 	AnswerCensorMetadata  datatypes.JSON `json:"-"`
 	AnswerCensorPass      bool           `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(answer_censor_metadata->'$.pass' = true, false)) STORED NOT NULL" json:"-"`
+	ReceiveReplyEmail     string         `json:"-"`
 }
 
 type CreateQuestionOptions struct {
-	FromIP  string
-	UserID  uint
-	Content string
+	FromIP            string
+	UserID            uint
+	Content           string
+	ReceiveReplyEmail string
 }
 
 func (db *questions) Create(ctx context.Context, opts CreateQuestionOptions) (*Question, error) {
 	question := Question{
-		FromIP:  opts.FromIP,
-		UserID:  opts.UserID,
-		Token:   randstr.String(6),
-		Content: opts.Content,
+		FromIP:            opts.FromIP,
+		UserID:            opts.UserID,
+		Token:             randstr.String(6),
+		Content:           opts.Content,
+		ReceiveReplyEmail: opts.ReceiveReplyEmail,
 	}
 	return &question, db.WithContext(ctx).Create(&question).Error
 }
