@@ -134,7 +134,13 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 		return
 	}
 
-	fromIP := ctx.Request().Header.Get("X-Real-IP")
+	// ⚠️ Here is the aliyun CDN origin IP header.
+	// A security problem may occur if the CDN is enabled and users can modify the header.
+	fromIP := ctx.Request().Header.Get("Ali-CDN-Real-IP")
+	if fromIP == "" {
+		fromIP = ctx.Request().Header.Get("X-Real-IP")
+	}
+
 	question, err := db.Questions.Create(ctx.Request().Context(), db.CreateQuestionOptions{
 		FromIP:  fromIP,
 		UserID:  pageUser.ID,
