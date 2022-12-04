@@ -185,7 +185,7 @@ func createExportExcelFile(user *db.User, questions []*db.Question) (*excelize.F
 	}
 
 	// Set questions sheet.
-	sw, err = createXLSXStreamWriter(f, "提问", []string{"提问时间", "问题", "回答", "操作 Token"})
+	sw, err = createXLSXStreamWriter(f, "提问", []string{"提问时间", "问题", "回答"})
 	if err != nil {
 		return nil, errors.Wrap(err, "create xlsx stream writer: 提问")
 	}
@@ -193,7 +193,7 @@ func createExportExcelFile(user *db.User, questions []*db.Question) (*excelize.F
 	currentRow = 2 // Include header row.
 	for _, question := range questions {
 		question := question
-		vals := []interface{}{question.CreatedAt, question.Content, question.Answer, question.Token}
+		vals := []interface{}{question.CreatedAt, question.Content, question.Answer}
 		cell, _ := excelize.CoordinatesToCellName(1, currentRow)
 		_ = sw.SetRow(cell, vals)
 		currentRow++
