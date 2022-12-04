@@ -93,7 +93,7 @@ func PublishAnswer(ctx context.Context, pageUser *db.User, question *db.Question
 	go func() {
 		if question.ReceiveReplyEmail != "" && question.Answer == "" { // We only send the email when the question has not been answered.
 			// Send notification to questioner.
-			if err := mail.SendNewAnswerMail(pageUser.Email, pageUser.Domain, question.ID, question.Content, f.Answer); err != nil {
+			if err := mail.SendNewAnswerMail(question.ReceiveReplyEmail, pageUser.Domain, question.ID, question.Content, f.Answer); err != nil {
 				logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to send receive reply mail to questioner")
 			}
 		}
