@@ -6,13 +6,14 @@
 
 ## Architecture
 
-![Architecture](./dev/nekobox-arch.png)
+![Architecture](./dev/nekobox-arch-light.png#gh-light-mode-only)
+![Architecture](./dev/nekobox-arch-dark.png#gh-dark-mode-only)
 
 NekoBox uses GitHub Actions for continuous integration and deployment.
 
 When a user visit NekoBox, the
-request will be routed to Aliyun CDN, the CDN access logs will be collected and pushed to Aliyun simple log service (
-SLS) in realtime. The log data will be stored in SLS for 180 days for audit purposes.
+request will be routed to Aliyun CDN, the CDN access logs will be collected and pushed to Aliyun simple log service
+(SLS) in realtime. The log data will be stored in SLS for 180 days for audit purposes.
 
 User's profile, questions and answers will be stored in MySQL database.
 
