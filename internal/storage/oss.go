@@ -12,6 +12,7 @@ import (
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/pkg/errors"
 	"github.com/thanhpk/randstr"
+	"github.com/wuhan005/gadget"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 )
@@ -39,8 +40,14 @@ func UploadPictureToOSS(file multipart.File, _ *multipart.FileHeader) (string, e
 	day := now.Day()
 
 	key := fmt.Sprintf("%s%d/%02d/%02d/%s", OSSPictureKeyPrefix, year, month, day, randstr.Hex(15))
-	if err := bucket.PutObject(key, file); err != nil {
-		return "", errors.Wrap(err, "put object")
+
+	if err := gadget.Retry(5, func() error {
+		if err := bucket.PutObject(key, file); err != nil {
+			return errors.Wrap(err, "put object")
+		}
+		return nil
+	}); err != nil {
+		return "", errors.Wrap(err, "retry 5 times")
 	}
 
 	if conf.Upload.AliyunBucketCDNHost != "" {

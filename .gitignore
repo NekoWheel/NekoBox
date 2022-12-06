@@ -17,3 +17,6 @@
 .idea
 app.conf
 app.ini
+.DS_Store
+.vscode
+nekobox
