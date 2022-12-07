@@ -30,7 +30,7 @@ func Pager(ctx context.Context) {
 			return
 		} else {
 			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get user by domain")
-			ctx.SetError(errors.New("服务器错误！"))
+			ctx.SetInternalError()
 		}
 		ctx.Success("question/page")
 		return
@@ -43,7 +43,7 @@ func Pager(ctx context.Context) {
 	})
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get questions by page id")
-		ctx.SetError(errors.New("服务器错误！"))
+		ctx.SetInternalError()
 		ctx.Success("question/page")
 		return
 	}
@@ -53,7 +53,7 @@ func Pager(ctx context.Context) {
 	})
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to count questions")
-		ctx.SetError(errors.New("服务器错误！"))
+		ctx.SetInternalError()
 		ctx.Success("question/page")
 		return
 	}
@@ -122,7 +122,7 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")
-		ctx.SetErrorFlash("内部错误，请稍后再试")
+		ctx.SetInternalErrorFlash()
 		ctx.Redirect("/_/" + pageUser.Domain)
 		return
 	}
@@ -166,7 +166,7 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 	})
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to create new question")
-		ctx.SetError(errors.New("服务器错误！"), f)
+		ctx.SetInternalError(f)
 		ctx.Success("question/list")
 		return
 	}

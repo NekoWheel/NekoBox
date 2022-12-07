@@ -67,7 +67,7 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 				ctx.SetError(errors.New("旧密码输入错误"))
 			} else {
 				logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update password")
-				ctx.SetError(errors.New("系统内部错误"))
+				ctx.SetInternalError()
 			}
 			ctx.Success("user/profile")
 			return
@@ -88,7 +88,8 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 		Intro:      f.Intro,
 		Notify:     notify,
 	}); err != nil {
-		ctx.SetErrorFlash("系统内部错误")
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update user profile")
+		ctx.SetInternalErrorFlash()
 	} else {
 		ctx.SetSuccessFlash("更新个人信息成功")
 	}
@@ -215,8 +216,7 @@ func DeactivateProfile(ctx context.Context) {
 func DeactivateProfileAction(ctx context.Context) {
 	if err := db.Users.Deactivate(ctx.Request().Context(), ctx.User.ID); err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to deactivate user")
-
-		ctx.SetError(errors.New("服务器内部错误，注销用户失败"))
+		ctx.SetInternalError()
 		ctx.Success("user/deactivate")
 		return
 	}

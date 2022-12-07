@@ -78,7 +78,7 @@ func PublishAnswer(ctx context.Context, pageUser *db.User, question *db.Question
 
 	if err := db.Questions.AnswerByID(ctx.Request().Context(), question.ID, f.Answer); err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to answer question")
-		ctx.SetError(errors.New("服务器错误！"), f)
+		ctx.SetInternalError(f)
 		ctx.Success("question/item")
 		return
 	}
@@ -111,7 +111,7 @@ func Delete(ctx context.Context, pageUser *db.User, question *db.Question, canDe
 
 	if err := db.Questions.DeleteByID(ctx.Request().Context(), question.ID); err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to delete question")
-		ctx.SetError(errors.New("服务器错误！"))
+		ctx.SetInternalError()
 		ctx.Success("question/item")
 		return
 	}
