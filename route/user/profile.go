@@ -88,6 +88,7 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 		Intro:      f.Intro,
 		Notify:     notify,
 	}); err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update user profile")
 		ctx.SetInternalErrorFlash()
 	} else {
 		ctx.SetSuccessFlash("更新个人信息成功")
@@ -215,7 +216,6 @@ func DeactivateProfile(ctx context.Context) {
 func DeactivateProfileAction(ctx context.Context) {
 	if err := db.Users.Deactivate(ctx.Request().Context(), ctx.User.ID); err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to deactivate user")
-
 		ctx.SetInternalError()
 		ctx.Success("user/deactivate")
 		return

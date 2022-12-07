@@ -49,6 +49,7 @@ func ForgotPasswordAction(ctx context.Context, f form.ForgotPassword, cache cach
 		if errors.Is(err, db.ErrUserNotExists) {
 			ctx.SetErrorFlash("用户邮箱不存在")
 		} else {
+			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get user by email")
 			ctx.SetInternalErrorFlash()
 		}
 		ctx.Redirect("/forgot-password")
@@ -108,6 +109,7 @@ func checkRecoverPasswordCode(ctx context.Context, cache cache.Cache) (*db.User,
 
 	userID, ok := userIDItf.(uint)
 	if !ok {
+		logrus.WithContext(ctx.Request().Context()).WithField("user_id_itf", userIDItf).Error("Failed to convert user id interface to uint")
 		ctx.SetInternalErrorFlash()
 		ctx.Redirect("/login")
 		return nil, false
@@ -154,6 +156,7 @@ func RecoverPasswordAction(ctx context.Context, cache cache.Cache, f form.Recove
 	}
 
 	if err := db.Users.UpdatePassword(ctx.Request().Context(), user.ID, f.NewPassword); err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update user password")
 		ctx.SetInternalErrorFlash()
 		ctx.Refresh()
 		return
