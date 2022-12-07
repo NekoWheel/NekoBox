@@ -6,6 +6,7 @@ package context
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"reflect"
 
@@ -97,7 +98,9 @@ func (c *Context) SetError(err error, f ...interface{}) {
 func (c *Context) SetInternalError(f ...interface{}) {
 	span := trace.SpanFromContext(c.Request().Context())
 	traceID := span.SpanContext().TraceID()
-	c.SetError(errors.Errorf("服务内部错误，请稍后重试。若问题一直出现，请带上该段字符 %s 提交反馈。", traceID.String()), f)
+
+	c.Data["FlashTip"] = fmt.Sprintf("若问题一直出现，请带上该段字符 %s 提交反馈。", traceID.String())
+	c.SetError(errors.New("服务内部错误，请稍后重试。"), f...)
 }
 
 // Success renders HTML template with given name with 200 OK status code.
