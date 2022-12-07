@@ -23,7 +23,7 @@ func LoginAction(ctx context.Context, f form.Login, recaptcha recaptcha.Recaptch
 	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")
-		ctx.SetErrorFlash("内部错误，请稍后再试")
+		ctx.SetInternalErrorFlash()
 		ctx.Redirect("/login")
 		return
 	}
@@ -44,7 +44,7 @@ func LoginAction(ctx context.Context, f form.Login, recaptcha recaptcha.Recaptch
 			ctx.SetErrorFlash(errors.Cause(err).Error())
 		} else {
 			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to authenticate user")
-			ctx.SetErrorFlash("服务器错误！")
+			ctx.SetInternalErrorFlash()
 		}
 		ctx.Redirect("/login")
 		return

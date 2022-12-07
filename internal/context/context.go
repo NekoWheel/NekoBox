@@ -13,6 +13,7 @@ import (
 	"github.com/flamego/flamego"
 	"github.com/flamego/session"
 	"github.com/flamego/template"
+	"github.com/pkg/errors"
 	"github.com/unknwon/com"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -93,6 +94,12 @@ func (c *Context) SetError(err error, f ...interface{}) {
 	}
 }
 
+func (c *Context) SetInternalError(f ...interface{}) {
+	span := trace.SpanFromContext(c.Request().Context())
+	traceID := span.SpanContext().TraceID()
+	c.SetError(errors.Errorf("服务内部错误，请稍后重试。若问题一直出现，请带上该段字符 %s 提交反馈。", traceID.String()), f)
+}
+
 // Success renders HTML template with given name with 200 OK status code.
 func (c *Context) Success(templateName string) {
 	c.Template.HTML(http.StatusOK, templateName)
@@ -121,9 +128,12 @@ func (c *Context) ServerError() error {
 }
 
 func (c *Context) JSONError(errorCode int, message string) error {
+	span := trace.SpanFromContext(c.Request().Context())
+
 	resp := map[string]interface{}{
-		"code":    errorCode,
-		"message": message,
+		"code":     errorCode,
+		"message":  message,
+		"trace_id": span.SpanContext().TraceID().String(),
 	}
 
 	statusCode := errorCode / 100

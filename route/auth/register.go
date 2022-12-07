@@ -24,7 +24,7 @@ func RegisterAction(ctx context.Context, f form.Register, recaptcha recaptcha.Re
 	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")
-		ctx.SetErrorFlash("内部错误，请稍后再试")
+		ctx.SetInternalErrorFlash()
 		ctx.Redirect("/register")
 		return
 	}
@@ -57,7 +57,7 @@ func RegisterAction(ctx context.Context, f form.Register, recaptcha recaptcha.Re
 
 		default:
 			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to create new user")
-			ctx.SetError(errors.New("系统内部错误"))
+			ctx.SetInternalError()
 		}
 
 		ctx.Success("auth/register")

@@ -29,7 +29,7 @@ func ForgotPasswordAction(ctx context.Context, f form.ForgotPassword, cache cach
 	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")
-		ctx.SetErrorFlash("内部错误，请稍后再试")
+		ctx.SetInternalErrorFlash()
 		ctx.Redirect("/forgot-password")
 		return
 	}
@@ -49,7 +49,7 @@ func ForgotPasswordAction(ctx context.Context, f form.ForgotPassword, cache cach
 		if errors.Is(err, db.ErrUserNotExists) {
 			ctx.SetErrorFlash("用户邮箱不存在")
 		} else {
-			ctx.SetErrorFlash("内部错误，请稍后再试")
+			ctx.SetInternalErrorFlash()
 		}
 		ctx.Redirect("/forgot-password")
 		return
@@ -71,7 +71,7 @@ func ForgotPasswordAction(ctx context.Context, f form.ForgotPassword, cache cach
 	recoveryCodeCacheKey := "forgot-password-recovery-code:" + code
 	if err := cache.Set(ctx.Request().Context(), recoveryCodeCacheKey, user.ID, 24*time.Hour); err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to set password recovery code cache")
-		ctx.SetErrorFlash("内部错误，请稍后再试")
+		ctx.SetInternalErrorFlash()
 		ctx.Redirect("/forgot-password")
 		return
 	}
@@ -100,7 +100,7 @@ func checkRecoverPasswordCode(ctx context.Context, cache cache.Cache) (*db.User,
 			ctx.SetErrorFlash("验证码已过期")
 		} else {
 			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to read password recovery code cache")
-			ctx.SetErrorFlash("内部错误，请稍后再试")
+			ctx.SetInternalErrorFlash()
 		}
 		ctx.Redirect("/login")
 		return nil, false
@@ -108,7 +108,7 @@ func checkRecoverPasswordCode(ctx context.Context, cache cache.Cache) (*db.User,
 
 	userID, ok := userIDItf.(uint)
 	if !ok {
-		ctx.SetErrorFlash("内部错误，请稍后再试")
+		ctx.SetInternalErrorFlash()
 		ctx.Redirect("/login")
 		return nil, false
 	}
@@ -148,13 +148,13 @@ func RecoverPasswordAction(ctx context.Context, cache cache.Cache, f form.Recove
 	recoveryCodeCacheKey := "forgot-password-recovery-code:" + code
 	if err := cache.Delete(ctx.Request().Context(), recoveryCodeCacheKey); err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to delete password recovery code cache")
-		ctx.SetErrorFlash("内部错误，请稍后再试")
+		ctx.SetInternalErrorFlash()
 		ctx.Redirect("/login")
 		return
 	}
 
 	if err := db.Users.UpdatePassword(ctx.Request().Context(), user.ID, f.NewPassword); err != nil {
-		ctx.SetErrorFlash("内部错误，请稍后再试")
+		ctx.SetInternalErrorFlash()
 		ctx.Refresh()
 		return
 	}
