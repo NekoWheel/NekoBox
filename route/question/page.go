@@ -158,11 +158,18 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 		fromIP = ctx.Request().Header.Get("X-Real-IP")
 	}
 
+	// Try to get current logged user.
+	var askerUserID uint
+	if ctx.IsLogged {
+		askerUserID = ctx.User.ID
+	}
+
 	question, err := db.Questions.Create(ctx.Request().Context(), db.CreateQuestionOptions{
 		FromIP:            fromIP,
 		UserID:            pageUser.ID,
 		Content:           content,
 		ReceiveReplyEmail: receiveReplyEmail,
+		AskerUserID:       askerUserID,
 	})
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to create new question")
