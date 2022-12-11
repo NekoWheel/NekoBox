@@ -24,6 +24,7 @@ type QuestionsStore interface {
 	Create(ctx context.Context, opts CreateQuestionOptions) (*Question, error)
 	GetByID(ctx context.Context, id uint) (*Question, error)
 	GetByUserID(ctx context.Context, userID uint, opts GetQuestionsByUserIDOptions) ([]*Question, error)
+	GetByAskUserID(ctx context.Context, userID uint, opts GetQuestionsByAskUserIDOptions) ([]*Question, error)
 	AnswerByID(ctx context.Context, id uint, answer string) error
 	DeleteByID(ctx context.Context, id uint) error
 	UpdateCensor(ctx context.Context, id uint, opts UpdateQuestionCensorOptions) error
@@ -50,6 +51,7 @@ type Question struct {
 	AnswerCensorMetadata  datatypes.JSON `json:"-"`
 	AnswerCensorPass      bool           `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(answer_censor_metadata->'$.pass' = true, false)) STORED NOT NULL" json:"-"`
 	ReceiveReplyEmail     string         `json:"-"`
+	AskerUserID           uint           `json:"-"`
 }
 
 type CreateQuestionOptions struct {
@@ -57,6 +59,7 @@ type CreateQuestionOptions struct {
 	UserID            uint
 	Content           string
 	ReceiveReplyEmail string
+	AskerUserID       uint
 }
 
 func (db *questions) Create(ctx context.Context, opts CreateQuestionOptions) (*Question, error) {
@@ -66,6 +69,7 @@ func (db *questions) Create(ctx context.Context, opts CreateQuestionOptions) (*Q
 		Token:             randstr.String(6),
 		Content:           opts.Content,
 		ReceiveReplyEmail: opts.ReceiveReplyEmail,
+		AskerUserID:       opts.AskerUserID,
 	}
 	return &question, db.WithContext(ctx).Create(&question).Error
 }
@@ -127,34 +131,64 @@ func (db *questions) GetByID(ctx context.Context, id uint) (*Question, error) {
 	return &question, nil
 }
 
-type GetQuestionsByUserIDOptions struct {
-	*dbutil.Cursor
-	FilterAnswered bool
-}
-
-func (db *questions) GetByUserID(ctx context.Context, userID uint, opts GetQuestionsByUserIDOptions) ([]*Question, error) {
+func (db *questions) getBy(ctx context.Context, cursor *dbutil.Cursor, whereQuery string, args ...interface{}) ([]*Question, error) {
 	var questions []*Question
-	q := db.WithContext(ctx)
-	if opts.FilterAnswered {
-		q = q.Where(`user_id = ? AND answer <> ""`, userID)
-	} else {
-		q = q.Where(`user_id = ?`, userID)
-	}
+	q := db.WithContext(ctx).Where(whereQuery, args...)
 
-	if opts.Cursor != nil {
-		cursor := opts.Cursor.Value
-		if cursor != nil && fmt.Sprintf("%v", cursor) != "" {
+	if cursor != nil {
+		cursorID := cursor.Value
+		if cursorID != nil && fmt.Sprintf("%v", cursorID) != "" {
 			// For we ordered by ID DESC, so we need to use `>` instead of `<`.
-			q = q.Where(`id < ?`, cursor)
+			q = q.Where(`id < ?`, cursorID)
 		}
 
-		limit := opts.Cursor.Limit()
+		limit := cursor.Limit()
 		q = q.Limit(limit)
 	}
 
 	q = q.Order("created_at DESC")
 	if err := q.Find(&questions).Error; err != nil {
 		return nil, errors.Wrap(err, "get questions by page ID")
+	}
+	return questions, nil
+}
+
+type GetQuestionsByUserIDOptions struct {
+	*dbutil.Cursor
+	FilterAnswered bool
+}
+
+func (db *questions) GetByUserID(ctx context.Context, userID uint, opts GetQuestionsByUserIDOptions) ([]*Question, error) {
+	where := `user_id = ?`
+	args := userID
+
+	if opts.FilterAnswered {
+		where = `user_id = ? AND answer <> ""`
+	}
+
+	questions, err := db.getBy(ctx, opts.Cursor, where, args)
+	if err != nil {
+		return nil, errors.Wrap(err, "get by")
+	}
+	return questions, nil
+}
+
+type GetQuestionsByAskUserIDOptions struct {
+	*dbutil.Cursor
+	FilterAnswered bool
+}
+
+func (db *questions) GetByAskUserID(ctx context.Context, userID uint, opts GetQuestionsByAskUserIDOptions) ([]*Question, error) {
+	where := `asker_user_id = ?`
+	args := userID
+
+	if opts.FilterAnswered {
+		where = `asker_user_id = ? AND answer <> ""`
+	}
+
+	questions, err := db.getBy(ctx, opts.Cursor, where, args)
+	if err != nil {
+		return nil, errors.Wrap(err, "get by")
 	}
 	return questions, nil
 }
