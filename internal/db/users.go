@@ -24,6 +24,7 @@ type UsersStore interface {
 	GetByEmail(ctx context.Context, email string) (*User, error)
 	GetByDomain(ctx context.Context, domain string) (*User, error)
 	Update(ctx context.Context, id uint, opts UpdateUserOptions) error
+	UpdateHarassmentSetting(ctx context.Context, id uint, typ HarassmentSettingType) error
 	Authenticate(ctx context.Context, email, password string) (*User, error)
 	ChangePassword(ctx context.Context, id uint, oldPassword, newPassword string) error
 	UpdatePassword(ctx context.Context, id uint, newPassword string) error
@@ -39,22 +40,30 @@ type users struct {
 }
 
 type User struct {
-	gorm.Model `json:"-"`
-	Name       string `json:"name"`
-	Password   string `json:"-"`
-	Email      string `json:"email"`
-	Avatar     string `json:"avatar"`
-	Domain     string `json:"domain"`
-	Background string `json:"background"`
-	Intro      string `json:"intro"`
-	Notify     string `json:"notify"`
+	gorm.Model        `json:"-"`
+	Name              string                `json:"name"`
+	Password          string                `json:"-"`
+	Email             string                `json:"email"`
+	Avatar            string                `json:"avatar"`
+	Domain            string                `json:"domain"`
+	Background        string                `json:"background"`
+	Intro             string                `json:"intro"`
+	Notify            NotifyType            `json:"notify"`
+	HarassmentSetting HarassmentSettingType `json:"harassment_setting"`
 }
 
 type NotifyType string
 
 const (
-	NotifyTypeEmail = "email"
-	NotifyTypeNone  = "none"
+	NotifyTypeEmail NotifyType = "email"
+	NotifyTypeNone  NotifyType = "none"
+)
+
+type HarassmentSettingType string
+
+const (
+	HarassmentSettingNone             HarassmentSettingType = "none"
+	HarassmentSettingTypeRegisterOnly HarassmentSettingType = "register_only"
 )
 
 func (u *User) EncodePassword() {
@@ -154,7 +163,22 @@ func (db *users) Update(ctx context.Context, id uint, opts UpdateUserOptions) er
 		Avatar:     opts.Avatar,
 		Background: opts.Background,
 		Intro:      opts.Intro,
-		Notify:     string(opts.Notify),
+		Notify:     opts.Notify,
+	}).Error; err != nil {
+		return errors.Wrap(err, "update user")
+	}
+	return nil
+}
+
+func (db *users) UpdateHarassmentSetting(ctx context.Context, id uint, typ HarassmentSettingType) error {
+	switch typ {
+	case HarassmentSettingNone, HarassmentSettingTypeRegisterOnly:
+	default:
+		return errors.Errorf("unexpected harassment setting type: %q", typ)
+	}
+
+	if err := db.WithContext(ctx).Where("id = ?", id).Updates(&User{
+		HarassmentSetting: typ,
 	}).Error; err != nil {
 		return errors.Wrap(err, "update user")
 	}
