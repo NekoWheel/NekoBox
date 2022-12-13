@@ -41,29 +41,29 @@ type users struct {
 
 type User struct {
 	gorm.Model        `json:"-"`
-	Name              string `json:"name"`
-	Password          string `json:"-"`
-	Email             string `json:"email"`
-	Avatar            string `json:"avatar"`
-	Domain            string `json:"domain"`
-	Background        string `json:"background"`
-	Intro             string `json:"intro"`
-	Notify            string `json:"notify"`
-	HarassmentSetting string `json:"harassment_setting"`
+	Name              string                `json:"name"`
+	Password          string                `json:"-"`
+	Email             string                `json:"email"`
+	Avatar            string                `json:"avatar"`
+	Domain            string                `json:"domain"`
+	Background        string                `json:"background"`
+	Intro             string                `json:"intro"`
+	Notify            NotifyType            `json:"notify"`
+	HarassmentSetting HarassmentSettingType `json:"harassment_setting"`
 }
 
 type NotifyType string
 
 const (
-	NotifyTypeEmail = "email"
-	NotifyTypeNone  = "none"
+	NotifyTypeEmail NotifyType = "email"
+	NotifyTypeNone  NotifyType = "none"
 )
 
 type HarassmentSettingType string
 
 const (
-	HarassmentSettingNone             = "none"
-	HarassmentSettingTypeRegisterOnly = "register_only"
+	HarassmentSettingNone             HarassmentSettingType = "none"
+	HarassmentSettingTypeRegisterOnly HarassmentSettingType = "register_only"
 )
 
 func (u *User) EncodePassword() {
@@ -163,7 +163,7 @@ func (db *users) Update(ctx context.Context, id uint, opts UpdateUserOptions) er
 		Avatar:     opts.Avatar,
 		Background: opts.Background,
 		Intro:      opts.Intro,
-		Notify:     string(opts.Notify),
+		Notify:     opts.Notify,
 	}).Error; err != nil {
 		return errors.Wrap(err, "update user")
 	}
@@ -178,7 +178,7 @@ func (db *users) UpdateHarassmentSetting(ctx context.Context, id uint, typ Haras
 	}
 
 	if err := db.WithContext(ctx).Where("id = ?", id).Updates(&User{
-		HarassmentSetting: string(typ),
+		HarassmentSetting: typ,
 	}).Error; err != nil {
 		return errors.Wrap(err, "update user")
 	}
