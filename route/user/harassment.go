@@ -13,11 +13,9 @@ import (
 )
 
 func UpdateHarassment(ctx context.Context, f form.UpdateHarassment) {
-	var harassmentSetting db.HarassmentSettingType
+	harassmentSetting := db.HarassmentSettingNone
 	if f.RegisterOnly != "" {
 		harassmentSetting = db.HarassmentSettingTypeRegisterOnly
-	} else {
-		harassmentSetting = db.HarassmentSettingNone
 	}
 
 	if err := db.Users.UpdateHarassmentSetting(ctx.Request().Context(), ctx.User.ID, harassmentSetting); err != nil {
