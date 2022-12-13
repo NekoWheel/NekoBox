@@ -21,7 +21,9 @@
 
 <div>
   <div class="uk-card uk-card-default uk-card-small uk-card-body">
+    {{ if .CanAsk }}
     <p class="uk-text-center uk-text-small">谁都可以以匿名的形式提问</p>
+    {{ end }}
     {{template "base/alert" .}}
     {{template "question/new-question-template" .}}
 

@@ -25,9 +25,11 @@
   </div>
   <div class="uk-margin">
     <label class="uk-form-label" for="form-stacked-text">新提问通知</label>
-    <label><input name="notify_email" class="uk-checkbox" type="checkbox"
-                  {{ if eq .LoggedUser.Notify "email"}}checked{{end}}
-      > 邮件</label>
+    <label>
+      <input name="notify_email" class="uk-checkbox" type="checkbox"
+             {{ if eq .LoggedUser.Notify "email"}}checked{{end}}>
+      <span class="uk-text-small"> 邮件</span>
+    </label>
   </div>
   <div class="uk-margin">
     <label class="uk-form-label" for="form-stacked-text">个人头像</label>
@@ -48,7 +50,26 @@
     <a href="/user/logout" class="uk-button uk-button-danger">登出</a>
   </div>
 </form>
-<hr class="uk-divider-icon">
+<hr>
+<div class="uk-margin">
+  <form method="post" enctype="multipart/form-data" action="/user/harassment/update">
+    {{ .CSRFTokenHTML }}
+    <legend class="uk-legend">防骚扰设置</legend>
+    <div class="uk-margin">
+      <label class="uk-form-label" for="form-stacked-text">提问限制</label>
+      <br>
+      <label>
+        <input name="register_only" class="uk-checkbox" type="checkbox"
+               {{ if eq .LoggedUser.HarassmentSetting "register_only"}}checked{{end}} >
+        <span class="uk-text-small"> 仅允许注册用户向我提问</span>
+      </label>
+    </div>
+    <div class="uk-margin">
+      <button type="submit" class="uk-button uk-button-primary">更新防骚扰设置</button>
+    </div>
+  </form>
+</div>
+<hr>
 <div class="uk-margin">
   <legend class="uk-legend">账号设置</legend>
   <dl class="uk-description-list uk-description-list-divider">

@@ -120,6 +120,7 @@ func New() *flamego.Flame {
 				f.Post("/export", user.ExportProfile)
 				f.Combo("/deactivate").Get(user.DeactivateProfile).Post(user.DeactivateProfileAction)
 			})
+			f.Post("/harassment/update", form.Bind(form.UpdateHarassment{}), user.UpdateHarassment)
 
 			f.Get("/logout", auth.Logout)
 		}, reqUserSignIn)

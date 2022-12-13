@@ -63,6 +63,7 @@ func Pager(ctx context.Context) {
 	ctx.Data["IsOwnPage"] = ctx.IsLogged && ctx.User.ID == pageUser.ID
 	ctx.Data["PageUser"] = pageUser
 	ctx.Data["PageQuestions"] = pageQuestions
+	ctx.Data["CanAsk"] = ctx.IsLogged || pageUser.HarassmentSetting != db.HarassmentSettingTypeRegisterOnly
 	ctx.Data["AnsweredCount"] = answeredCount
 	if len(pageQuestions) > 0 {
 		ctx.Data["PageQuestionCursor"] = pageQuestions[len(pageQuestions)-1].ID
@@ -102,6 +103,12 @@ func ListAPI(ctx context.Context) error {
 }
 
 func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha recaptcha.RecaptchaV2) {
+	if !ctx.IsLogged && pageUser.HarassmentSetting == db.HarassmentSettingTypeRegisterOnly {
+		ctx.SetErrorFlash("提问箱的主人设置了仅注册用户才能提问，请先登录。")
+		ctx.Redirect(fmt.Sprintf("/login?to=%s", ctx.Request().Request.RequestURI))
+		return
+	}
+
 	var receiveReplyEmail string
 	if f.ReceiveReplyViaEmail != "" {
 		// Check the email address is valid.

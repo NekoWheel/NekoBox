@@ -11,3 +11,7 @@ type UpdateProfile struct {
 	Intro       string `valid:"required;maxlen:100" label:"介绍"`
 	NotifyEmail string `label:"开启邮箱通知"`
 }
+
+type UpdateHarassment struct {
+	RegisterOnly string `label:"仅允许注册用户"`
+}
