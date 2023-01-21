@@ -212,6 +212,7 @@ func Contexter() flamego.Handler {
 		c.Data["RecaptchaDomain"] = conf.Recaptcha.Domain
 		c.Data["RecaptchaSiteKey"] = conf.Recaptcha.SiteKey
 		c.Data["CurrentURI"] = ctx.Request().Request.RequestURI
+		c.Data["ExternalURL"] = conf.App.ExternalURL
 
 		// 🚨 SECURITY: Prevent MIME type sniffing in some browsers,
 		c.ResponseWriter().Header().Set("X-Content-Type-Options", "nosniff")

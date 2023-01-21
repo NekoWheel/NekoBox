@@ -6,6 +6,7 @@ package conf
 
 import (
 	"os"
+	"strings"
 
 	"github.com/pkg/errors"
 	"gopkg.in/ini.v1"
@@ -31,6 +32,11 @@ func Init() error {
 	if err := File.Section("app").MapTo(&App); err != nil {
 		return errors.Wrap(err, "map 'server'")
 	}
+
+	if App.ExternalURL == "" {
+		return errors.New("app.external_url is required")
+	}
+	App.ExternalURL = strings.TrimRight(App.ExternalURL, "/")
 
 	if err := File.Section("security").MapTo(&Security); err != nil {
 		return errors.Wrap(err, "map 'security'")

@@ -49,6 +49,7 @@ func runWeb(ctx *cli.Context) error {
 		return errors.Wrap(err, "connect to database")
 	}
 
+	logrus.WithContext(ctx.Context).WithField("external_url", conf.App.ExternalURL).Info("Starting web server")
 	r := route.New()
 	r.Use(tracing.Middleware("NekoBox"))
 	r.Run(conf.Server.Port)

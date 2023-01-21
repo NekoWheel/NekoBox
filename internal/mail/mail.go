@@ -18,9 +18,9 @@ import (
 	"github.com/NekoWheel/NekoBox/templates"
 )
 
-func SendNewQuestionMail(email string, domain string, questionID uint, questionContent string) error {
+func SendNewQuestionMail(email, domain string, questionID uint, questionContent string) error {
 	params := map[string]string{
-		"link":     fmt.Sprintf("https://box.n3ko.co/_/%s/%d", domain, questionID),
+		"link":     fmt.Sprintf("%s/_/%s/%d", conf.App.ExternalURL, domain, questionID),
 		"question": questionContent,
 	}
 	return sendTemplateMail(email, "【NekoBox】您有一个新的提问", templates.FS, "mail/new-question.html", params)
@@ -28,7 +28,7 @@ func SendNewQuestionMail(email string, domain string, questionID uint, questionC
 
 func SendNewAnswerMail(email, domain string, questionID uint, question, answer string) error {
 	params := map[string]string{
-		"link":     fmt.Sprintf("https://box.n3ko.co/_/%s/%d", domain, questionID),
+		"link":     fmt.Sprintf("%s/_/%s/%d", conf.App.ExternalURL, domain, questionID),
 		"question": question,
 		"answer":   answer,
 	}
@@ -37,7 +37,7 @@ func SendNewAnswerMail(email, domain string, questionID uint, question, answer s
 
 func SendPasswordRecoveryMail(email, code string) error {
 	params := map[string]string{
-		"link":  fmt.Sprintf("https://box.n3ko.co/recover-password?code=%s", code),
+		"link":  fmt.Sprintf("%s/recover-password?code=%s", conf.App.ExternalURL, code),
 		"email": email,
 	}
 	return sendTemplateMail(email, "【NekoBox】账号密码找回", templates.FS, "mail/password-recovery.html", params)
