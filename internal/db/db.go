@@ -15,6 +15,10 @@ import (
 	"github.com/NekoWheel/NekoBox/internal/conf"
 )
 
+var AllTables = []interface{}{
+	&User{}, &Question{}, &CensorLog{},
+}
+
 func Init() (*gorm.DB, error) {
 	dsn := fmt.Sprintf("%s:%s@%s/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		conf.Database.User,
@@ -24,6 +28,7 @@ func Init() (*gorm.DB, error) {
 	)
 	conf.Database.DSN = dsn
 
+	fmt.Println(dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction: true,
 	})
@@ -31,7 +36,7 @@ func Init() (*gorm.DB, error) {
 		return nil, errors.Wrap(err, "connect to database")
 	}
 
-	if err := db.AutoMigrate(&User{}, &Question{}, &CensorLog{}); err != nil {
+	if err := db.AutoMigrate(AllTables...); err != nil {
 		return nil, errors.Wrap(err, "auto migrate")
 	}
 
