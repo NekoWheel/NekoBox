@@ -26,9 +26,8 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 	dsn := os.ExpandEnv("$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_DATABASE?charset=utf8mb4&parseTime=True&loc=Local")
 	fmt.Println(dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		NowFunc: func() time.Time {
-			return Now()
-		},
+		NowFunc:                Now,
+		SkipDefaultTransaction: true,
 	})
 	if err != nil {
 		t.Fatalf("Failed to open connection: %v", err)
@@ -49,9 +48,8 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 	flagParseOnce.Do(flag.Parse)
 
 	testDB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
-		NowFunc: func() time.Time {
-			return Now()
-		},
+		NowFunc:                Now,
+		SkipDefaultTransaction: true,
 	})
 	if err != nil {
 		t.Fatalf("Failed to open test connection: %v", err)
