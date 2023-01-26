@@ -108,6 +108,7 @@ func ExportProfile(ctx context.Context) {
 
 	questions, err := db.Questions.GetByUserID(ctx.Request().Context(), user.ID, db.GetQuestionsByUserIDOptions{
 		FilterAnswered: false,
+		ShowPrivate:    true,
 	})
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get questions")

@@ -32,7 +32,7 @@ func Questioner(ctx context.Context, pageUser *db.User) {
 
 	// Check the question is belongs to the correct page user.
 	// If the question has not been answered, we should check the question is belongs to the correct page user.
-	if question.UserID != pageUser.ID || (question.Answer == "" && (!ctx.IsLogged || ctx.User.ID != question.UserID)) {
+	if question.UserID != pageUser.ID || ((question.Answer == "" || question.IsPrivate) && (!ctx.IsLogged || ctx.User.ID != question.UserID)) {
 		ctx.Redirect("/")
 		return
 	}
@@ -117,4 +117,36 @@ func Delete(ctx context.Context, pageUser *db.User, question *db.Question, canDe
 	}
 
 	ctx.Redirect("/_/" + pageUser.Domain)
+}
+
+func SetPrivate(ctx context.Context, pageUser *db.User, question *db.Question, canDelete bool) {
+	if !canDelete {
+		ctx.Redirect("/_/" + pageUser.Domain)
+		return
+	}
+
+	if err := db.Questions.SetPrivate(ctx.Request().Context(), question.ID); err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to set question private")
+		ctx.SetInternalError()
+		ctx.Success("question/item")
+		return
+	}
+
+	ctx.Redirect(fmt.Sprintf("/_/%s/%d", pageUser.Domain, question.ID))
+}
+
+func SetPublic(ctx context.Context, pageUser *db.User, question *db.Question, canDelete bool) {
+	if !canDelete {
+		ctx.Redirect("/_/" + pageUser.Domain)
+		return
+	}
+
+	if err := db.Questions.SetPublic(ctx.Request().Context(), question.ID); err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to set question public")
+		ctx.SetInternalError()
+		ctx.Success("question/item")
+		return
+	}
+
+	ctx.Redirect(fmt.Sprintf("/_/%s/%d", pageUser.Domain, question.ID))
 }

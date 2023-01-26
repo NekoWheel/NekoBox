@@ -23,6 +23,19 @@
       {{template "base/alert" .}}
 
       {{ if .CanDelete }}
+
+        {{ if .Question.IsPrivate }}
+          <form class="uk-float-right" method="post" action="/_/{{ .PageUser.Domain }}/{{ .Question.ID }}/set-public">
+            {{ .CSRFTokenHTML }}
+            <button type="submit" class="uk-button uk-button-default uk-button-small">设为公开</button>
+          </form>
+        {{ else }}
+          <form class="uk-float-right" method="post" action="/_/{{ .PageUser.Domain }}/{{ .Question.ID }}/set-private">
+            {{ .CSRFTokenHTML }}
+            <button type="submit" class="uk-button uk-button-default uk-button-small">设为仅自己可见</button>
+          </form>
+        {{ end }}
+
       <a class="uk-button uk-button-danger uk-button-small" href="#">删除提问</a>
       <div class="uk-dropbar uk-dropbar-top" uk-drop="stretch: x; mode: click">
         <div class="uk-card uk-card-default uk-card-body">
