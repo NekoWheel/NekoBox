@@ -34,6 +34,8 @@ func TestQuestions(t *testing.T) {
 		{"DeleteByID", testQuestionsDeleteByID},
 		{"UpdateCensor", testQuestionsUpdateCensor},
 		{"Count", testQuestionsCount},
+		{"SetPrivate", testQuestionsSetPrivate},
+		{"SetPublic", testQuestionsSetPublic},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Cleanup(func() {
@@ -421,5 +423,45 @@ func testQuestionsCount(t *testing.T, ctx context.Context, db *questions) {
 
 		want := int64(0)
 		require.Equal(t, want, got)
+	})
+}
+
+func testQuestionsSetPrivate(t *testing.T, ctx context.Context, db *questions) {
+	_, err := db.Create(ctx, CreateQuestionOptions{
+		FromIP:            "114.5.1.4",
+		UserID:            1,
+		Content:           "Content - 1",
+		ReceiveReplyEmail: "i@github.red",
+		AskerUserID:       1,
+	})
+	require.Nil(t, err)
+
+	t.Run("normal", func(t *testing.T) {
+		err = db.SetPrivate(ctx, 1)
+		require.Nil(t, err)
+
+		got, err := db.GetByID(ctx, 1)
+		require.Nil(t, err)
+		require.True(t, got.IsPrivate)
+	})
+}
+
+func testQuestionsSetPublic(t *testing.T, ctx context.Context, db *questions) {
+	_, err := db.Create(ctx, CreateQuestionOptions{
+		FromIP:            "114.5.1.4",
+		UserID:            1,
+		Content:           "Content - 1",
+		ReceiveReplyEmail: "i@github.red",
+		AskerUserID:       1,
+	})
+	require.Nil(t, err)
+
+	t.Run("normal", func(t *testing.T) {
+		err = db.SetPublic(ctx, 1)
+		require.Nil(t, err)
+
+		got, err := db.GetByID(ctx, 1)
+		require.Nil(t, err)
+		require.False(t, got.IsPrivate)
 	})
 }

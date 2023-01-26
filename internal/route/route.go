@@ -107,6 +107,8 @@ func New() *flamego.Flame {
 			f.Group("/{questionID}", func() {
 				f.Get("", question.Item)
 				f.Post("/delete", question.Delete)
+				f.Post("/set-private", question.SetPrivate)
+				f.Post("/set-public", question.SetPublic)
 				f.Post("/answer", reqUserSignIn, form.Bind(form.PublishAnswerQuestion{}), question.PublishAnswer)
 			}, question.Questioner)
 		}, question.Pager)

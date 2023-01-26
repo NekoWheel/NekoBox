@@ -29,6 +29,8 @@ type QuestionsStore interface {
 	DeleteByID(ctx context.Context, id uint) error
 	UpdateCensor(ctx context.Context, id uint, opts UpdateQuestionCensorOptions) error
 	Count(ctx context.Context, userID uint, opts GetQuestionsCountOptions) (int64, error)
+	SetPrivate(ctx context.Context, id uint) error
+	SetPublic(ctx context.Context, id uint) error
 }
 
 func NewQuestionsStore(db *gorm.DB) QuestionsStore {
@@ -52,6 +54,7 @@ type Question struct {
 	AnswerCensorPass      bool           `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(answer_censor_metadata->'$.pass' = true, false)) STORED NOT NULL" json:"-"`
 	ReceiveReplyEmail     string         `json:"-"`
 	AskerUserID           uint           `json:"-"`
+	IsPrivate             bool           `gorm:"default: FALSE; NOT NULL" json:"-"`
 }
 
 type CreateQuestionOptions struct {
@@ -156,6 +159,7 @@ func (db *questions) getBy(ctx context.Context, cursor *dbutil.Cursor, whereQuer
 type GetQuestionsByUserIDOptions struct {
 	*dbutil.Cursor
 	FilterAnswered bool
+	ShowPrivate    bool
 }
 
 func (db *questions) GetByUserID(ctx context.Context, userID uint, opts GetQuestionsByUserIDOptions) ([]*Question, error) {
@@ -164,6 +168,9 @@ func (db *questions) GetByUserID(ctx context.Context, userID uint, opts GetQuest
 
 	if opts.FilterAnswered {
 		where = `user_id = ? AND answer <> ""`
+	}
+	if !opts.ShowPrivate {
+		where += ` AND is_private = false`
 	}
 
 	questions, err := db.getBy(ctx, opts.Cursor, where, args)
@@ -176,6 +183,7 @@ func (db *questions) GetByUserID(ctx context.Context, userID uint, opts GetQuest
 type GetQuestionsByAskUserIDOptions struct {
 	*dbutil.Cursor
 	FilterAnswered bool
+	ShowPrivate    bool
 }
 
 func (db *questions) GetByAskUserID(ctx context.Context, userID uint, opts GetQuestionsByAskUserIDOptions) ([]*Question, error) {
@@ -184,6 +192,9 @@ func (db *questions) GetByAskUserID(ctx context.Context, userID uint, opts GetQu
 
 	if opts.FilterAnswered {
 		where = `asker_user_id = ? AND answer <> ""`
+	}
+	if !opts.ShowPrivate {
+		where += ` AND is_private = false`
 	}
 
 	questions, err := db.getBy(ctx, opts.Cursor, where, args)
@@ -225,6 +236,7 @@ func (db *questions) DeleteByID(ctx context.Context, id uint) error {
 
 type GetQuestionsCountOptions struct {
 	FilterAnswered bool
+	ShowPrivate    bool
 }
 
 func (db *questions) Count(ctx context.Context, userID uint, opts GetQuestionsCountOptions) (int64, error) {
@@ -234,7 +246,18 @@ func (db *questions) Count(ctx context.Context, userID uint, opts GetQuestionsCo
 	} else {
 		q = q.Where(`user_id = ?`, userID)
 	}
+	if !opts.ShowPrivate {
+		q = q.Where(`is_private = ?`, false)
+	}
 
 	var count int64
 	return count, q.Count(&count).Error
+}
+
+func (db *questions) SetPrivate(ctx context.Context, id uint) error {
+	return db.WithContext(ctx).Model(&Question{}).Where("id = ?", id).Update("is_private", true).Error
+}
+
+func (db *questions) SetPublic(ctx context.Context, id uint) error {
+	return db.WithContext(ctx).Model(&Question{}).Where("id = ?", id).Update("is_private", false).Error
 }
