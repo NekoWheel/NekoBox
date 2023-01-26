@@ -24,7 +24,7 @@ func ForgotPassword(ctx context.Context) {
 	ctx.Success("auth/forgot-password")
 }
 
-func ForgotPasswordAction(ctx context.Context, f form.ForgotPassword, cache cache.Cache, recaptcha recaptcha.RecaptchaV2) {
+func ForgotPasswordAction(ctx context.Context, f form.ForgotPassword, cache cache.Cache, recaptcha recaptcha.RecaptchaV3) {
 	// Check recaptcha code.
 	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
 	if err != nil {

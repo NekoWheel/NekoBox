@@ -147,7 +147,7 @@ func New() *flamego.Flame {
 				},
 			},
 		}),
-		recaptcha.V2(
+		recaptcha.V3(
 			recaptcha.Options{
 				Secret:    conf.Recaptcha.ServerKey,
 				VerifyURL: recaptcha.VerifyURLGlobal,

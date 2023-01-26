@@ -19,7 +19,7 @@ func Register(ctx context.Context) {
 	ctx.Success("auth/register")
 }
 
-func RegisterAction(ctx context.Context, f form.Register, recaptcha recaptcha.RecaptchaV2) {
+func RegisterAction(ctx context.Context, f form.Register, recaptcha recaptcha.RecaptchaV3) {
 	// Check recaptcha code.
 	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
 	if err != nil {

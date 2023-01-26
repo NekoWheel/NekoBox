@@ -20,7 +20,7 @@ func Login(ctx context.Context) {
 	ctx.Success("auth/login")
 }
 
-func LoginAction(ctx context.Context, f form.Login, recaptcha recaptcha.RecaptchaV2) {
+func LoginAction(ctx context.Context, f form.Login, recaptcha recaptcha.RecaptchaV3) {
 	uri := ctx.Request().Request.RequestURI // Keep the query when redirecting.
 
 	// Check recaptcha code.

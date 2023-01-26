@@ -102,7 +102,7 @@ func ListAPI(ctx context.Context) error {
 	return ctx.JSON(pageQuestions)
 }
 
-func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha recaptcha.RecaptchaV2) {
+func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha recaptcha.RecaptchaV3) {
 	if !ctx.IsLogged && pageUser.HarassmentSetting == db.HarassmentSettingTypeRegisterOnly {
 		ctx.SetErrorFlash("提问箱的主人设置了仅注册用户才能提问，请先登录。")
 		ctx.Redirect(fmt.Sprintf("/login?to=%s", ctx.Request().Request.RequestURI))
