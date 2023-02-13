@@ -11,7 +11,6 @@ require (
 	github.com/flamego/recaptcha v1.0.2
 	github.com/flamego/session v1.2.1
 	github.com/flamego/template v1.0.0
-	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/pkg/errors v0.9.1
 	github.com/qiniu/go-sdk/v7 v7.13.0
 	github.com/samber/lo v1.34.0
