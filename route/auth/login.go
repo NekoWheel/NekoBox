@@ -24,6 +24,9 @@ func LoginAction(ctx context.Context, f form.Login, recaptcha recaptcha.Recaptch
 	uri := ctx.Request().Request.RequestURI // Keep the query when redirecting.
 
 	// Check recaptcha code.
+	if f.Recaptcha == "" {
+		ctx.SetErrorFlash("无感验证码加载错误，请尝试刷新页面重试。")
+	}
 	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")

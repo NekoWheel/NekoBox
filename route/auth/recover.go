@@ -26,6 +26,9 @@ func ForgotPassword(ctx context.Context) {
 
 func ForgotPasswordAction(ctx context.Context, f form.ForgotPassword, cache cache.Cache, recaptcha recaptcha.RecaptchaV3) {
 	// Check recaptcha code.
+	if f.Recaptcha == "" {
+		ctx.SetErrorFlash("无感验证码加载错误，请尝试刷新页面重试。")
+	}
 	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")
