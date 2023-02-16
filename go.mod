@@ -24,7 +24,7 @@ require (
 	github.com/uptrace/uptrace-go v1.9.0
 	github.com/urfave/cli/v2 v2.23.5
 	github.com/wuhan005/gadget v0.0.0-20221206194113-7619e407f1a0
-	github.com/wuhan005/govalid v0.0.0-20220315191209-043a899c3c7a
+	github.com/wuhan005/govalid v0.0.0-20230216091828-820aa255fd21
 	github.com/xuri/excelize/v2 v2.6.0
 	go.opentelemetry.io/otel v1.10.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.9.0

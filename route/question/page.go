@@ -125,10 +125,12 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 		receiveReplyEmail = f.ReceiveReplyEmail
 	}
 
-	// Check recaptcha code.
-	if f.Recaptcha == "" {
-		ctx.SetErrorFlash("无感验证码加载错误，请尝试刷新页面重试。")
+	if ctx.HasError() {
+		ctx.Success("question/list")
+		return
 	}
+
+	// Check recaptcha code.
 	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")
@@ -139,11 +141,6 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 	if !resp.Success {
 		ctx.SetErrorFlash("验证码错误")
 		ctx.Redirect("/_/" + pageUser.Domain)
-		return
-	}
-
-	if ctx.HasError() {
-		ctx.Success("question/list")
 		return
 	}
 

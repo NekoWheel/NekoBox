@@ -25,10 +25,12 @@ func ForgotPassword(ctx context.Context) {
 }
 
 func ForgotPasswordAction(ctx context.Context, f form.ForgotPassword, cache cache.Cache, recaptcha recaptcha.RecaptchaV3) {
-	// Check recaptcha code.
-	if f.Recaptcha == "" {
-		ctx.SetErrorFlash("无感验证码加载错误，请尝试刷新页面重试。")
+	if ctx.HasError() {
+		ctx.Success("auth/forgot-password")
+		return
 	}
+
+	// Check recaptcha code.
 	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")
@@ -39,11 +41,6 @@ func ForgotPasswordAction(ctx context.Context, f form.ForgotPassword, cache cach
 	if !resp.Success {
 		ctx.SetErrorFlash("验证码错误")
 		ctx.Redirect("/forgot-password")
-		return
-	}
-
-	if ctx.HasError() {
-		ctx.Success("auth/forgot-password")
 		return
 	}
 

@@ -658,6 +658,8 @@ github.com/wuhan005/gadget v0.0.0-20221206194113-7619e407f1a0 h1:zOXiOJRG/FOohTl
 github.com/wuhan005/gadget v0.0.0-20221206194113-7619e407f1a0/go.mod h1:vmC2IdgzTpIRwn1ZpuV/I3k9AIbRJ7oqTHFenq/qwkE=
 github.com/wuhan005/govalid v0.0.0-20220315191209-043a899c3c7a h1:9vhVeLzwzrFm/pGinLXh2zCSDRO7ElnawEG4p527itQ=
 github.com/wuhan005/govalid v0.0.0-20220315191209-043a899c3c7a/go.mod h1:zRrIdMbJM3Xe4lmXyrUi2xF9CE0+D4Y0OpQIMpjC0Vo=
+github.com/wuhan005/govalid v0.0.0-20230216091828-820aa255fd21 h1:EHaQ4hLfjckhbI+AEleDHeb0cEN1bIAfvWJEhCe7e2Y=
+github.com/wuhan005/govalid v0.0.0-20230216091828-820aa255fd21/go.mod h1:zRrIdMbJM3Xe4lmXyrUi2xF9CE0+D4Y0OpQIMpjC0Vo=
 github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT5RDeI=
 github.com/xdg-go/scram v1.0.2/go.mod h1:1WAq6h33pAW+iRreB34OORO2Nf7qel3VV3fjBj+hCSs=
 github.com/xdg-go/stringprep v1.0.2/go.mod h1:8F9zXuvzgwmyT5DUm4GUfZGDdT3W+LCvS6+da4O5kxM=
