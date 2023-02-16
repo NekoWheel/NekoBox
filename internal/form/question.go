@@ -8,7 +8,7 @@ type NewQuestion struct {
 	Content              string `form:"content" valid:"required;maxlen:1000" label:"问题内容"`
 	ReceiveReplyViaEmail string
 	ReceiveReplyEmail    string `label:"接收回复的电子邮箱"`
-	Recaptcha            string `form:"g-recaptcha-response" valid:"required" label:"Recaptcha"`
+	Recaptcha            string `form:"g-recaptcha-response" valid:"required" label:"Recaptcha" msg:"无感验证码加载错误，请尝试刷新页面重试。"`
 }
 
 type PublishAnswerQuestion struct {

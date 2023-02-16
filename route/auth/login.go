@@ -21,12 +21,13 @@ func Login(ctx context.Context) {
 }
 
 func LoginAction(ctx context.Context, f form.Login, recaptcha recaptcha.RecaptchaV3) {
-	uri := ctx.Request().Request.RequestURI // Keep the query when redirecting.
+	if ctx.HasError() {
+		ctx.Success("auth/login")
+		return
+	}
 
 	// Check recaptcha code.
-	if f.Recaptcha == "" {
-		ctx.SetErrorFlash("无感验证码加载错误，请尝试刷新页面重试。")
-	}
+	uri := ctx.Request().Request.RequestURI // Keep the query when redirecting.
 	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")
@@ -37,11 +38,6 @@ func LoginAction(ctx context.Context, f form.Login, recaptcha recaptcha.Recaptch
 	if !resp.Success {
 		ctx.SetErrorFlash("验证码错误")
 		ctx.Redirect(uri)
-		return
-	}
-
-	if ctx.HasError() {
-		ctx.Success("auth/login")
 		return
 	}
 

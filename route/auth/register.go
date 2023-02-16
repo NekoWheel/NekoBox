@@ -20,8 +20,9 @@ func Register(ctx context.Context) {
 }
 
 func RegisterAction(ctx context.Context, f form.Register, recaptcha recaptcha.RecaptchaV3) {
-	if f.Recaptcha == "" {
-		ctx.SetErrorFlash("无感验证码加载错误，请尝试刷新页面重试。")
+	if ctx.HasError() {
+		ctx.Success("auth/register")
+		return
 	}
 
 	// Check recaptcha code.
@@ -35,11 +36,6 @@ func RegisterAction(ctx context.Context, f form.Register, recaptcha recaptcha.Re
 	if !resp.Success {
 		ctx.SetErrorFlash("验证码错误")
 		ctx.Redirect("/register")
-		return
-	}
-
-	if ctx.HasError() {
-		ctx.Success("auth/register")
 		return
 	}
 
