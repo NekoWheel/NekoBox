@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/uikit@3.3.3/dist/js/uikit.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/uikit@3.3.3/dist/js/uikit-icons.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.10.5/dist/cdn.min.js"/></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.10.5/dist/cdn.min.js"/></script>
   <script src="{{.RecaptchaDomain}}/recaptcha/api.js" async defer></script>
   <script
           src="https://browser.sentry-cdn.com/7.37.2/bundle.tracing.replay.min.js"
@@ -18,13 +18,14 @@
   <script>
       Sentry.init({
           dsn: "https://951b352cdf6f47a9aa90fc747679cb83@o1229802.ingest.sentry.io/4504693835825152",
-          integrations: [new Sentry.BrowserTracing()],
+          integrations: [new Sentry.BrowserTracing(), new Sentry.Replay()],
           tracesSampleRate: 1.0,
+          replaysSessionSampleRate: 0.1,
+          replaysOnErrorSampleRate: 1.0,
       });
   </script>
   <script>
       function onSubmit() {document.getElementById('form').submit();}
-      Alpine.store('questions', { items: [], insert(messages) {this.items.push(messages)}})
   </script>
   <style>
       .grecaptcha-badge {visibility: hidden;}
