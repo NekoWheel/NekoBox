@@ -22,6 +22,7 @@ var (
 		QiniuAccessSecret     string `ini:"qiniu_access_secret"`
 		AliyunAccessKey       string `ini:"aliyun_access_key"`
 		AliyunAccessKeySecret string `ini:"aliyun_access_key_secret"`
+		SentryDSN             string `ini:"sentry_dsn"`
 	}
 
 	Security struct {

@@ -44,6 +44,9 @@ func FuncMap() []template.FuncMap {
 				input = strings.ReplaceAll(input, "\n", "</br>")
 				return template.HTML(input)
 			},
+			"SentryDSN": func() string {
+				return conf.App.SentryDSN
+			},
 		}}
 	})
 	return funcMap
