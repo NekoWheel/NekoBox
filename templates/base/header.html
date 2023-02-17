@@ -10,6 +10,18 @@
   <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.10.5/dist/cdn.min.js"/></script>
   <script src="{{.RecaptchaDomain}}/recaptcha/api.js" async defer></script>
+  <script
+          src="https://browser.sentry-cdn.com/7.37.2/bundle.tracing.replay.min.js"
+          integrity="sha384-o0mU2P+zsvXua0Y6f/J55PKWZt3sZCv3qDqJe6J5lZklyIQkpgjBVqNnPWYWqGhf"
+          crossorigin="anonymous"
+  ></script>
+  <script>
+      Sentry.init({
+          dsn: "https://951b352cdf6f47a9aa90fc747679cb83@o1229802.ingest.sentry.io/4504693835825152",
+          integrations: [new Sentry.BrowserTracing()],
+          tracesSampleRate: 1.0,
+      });
+  </script>
   <script>
       function onSubmit() {document.getElementById('form').submit();}
       Alpine.store('questions', { items: [], insert(messages) {this.items.push(messages)}})
