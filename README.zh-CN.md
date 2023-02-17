@@ -26,6 +26,8 @@ NekoBox
 <a href="/README.zh-CN.md">简体中文</a> | <a href="/README.md">English</a>
 </p>
 
+![Screenshot](./dev/screenshot.svg)
+
 ## 安装
 
 ### 需求
