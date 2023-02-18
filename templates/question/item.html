@@ -14,7 +14,7 @@
 
     {{if ne .Question.Answer ""}}
     <div class="uk-card-body">
-      <p class="uk-text-small">{{AnswerFormat .Question.Answer}}</p>
+      <p class="uk-text-small uk-text-break">{{AnswerFormat .Question.Answer}}</p>
       <p class="uk-text-small uk-text-right uk-text-muted">-来自@{{.PageUser.Name}}的回答</p>
     </div>
     {{end}}
