@@ -93,16 +93,16 @@
       <th>金额</th>
     </tr>
     </thead>
-    <tbody x-html="
-    await (async () => {
+    <tbody x-data="{ s: '' }" x-init="
+    s = await (async () => {
       let html = '';
-      let items = (await(await fetch('https://db.n3ko.co/nekobox-sponsors/data/')).json()).data;
+      let items = (await(await fetch('https://pb.app.n3ko.co/api/collections/nekobox_sponsors/records?perPage=500&sort=-date')).json()).items;
       items.forEach(item => {
-        html += `<tr class=uk-text-meta><td>${item.date}</td><td>${item.desc}</td><td>¥ ${item.price.toFixed(2)}</td></tr>`;
+        html += `<tr class=uk-text-meta><td>${item.date.slice(0,10)}</td><td>${item.desc}</td><td>¥ ${item.price.toFixed(2)}</td></tr>`;
       })
       return html;
     })()
-  ">
+  " x-html="s">
     </tbody>
   </table>
 </div>
