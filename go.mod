@@ -11,7 +11,6 @@ require (
 	github.com/flamego/recaptcha v1.0.2
 	github.com/flamego/session v1.2.1
 	github.com/flamego/template v1.0.0
-	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/pkg/errors v0.9.1
 	github.com/qiniu/go-sdk/v7 v7.13.0
 	github.com/samber/lo v1.34.0
@@ -88,7 +87,7 @@ require (
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
 	golang.org/x/sys v0.5.0 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/text v0.3.8 // indirect
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	google.golang.org/genproto v0.0.0-20220902135211-223410557253 // indirect
 	google.golang.org/grpc v1.49.0 // indirect
