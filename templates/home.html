@@ -1,14 +1,15 @@
 {{template "base/header" .}}
 <div class="uk-card uk-card-default uk-card-body">
   <h1 class="uk-heading-small">NekoBox</h1>
-  <p>一个究极简洁的匿名问答箱。没有多余的社交元素，只是一问一答。不提醒，不打扰。你不需要下载 App，不需要绑定社交账号，甚至连邮箱都不需要是真的。（划掉</p>
+<!--  <p>一个究极简洁的匿名问答箱。没有多余的社交元素，只是一问一答。不提醒，不打扰。你不需要下载 App，不需要绑定社交账号，甚至连邮箱都不需要是真的。（划掉</p>-->
+  <p>网站关停整改中，现已停止服务。给您带来的不便敬请谅解。🧎🏻</p>
   <br>
   <hr>
-  <div x-data="{ c: '' }" x-init="c = await (async () => {
-    let log = (await(await fetch('https://pb.app.n3ko.co/api/collections/changelogs/records?sort=-published_at&perPage=1')).json()).items[0];
-    return `<p class=uk-article-meta>开发日记 - ${new Date(log.published_at).toLocaleDateString()}</p><span class=uk-text-small>${log.content}</span>`;
-  })()" x-html="c">
-  </div>
-  <p class="uk-text-right uk-text-small"><a class="uk-link-text" href="/change-logs">查看更多...</a></p>
+<!--  <div x-data="{ c: '' }" x-init="c = await (async () => {-->
+<!--    let log = (await(await fetch('https://pb.app.n3ko.co/api/collections/changelogs/records?sort=-published_at&perPage=1')).json()).items[0];-->
+<!--    return `<p class=uk-article-meta>开发日记 - ${new Date(log.published_at).toLocaleDateString()}</p><span class=uk-text-small>${log.content}</span>`;-->
+<!--  })()" x-html="c">-->
+<!--  </div>-->
+<!--  <p class="uk-text-right uk-text-small"><a class="uk-link-text" href="/change-logs">查看更多...</a></p>-->
 </div>
 {{template "base/footer" .}}

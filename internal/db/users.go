@@ -21,6 +21,7 @@ var _ UsersStore = (*users)(nil)
 type UsersStore interface {
 	Create(ctx context.Context, opts CreateUserOptions) error
 	GetByID(ctx context.Context, id uint) (*User, error)
+	GetByPhone(ctx context.Context, phone string) (*User, error)
 	GetByEmail(ctx context.Context, email string) (*User, error)
 	GetByDomain(ctx context.Context, domain string) (*User, error)
 	Update(ctx context.Context, id uint, opts UpdateUserOptions) error
@@ -43,6 +44,7 @@ type User struct {
 	gorm.Model        `json:"-"`
 	Name              string                `json:"name"`
 	Password          string                `json:"-"`
+	Phone             string                `json:"-"`
 	Email             string                `json:"email"`
 	Avatar            string                `json:"avatar"`
 	Domain            string                `json:"domain"`
@@ -78,6 +80,7 @@ func (u *User) Authenticate(password string) bool {
 type CreateUserOptions struct {
 	Name       string
 	Password   string
+	Phone      string
 	Email      string
 	Avatar     string
 	Domain     string
@@ -88,6 +91,7 @@ type CreateUserOptions struct {
 var (
 	ErrUserNotExists   = errors.New("账号不存在")
 	ErrBadCredential   = errors.New("邮箱或密码错误")
+	ErrDuplicatePhone  = errors.New("手机号已被注册")
 	ErrDuplicateEmail  = errors.New("这个邮箱已经注册过账号了！")
 	ErrDuplicateDomain = errors.New("个性域名重复了，换一个吧~")
 )
@@ -100,6 +104,7 @@ func (db *users) Create(ctx context.Context, opts CreateUserOptions) error {
 	newUser := &User{
 		Name:       opts.Name,
 		Password:   opts.Password,
+		Phone:      opts.Phone,
 		Email:      opts.Email,
 		Avatar:     opts.Avatar,
 		Domain:     opts.Domain,
@@ -128,6 +133,10 @@ func (db *users) getBy(ctx context.Context, where string, args ...interface{}) (
 
 func (db *users) GetByID(ctx context.Context, id uint) (*User, error) {
 	return db.getBy(ctx, "id = ?", id)
+}
+
+func (db *users) GetByPhone(ctx context.Context, phone string) (*User, error) {
+	return db.getBy(ctx, "phone = ?", phone)
 }
 
 func (db *users) GetByEmail(ctx context.Context, email string) (*User, error) {
@@ -245,6 +254,14 @@ func (db *users) Deactivate(ctx context.Context, id uint) error {
 }
 
 func (db *users) validate(ctx context.Context, opts CreateUserOptions) error {
+	if err := db.WithContext(ctx).Model(&User{}).Where("phone = ?", opts.Phone).First(&User{}).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.Wrap(err, "validate phone")
+		}
+	} else {
+		return ErrDuplicatePhone
+	}
+
 	if err := db.WithContext(ctx).Model(&User{}).Where("email = ?", opts.Email).First(&User{}).Error; err != nil {
 		if err != gorm.ErrRecordNotFound {
 			return errors.Wrap(err, "validate email")

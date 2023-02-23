@@ -13,13 +13,15 @@ import (
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
 	"github.com/NekoWheel/NekoBox/internal/form"
+	"github.com/NekoWheel/NekoBox/internal/security/sms"
+	"github.com/NekoWheel/NekoBox/internal/security/sms/storage"
 )
 
 func Register(ctx context.Context) {
 	ctx.Success("auth/register")
 }
 
-func RegisterAction(ctx context.Context, f form.Register, recaptcha recaptcha.RecaptchaV3) {
+func RegisterAction(ctx context.Context, f form.Register, recaptcha recaptcha.RecaptchaV3, sms *sms.SMS) {
 	if ctx.HasError() {
 		ctx.Success("auth/register")
 		return
@@ -39,9 +41,24 @@ func RegisterAction(ctx context.Context, f form.Register, recaptcha recaptcha.Re
 		return
 	}
 
+	// Check the phone SMS code.
+	ok, err := sms.Validate(ctx.Request().Context(), storage.SMSTypeVerifyPhone, f.Phone, f.SMSCode)
+	if err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to validate phone SMS code")
+		ctx.SetInternalErrorFlash()
+		ctx.Redirect("/register")
+		return
+	}
+	if !ok {
+		ctx.SetErrorFlash("手机验证码错误")
+		ctx.Redirect("/register")
+		return
+	}
+
 	if err := db.Users.Create(ctx.Request().Context(), db.CreateUserOptions{
 		Name:       f.Name,
 		Password:   f.Password,
+		Phone:      f.Phone,
 		Email:      f.Email,
 		Avatar:     conf.Upload.DefaultAvatarURL,
 		Domain:     f.Domain,
@@ -51,6 +68,7 @@ func RegisterAction(ctx context.Context, f form.Register, recaptcha recaptcha.Re
 		switch {
 		case errors.Is(err, db.ErrUserNotExists),
 			errors.Is(err, db.ErrBadCredential),
+			errors.Is(err, db.ErrDuplicatePhone),
 			errors.Is(err, db.ErrDuplicateEmail),
 			errors.Is(err, db.ErrDuplicateDomain):
 			ctx.SetError(errors.Cause(err))
@@ -66,4 +84,12 @@ func RegisterAction(ctx context.Context, f form.Register, recaptcha recaptcha.Re
 
 	ctx.SetSuccessFlash("注册成功，欢迎来到 NekoBox！")
 	ctx.Redirect("/login")
+}
+
+func SendRegisterSMSCodeAPI(ctx context.Context, f form.SendSMS, sms *sms.SMS) error {
+	if err := sms.Send(ctx.Request().Context(), storage.SMSTypeVerifyPhone, f.Phone); err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to send SMS code")
+		return ctx.ServerError()
+	}
+	return ctx.JSON("ok")
 }

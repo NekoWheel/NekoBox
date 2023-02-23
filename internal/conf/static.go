@@ -20,6 +20,8 @@ var (
 		UptraceDSN            string `ini:"uptrace_dsn"`
 		QiniuAccessKey        string `ini:"qiniu_access_key"`
 		QiniuAccessSecret     string `ini:"qiniu_access_secret"`
+		AliyunSignName        string `ini:"aliyun_sign_name"`
+		AliyunRegion          string `ini:"aliyun_region"`
 		AliyunAccessKey       string `ini:"aliyun_access_key"`
 		AliyunAccessKeySecret string `ini:"aliyun_access_key_secret"`
 		SentryDSN             string `ini:"sentry_dsn"`

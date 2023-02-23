@@ -18,9 +18,13 @@ import (
 	"github.com/unknwon/com"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+	"gorm.io/gorm"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/db"
+	"github.com/NekoWheel/NekoBox/internal/security/sms"
+	"github.com/NekoWheel/NekoBox/internal/security/sms/sender"
+	"github.com/NekoWheel/NekoBox/internal/security/sms/storage"
 	templatepkg "github.com/NekoWheel/NekoBox/internal/template"
 )
 
@@ -149,7 +153,7 @@ func (c *Context) JSONError(errorCode int, message string) error {
 }
 
 // Contexter initializes a classic context for a request.
-func Contexter() flamego.Handler {
+func Contexter(db *gorm.DB) flamego.Handler {
 	return func(ctx flamego.Context, data template.Data, session session.Session, x csrf.CSRF, t template.Template, flash session.Flash) {
 		c := Context{
 			Context:  ctx,
@@ -217,6 +221,20 @@ func Contexter() flamego.Handler {
 		// 🚨 SECURITY: Prevent MIME type sniffing in some browsers,
 		c.ResponseWriter().Header().Set("X-Content-Type-Options", "nosniff")
 		c.ResponseWriter().Header().Set("X-Frame-Options", "DENY")
+
+		// SMS
+		sms := sms.NewSMS(
+			sender.NewAliyunSMS(
+				sender.NewAliyunSMSOptions{
+					SignName:        conf.App.AliyunSignName,
+					Region:          conf.App.AliyunRegion,
+					AccessKey:       conf.App.AliyunAccessKey,
+					AccessKeySecret: conf.App.AliyunAccessKeySecret,
+				},
+			),
+			storage.NewPostgresStorage(db),
+		)
+		ctx.Map(sms)
 
 		ctx.Map(c)
 		ctx.Map(EndpointWeb)

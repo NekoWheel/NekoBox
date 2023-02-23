@@ -11,6 +11,7 @@ require (
 	github.com/flamego/recaptcha v1.0.2
 	github.com/flamego/session v1.2.1
 	github.com/flamego/template v1.0.0
+	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/pkg/errors v0.9.1
 	github.com/qiniu/go-sdk/v7 v7.13.0
 	github.com/samber/lo v1.34.0
@@ -51,12 +52,12 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/gopherjs/gopherjs v0.0.0-20190430165422-3e4dfb77656c // indirect
+	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
-	github.com/json-iterator/go v1.1.8 // indirect
+	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
@@ -67,7 +68,7 @@ require (
 	github.com/richardlehane/mscfb v1.0.4 // indirect
 	github.com/richardlehane/msoleps v1.0.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/smartystreets/assertions v1.0.1 // indirect
+	github.com/smartystreets/assertions v1.1.0 // indirect
 	github.com/tdewolff/parse/v2 v2.6.4 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.1.16 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelutil v0.1.16 // indirect

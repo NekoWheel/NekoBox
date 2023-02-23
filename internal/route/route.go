@@ -20,20 +20,17 @@ import (
 	sessionRedis "github.com/flamego/session/redis"
 	"github.com/flamego/template"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/context"
-	"github.com/NekoWheel/NekoBox/internal/form"
 	templatepkg "github.com/NekoWheel/NekoBox/internal/template"
 	"github.com/NekoWheel/NekoBox/route"
-	"github.com/NekoWheel/NekoBox/route/auth"
-	"github.com/NekoWheel/NekoBox/route/question"
-	"github.com/NekoWheel/NekoBox/route/user"
 	"github.com/NekoWheel/NekoBox/static"
 	"github.com/NekoWheel/NekoBox/templates"
 )
 
-func New() *flamego.Flame {
+func New(db *gorm.DB) *flamego.Flame {
 	f := flamego.Classic()
 	if conf.App.Production {
 		flamego.SetEnv(flamego.EnvTypeProd)
@@ -78,13 +75,13 @@ func New() *flamego.Flame {
 		Prefix:     "/static",
 	}))
 
-	reqUserSignOut := context.Toggle(&context.ToggleOptions{UserSignOutRequired: true})
-	reqUserSignIn := context.Toggle(&context.ToggleOptions{UserSignInRequired: true})
+	//reqUserSignOut := context.Toggle(&context.ToggleOptions{UserSignOutRequired: true})
+	//reqUserSignIn := context.Toggle(&context.ToggleOptions{UserSignInRequired: true})
 
 	f.Group("", func() {
 		f.Get("/", route.Home)
-		f.Get("/sponsor", route.Sponsor)
-		f.Get("/change-logs", route.ChangeLogs)
+		//f.Get("/sponsor", route.Sponsor)
+		//f.Get("/change-logs", route.ChangeLogs)
 		f.Get("/robots.txt", func(c context.Context) {
 			_, _ = c.ResponseWriter().Write([]byte("User-agent: *\nDisallow: /_/"))
 		})
@@ -95,49 +92,51 @@ func New() *flamego.Flame {
 			_, _ = io.Copy(c.ResponseWriter(), fs)
 		})
 
-		f.Group("", func() {
-			f.Combo("/register").Get(auth.Register).Post(form.Bind(form.Register{}), auth.RegisterAction)
-			f.Combo("/login").Get(auth.Login).Post(form.Bind(form.Login{}), auth.LoginAction)
-			f.Combo("/forgot-password").Get(auth.ForgotPassword).Post(form.Bind(form.ForgotPassword{}), auth.ForgotPasswordAction)
-			f.Combo("/recover-password").Get(auth.RecoverPassword).Post(form.Bind(form.RecoverPassword{}), auth.RecoverPasswordAction)
-		}, reqUserSignOut)
+		//f.Group("", func() {
+		//	f.Combo("/register").Get(auth.Register).Post(form.Bind(form.Register{}), auth.RegisterAction)
+		//	f.Combo("/login").Get(auth.Login).Post(form.Bind(form.Login{}), auth.LoginAction)
+		//	f.Combo("/forgot-password").Get(auth.ForgotPassword).Post(form.Bind(form.ForgotPassword{}), auth.ForgotPasswordAction)
+		//	f.Combo("/recover-password").Get(auth.RecoverPassword).Post(form.Bind(form.RecoverPassword{}), auth.RecoverPasswordAction)
+		//}, reqUserSignOut)
+		//
+		//f.Group("/_/{domain}", func() {
+		//	f.Combo("").Get(question.List).Post(form.Bind(form.NewQuestion{}), question.New)
+		//	f.Group("/{questionID}", func() {
+		//		f.Get("", question.Item)
+		//		f.Post("/delete", question.Delete)
+		//		f.Post("/set-private", question.SetPrivate)
+		//		f.Post("/set-public", question.SetPublic)
+		//		f.Post("/answer", reqUserSignIn, form.Bind(form.PublishAnswerQuestion{}), question.PublishAnswer)
+		//	}, question.Questioner)
+		//}, question.Pager)
+		//
+		//f.Group("/user", func() {
+		//	f.Get("/questions", user.QuestionList)
+		//
+		//	f.Group("/profile", func() {
+		//		f.Get("", user.Profile)
+		//		f.Post("/update", form.Bind(form.UpdateProfile{}), user.UpdateProfile)
+		//		f.Post("/export", user.ExportProfile)
+		//		f.Combo("/deactivate").Get(user.DeactivateProfile).Post(user.DeactivateProfileAction)
+		//	})
+		//	f.Post("/harassment/update", form.Bind(form.UpdateHarassment{}), user.UpdateHarassment)
+		//
+		//	f.Get("/logout", auth.Logout)
+		//}, reqUserSignIn)
 
-		f.Group("/_/{domain}", func() {
-			f.Combo("").Get(question.List).Post(form.Bind(form.NewQuestion{}), question.New)
-			f.Group("/{questionID}", func() {
-				f.Get("", question.Item)
-				f.Post("/delete", question.Delete)
-				f.Post("/set-private", question.SetPrivate)
-				f.Post("/set-public", question.SetPublic)
-				f.Post("/answer", reqUserSignIn, form.Bind(form.PublishAnswerQuestion{}), question.PublishAnswer)
-			}, question.Questioner)
-		}, question.Pager)
-
-		f.Group("/user", func() {
-			f.Get("/questions", user.QuestionList)
-
-			f.Group("/profile", func() {
-				f.Get("", user.Profile)
-				f.Post("/update", form.Bind(form.UpdateProfile{}), user.UpdateProfile)
-				f.Post("/export", user.ExportProfile)
-				f.Combo("/deactivate").Get(user.DeactivateProfile).Post(user.DeactivateProfileAction)
-			})
-			f.Post("/harassment/update", form.Bind(form.UpdateHarassment{}), user.UpdateHarassment)
-
-			f.Get("/logout", auth.Logout)
-		}, reqUserSignIn)
-
-		f.Group("/api/v1", func() {
-			f.Group("/user", func() {
-				f.Get("", reqUserSignIn, user.ProfileAPI)
-
-				f.Group("/{domain}", func() {
-					f.Group("/questions", func() {
-						f.Get("", question.ListAPI)
-					})
-				})
-			})
-		}, context.APIEndpoint)
+		//f.Group("/api/v1", func() {
+		//	f.Group("/user", func() {
+		//		f.Post("/register/send-sms", form.Bind(form.SendSMS{}), auth.SendRegisterSMSCodeAPI)
+		//
+		//		f.Get("", reqUserSignIn, user.ProfileAPI)
+		//
+		//		f.Group("/{domain}", func() {
+		//			f.Group("/questions", func() {
+		//				f.Get("", question.ListAPI)
+		//			})
+		//		})
+		//	})
+		//}, context.APIEndpoint)
 	},
 		cache.Cacher(cache.Options{
 			Initer: cacheRedis.Initer(),
@@ -164,7 +163,7 @@ func New() *flamego.Flame {
 			FileSystem: templateFS,
 			FuncMaps:   templatepkg.FuncMap(),
 		}),
-		context.Contexter(),
+		context.Contexter(db),
 	)
 	f.NotFound(func(ctx flamego.Context) {
 		ctx.Redirect("/")
