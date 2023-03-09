@@ -43,7 +43,7 @@ git clone https://github.com/NekoWheel/NekoBox.git
 
 cd NekoBox
 
-go build -o NekoBox
+go build -o NekoBox ./cmd/
 ```
 
 ### Edit the configuration file
