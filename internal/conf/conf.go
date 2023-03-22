@@ -66,5 +66,9 @@ func Init() error {
 		return errors.Wrap(err, "map 'mail'")
 	}
 
+	if err := File.Section("sms").MapTo(&SMS); err != nil {
+		return errors.Wrap(err, "map 'sms'")
+	}
+
 	return nil
 }

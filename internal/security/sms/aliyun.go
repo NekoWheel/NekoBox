@@ -12,13 +12,22 @@ import (
 
 type AliyunSMS struct {
 	region, accessKey, accessKeySecret string
+
+	signName, templateCode string
 }
 
-func NewAliyunSMS(region, accessKey, accessKeySecret string) *AliyunSMS {
+type NewAliyunSMSOptions struct {
+	Region, AccessKey, AccessKeySecret string
+	SignName, TemplateCode             string
+}
+
+func NewAliyunSMS(options NewAliyunSMSOptions) *AliyunSMS {
 	return &AliyunSMS{
-		region:          region,
-		accessKey:       accessKey,
-		accessKeySecret: accessKeySecret,
+		region:          options.Region,
+		accessKey:       options.AccessKey,
+		accessKeySecret: options.AccessKeySecret,
+		signName:        options.SignName,
+		templateCode:    options.TemplateCode,
 	}
 }
 
@@ -36,8 +45,8 @@ func (s *AliyunSMS) SendCode(_ context.Context, phone, code string) error {
 	req.ApiName = "SendSms"
 	req.QueryParams["RegionId"] = s.region
 	req.QueryParams["PhoneNumbers"] = phone
-	req.QueryParams["SignName"] = ""
-	req.QueryParams["TemplateCode"] = ""
+	req.QueryParams["SignName"] = s.signName
+	req.QueryParams["TemplateCode"] = s.templateCode
 	req.QueryParams["TemplateParam"] = `{"code":"` + code + `"}`
 	resp, err := client.ProcessCommonRequest(req)
 	if err != nil {

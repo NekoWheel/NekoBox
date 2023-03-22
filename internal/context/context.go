@@ -21,6 +21,7 @@ import (
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/db"
+	"github.com/NekoWheel/NekoBox/internal/security/sms"
 	templatepkg "github.com/NekoWheel/NekoBox/internal/template"
 )
 
@@ -217,6 +218,20 @@ func Contexter() flamego.Handler {
 		// 🚨 SECURITY: Prevent MIME type sniffing in some browsers,
 		c.ResponseWriter().Header().Set("X-Content-Type-Options", "nosniff")
 		c.ResponseWriter().Header().Set("X-Frame-Options", "DENY")
+
+		var smsModule sms.SMS
+		if conf.SMS.AliyunSignName != "" && conf.SMS.AliyunTemplateCode != "" {
+			smsModule = sms.NewAliyunSMS(sms.NewAliyunSMSOptions{
+				Region:          conf.SMS.AliyunRegion,
+				AccessKey:       conf.SMS.AliyunAccessKey,
+				AccessKeySecret: conf.SMS.AliyunAccessKeySecret,
+				SignName:        conf.SMS.AliyunSignName,
+				TemplateCode:    conf.SMS.AliyunTemplateCode,
+			})
+		} else {
+			smsModule = sms.NewDummySMS()
+		}
+		ctx.MapTo(smsModule, (*sms.SMS)(nil))
 
 		ctx.Map(c)
 		ctx.Map(EndpointWeb)
