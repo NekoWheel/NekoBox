@@ -25,6 +25,7 @@ type UsersStore interface {
 	GetByDomain(ctx context.Context, domain string) (*User, error)
 	Update(ctx context.Context, id uint, opts UpdateUserOptions) error
 	UpdateHarassmentSetting(ctx context.Context, id uint, typ HarassmentSettingType) error
+	UpdateVerifyType(ctx context.Context, id uint, verifyType VerifyType) error
 	Authenticate(ctx context.Context, email, password string) (*User, error)
 	ChangePassword(ctx context.Context, id uint, oldPassword, newPassword string) error
 	UpdatePassword(ctx context.Context, id uint, newPassword string) error
@@ -39,6 +40,17 @@ type users struct {
 	*gorm.DB
 }
 
+type VerifyType uint
+
+func (v VerifyType) IsValid() bool {
+	return v >= VerifyTypeUnverified && v <= VerifyTypeVerified
+}
+
+const (
+	VerifyTypeUnverified VerifyType = iota
+	VerifyTypeVerified
+)
+
 type User struct {
 	gorm.Model        `json:"-"`
 	Name              string                `json:"name"`
@@ -49,6 +61,7 @@ type User struct {
 	Background        string                `json:"background"`
 	Intro             string                `json:"intro"`
 	Notify            NotifyType            `json:"notify"`
+	VerifyType        VerifyType            `json:"-"`
 	HarassmentSetting HarassmentSettingType `json:"harassment_setting"`
 }
 
@@ -83,6 +96,7 @@ type CreateUserOptions struct {
 	Domain     string
 	Background string
 	Intro      string
+	VerifyType VerifyType
 }
 
 var (
@@ -105,6 +119,7 @@ func (db *users) Create(ctx context.Context, opts CreateUserOptions) error {
 		Domain:     opts.Domain,
 		Background: opts.Background,
 		Intro:      opts.Intro,
+		VerifyType: opts.VerifyType,
 		Notify:     NotifyTypeEmail,
 	}
 	newUser.EncodePassword()
@@ -179,6 +194,19 @@ func (db *users) UpdateHarassmentSetting(ctx context.Context, id uint, typ Haras
 
 	if err := db.WithContext(ctx).Where("id = ?", id).Updates(&User{
 		HarassmentSetting: typ,
+	}).Error; err != nil {
+		return errors.Wrap(err, "update user")
+	}
+	return nil
+}
+
+func (db *users) UpdateVerifyType(ctx context.Context, id uint, verifyType VerifyType) error {
+	if !verifyType.IsValid() {
+		return errors.Errorf("unexpected verify type: %q", verifyType)
+	}
+
+	if err := db.WithContext(ctx).Where("id = ?", id).Updates(&User{
+		VerifyType: verifyType,
 	}).Error; err != nil {
 		return errors.Wrap(err, "update user")
 	}
