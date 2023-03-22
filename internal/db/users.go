@@ -46,6 +46,10 @@ func (v VerifyType) IsValid() bool {
 	return v >= VerifyTypeUnverified && v <= VerifyTypeVerified
 }
 
+func (v VerifyType) IsUnverified() bool {
+	return v == VerifyTypeUnverified
+}
+
 const (
 	VerifyTypeUnverified VerifyType = iota
 	VerifyTypeVerified

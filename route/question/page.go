@@ -87,6 +87,10 @@ func ListAPI(ctx context.Context) error {
 		return ctx.ServerError()
 	}
 
+	if pageUser.VerifyType.IsUnverified() {
+		return ctx.JSONError(40000, "该用户未验证，提问列表不可见")
+	}
+
 	pageQuestions, err := db.Questions.GetByUserID(ctx.Request().Context(), pageUser.ID, db.GetQuestionsByUserIDOptions{
 		Cursor: &dbutil.Cursor{
 			Value:    cursorValue,
