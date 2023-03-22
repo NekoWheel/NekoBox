@@ -13,10 +13,15 @@ import (
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
 	"github.com/NekoWheel/NekoBox/internal/form"
+	"github.com/NekoWheel/NekoBox/internal/security/sms"
 )
 
 func Register(ctx context.Context) {
 	ctx.Success("auth/register")
+}
+
+func SendRegisterSMS(ctx context.Context, f form.RegisterSendSMS, sms sms.SMS) {
+
 }
 
 func RegisterAction(ctx context.Context, f form.Register, recaptcha recaptcha.RecaptchaV3) {

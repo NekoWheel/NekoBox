@@ -97,6 +97,7 @@ func New() *flamego.Flame {
 
 		f.Group("", func() {
 			f.Combo("/register").Get(auth.Register).Post(form.Bind(form.Register{}), auth.RegisterAction)
+			f.Post("/register/send-sms", form.Bind(form.RegisterSendSMS{}), auth.SendRegisterSMS)
 			f.Combo("/login").Get(auth.Login).Post(form.Bind(form.Login{}), auth.LoginAction)
 			f.Combo("/forgot-password").Get(auth.ForgotPassword).Post(form.Bind(form.ForgotPassword{}), auth.ForgotPasswordAction)
 			f.Combo("/recover-password").Get(auth.RecoverPassword).Post(form.Bind(form.RecoverPassword{}), auth.RecoverPasswordAction)
