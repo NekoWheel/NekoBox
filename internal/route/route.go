@@ -97,7 +97,6 @@ func New() *flamego.Flame {
 
 		f.Group("", func() {
 			f.Combo("/register").Get(auth.Register).Post(form.Bind(form.Register{}), auth.RegisterAction)
-			f.Post("/register/send-sms", form.Bind(form.RegisterSendSMS{}), auth.SendRegisterSMS)
 			f.Combo("/login").Get(auth.Login).Post(form.Bind(form.Login{}), auth.LoginAction)
 			f.Combo("/forgot-password").Get(auth.ForgotPassword).Post(form.Bind(form.ForgotPassword{}), auth.ForgotPasswordAction)
 			f.Combo("/recover-password").Get(auth.RecoverPassword).Post(form.Bind(form.RecoverPassword{}), auth.RecoverPasswordAction)
@@ -129,8 +128,15 @@ func New() *flamego.Flame {
 		}, reqUserSignIn)
 
 		f.Group("/api/v1", func() {
+			f.Group("/register", func() {
+				f.Post("/send-sms", form.Bind(form.SendSMS{}), auth.SendRegisterSMSAPI)
+			})
+
 			f.Group("/user", func() {
-				f.Get("", reqUserSignIn, user.ProfileAPI)
+				f.Group("/profile", func() {
+					f.Get("", user.ProfileAPI)
+					f.Post("/send-sms", form.Bind(form.SendSMS{}), user.SendProfileSMSAPI)
+				}, reqUserSignIn)
 
 				f.Group("/{domain}", func() {
 					f.Group("/questions", func() {

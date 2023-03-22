@@ -7,8 +7,11 @@ package user
 import (
 	"fmt"
 	"net/url"
+	"os"
 	"time"
 
+	"github.com/flamego/cache"
+	"github.com/flamego/recaptcha"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
@@ -16,7 +19,9 @@ import (
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
 	"github.com/NekoWheel/NekoBox/internal/form"
+	"github.com/NekoWheel/NekoBox/internal/security/sms"
 	"github.com/NekoWheel/NekoBox/internal/storage"
+	"github.com/NekoWheel/NekoBox/route"
 )
 
 func Profile(ctx context.Context) {
@@ -27,7 +32,11 @@ func ProfileAPI(ctx context.Context) error {
 	return ctx.JSON(ctx.User)
 }
 
-func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
+func SendProfileSMSAPI(ctx context.Context, f form.SendSMS, sms sms.SMS, cache cache.Cache, recaptcha recaptcha.RecaptchaV3) error {
+	return route.SendSMS(route.SMSCacheKeyPrefixBindPhone)(ctx, f, sms, cache, recaptcha)
+}
+
+func UpdateProfile(ctx context.Context, f form.UpdateProfile, cache cache.Cache) {
 	if ctx.HasError() {
 		ctx.Success("user/profile")
 		return
@@ -74,6 +83,34 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 		}
 	}
 
+	// Check sms code.
+	var phone string
+	if f.Phone != "" && f.VerifyCode != "" {
+		verifyCodeInf, err := cache.Get(ctx.Request().Context(), route.SMSCacheKeyPrefixBindPhone+f.Phone)
+		if err != nil {
+			if errors.Is(err, os.ErrNotExist) {
+				ctx.SetErrorFlash("验证码已过期")
+			} else {
+				logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to read password recovery code cache")
+				ctx.SetInternalErrorFlash()
+			}
+			ctx.Redirect("/register")
+			return
+		} else {
+			verifyCode, ok := verifyCodeInf.(string)
+			if ok && verifyCode != "" && verifyCode == f.VerifyCode {
+				// Set user's verified phone.
+				phone = f.Phone
+
+				if err := db.Users.UpdateVerifyType(ctx.Request().Context(), ctx.User.ID, db.VerifyTypeVerified); err != nil {
+					logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update user verify type")
+					ctx.SetInternalErrorFlash()
+					return
+				}
+			}
+		}
+	}
+
 	var notify db.NotifyType
 	if f.NotifyEmail != "" {
 		notify = db.NotifyTypeEmail
@@ -83,6 +120,7 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 
 	if err := db.Users.Update(ctx.Request().Context(), ctx.User.ID, db.UpdateUserOptions{
 		Name:       f.Name,
+		Phone:      phone,
 		Avatar:     avatarURL,
 		Background: backgroundURL,
 		Intro:      f.Intro,

@@ -15,7 +15,7 @@ type Register struct {
 	Recaptcha      string `form:"g-recaptcha-response" valid:"required" label:"Recaptcha" msg:"无感验证码加载错误，请尝试刷新页面重试。"`
 }
 
-type RegisterSendSMS struct {
+type SendSMS struct {
 	Phone     string `valid:"required;phone" label:"手机号码"`
 	Recaptcha string `form:"g-recaptcha-response" valid:"required" label:"Recaptcha" msg:"无感验证码加载错误，请尝试刷新页面重试。"`
 }

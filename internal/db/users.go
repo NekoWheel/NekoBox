@@ -60,6 +60,7 @@ type User struct {
 	Name              string                `json:"name"`
 	Password          string                `json:"-"`
 	Email             string                `json:"email"`
+	Phone             string                `json:"-"`
 	Avatar            string                `json:"avatar"`
 	Domain            string                `json:"domain"`
 	Background        string                `json:"background"`
@@ -96,6 +97,7 @@ type CreateUserOptions struct {
 	Name       string
 	Password   string
 	Email      string
+	Phone      string
 	Avatar     string
 	Domain     string
 	Background string
@@ -119,6 +121,7 @@ func (db *users) Create(ctx context.Context, opts CreateUserOptions) error {
 		Name:       opts.Name,
 		Password:   opts.Password,
 		Email:      opts.Email,
+		Phone:      opts.Phone,
 		Avatar:     opts.Avatar,
 		Domain:     opts.Domain,
 		Background: opts.Background,
@@ -159,6 +162,7 @@ func (db *users) GetByDomain(ctx context.Context, domain string) (*User, error) 
 
 type UpdateUserOptions struct {
 	Name       string
+	Phone      string
 	Avatar     string
 	Background string
 	Intro      string
@@ -182,6 +186,7 @@ func (db *users) Update(ctx context.Context, id uint, opts UpdateUserOptions) er
 		Avatar:     opts.Avatar,
 		Background: opts.Background,
 		Intro:      opts.Intro,
+		Phone:      opts.Phone,
 		Notify:     opts.Notify,
 	}).Error; err != nil {
 		return errors.Wrap(err, "update user")

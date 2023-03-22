@@ -5,9 +5,7 @@
 package auth
 
 import (
-	"net/http"
 	"os"
-	"time"
 
 	"github.com/flamego/cache"
 	"github.com/flamego/recaptcha"
@@ -19,47 +17,15 @@ import (
 	"github.com/NekoWheel/NekoBox/internal/db"
 	"github.com/NekoWheel/NekoBox/internal/form"
 	"github.com/NekoWheel/NekoBox/internal/security/sms"
-	"github.com/NekoWheel/NekoBox/internal/strutil"
+	"github.com/NekoWheel/NekoBox/route"
 )
 
 func Register(ctx context.Context) {
 	ctx.Success("auth/register")
 }
 
-const (
-	smsCodeCacheKeyPrefix = "register-sms-code:"
-)
-
-func SendRegisterSMS(ctx context.Context, f form.RegisterSendSMS, sms sms.SMS, cache cache.Cache, recaptcha recaptcha.RecaptchaV3) {
-	// Check recaptcha code.
-	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
-	if err != nil {
-		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")
-		_ = ctx.ServerError()
-		return
-	}
-	if !resp.Success {
-		_ = ctx.JSONError(http.StatusBadRequest, "验证码错误")
-		return
-	}
-
-	phone := f.Phone
-	code := strutil.RandomNumericString(6)
-	smsCodeCacheKey := smsCodeCacheKeyPrefix + phone
-	if err := cache.Set(ctx.Request().Context(), smsCodeCacheKey, code, 5*time.Minute); err != nil {
-		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to set sms code cache")
-		_ = ctx.ServerError()
-		return
-	}
-
-	if err := sms.SendCode(ctx.Request().Context(), phone, code); err != nil {
-		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to send sms code")
-		_ = ctx.JSONError(http.StatusBadRequest, "发送短信验证码失败，请稍后重试")
-		return
-	}
-
-	logrus.WithContext(ctx.Request().Context()).WithField("phone", phone).WithField("code", code).Info("Send sms code successfully")
-	_ = ctx.JSON("发送短信验证码成功")
+func SendRegisterSMSAPI(ctx context.Context, f form.SendSMS, sms sms.SMS, cache cache.Cache, recaptcha recaptcha.RecaptchaV3) error {
+	return route.SendSMS(route.SMSCacheKeyPrefixRegister)(ctx, f, sms, cache, recaptcha)
 }
 
 func RegisterAction(ctx context.Context, f form.Register, cache cache.Cache, recaptcha recaptcha.RecaptchaV3) {
@@ -82,10 +48,11 @@ func RegisterAction(ctx context.Context, f form.Register, cache cache.Cache, rec
 		return
 	}
 
+	var phone string
 	verifyType := db.VerifyTypeUnverified
 	// Check sms code.
 	if f.Phone != "" && f.VerifyCode != "" {
-		verifyCodeInf, err := cache.Get(ctx.Request().Context(), smsCodeCacheKeyPrefix+f.Phone)
+		verifyCodeInf, err := cache.Get(ctx.Request().Context(), route.SMSCacheKeyPrefixRegister+f.Phone)
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				ctx.SetErrorFlash("验证码已过期")
@@ -98,6 +65,8 @@ func RegisterAction(ctx context.Context, f form.Register, cache cache.Cache, rec
 		} else {
 			verifyCode, ok := verifyCodeInf.(string)
 			if ok && verifyCode != "" && verifyCode == f.VerifyCode {
+				// Set user's verified phone.
+				phone = f.Phone
 				verifyType = db.VerifyTypeVerified
 			}
 		}
@@ -107,6 +76,7 @@ func RegisterAction(ctx context.Context, f form.Register, cache cache.Cache, rec
 		Name:       f.Name,
 		Password:   f.Password,
 		Email:      f.Email,
+		Phone:      phone,
 		Avatar:     conf.Upload.DefaultAvatarURL,
 		Domain:     f.Domain,
 		Background: conf.Upload.DefaultBackground,
