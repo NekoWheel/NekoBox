@@ -17,6 +17,7 @@ import (
 )
 
 const (
+	SMSCacheKeyRateLimit       = "sms-rate-limit:"
 	SMSCacheKeyPrefixRegister  = "register-sms-code:"
 	SMSCacheKeyPrefixBindPhone = "bind-phone-sms-code:"
 )
@@ -38,11 +39,11 @@ func SendSMS(keyPrefix string) func(ctx context.Context, f form.SendSMS, sms sms
 		}
 
 		phone := f.Phone
-		smsCodeCacheKey := keyPrefix + phone
 
-		_, err = cache.Get(ctx.Request().Context(), smsCodeCacheKey)
+		smsRateLimitCacheKey := SMSCacheKeyRateLimit + phone
+		_, err = cache.Get(ctx.Request().Context(), smsRateLimitCacheKey)
 		if err != nil && !errors.Is(err, os.ErrNotExist) {
-			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to read sms code cache")
+			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to read sms rate limit cache")
 			return ctx.ServerError()
 		} else if err == nil {
 			return ctx.JSONError(40000, "请勿频繁发送短信验证码")
@@ -50,8 +51,15 @@ func SendSMS(keyPrefix string) func(ctx context.Context, f form.SendSMS, sms sms
 
 		code := strutil.RandomNumericString(6)
 
+		smsCodeCacheKey := keyPrefix + phone
 		if err := cache.Set(ctx.Request().Context(), smsCodeCacheKey, code, 5*time.Minute); err != nil {
 			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to set sms code cache")
+			return ctx.ServerError()
+		}
+
+		// Set sms rate limit cache.
+		if err := cache.Set(ctx.Request().Context(), smsRateLimitCacheKey, time.Now(), 1*time.Minute); err != nil {
+			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to set sms rate limit cache")
 			return ctx.ServerError()
 		}
 

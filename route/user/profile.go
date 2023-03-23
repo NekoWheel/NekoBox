@@ -102,6 +102,11 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile, cache cache.Cache,
 		} else {
 			verifyCode, ok := verifyCodeInf.(string)
 			if ok && verifyCode != "" && verifyCode == f.VerifyCode {
+				// Remove the key.
+				if err := cache.Delete(ctx.Request().Context(), route.SMSCacheKeyPrefixBindPhone+f.Phone); err != nil {
+					logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to delete register code cache")
+				}
+
 				// Set user's verified phone.
 				phone = f.Phone
 
