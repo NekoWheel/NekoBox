@@ -37,7 +37,7 @@
   {{ if ne .LoggedUser.Phone "" }}
     <div class="uk-margin">
       <label class="uk-form-label" for="form-stacked-text">手机号</label>
-      <input class="uk-input" type="text" disabled value="{{.LoggedUser.Phone}}">
+      <input class="uk-input" type="text" disabled value="{{.LoggedUser.Phone | HidePhone}}">
     </div>
   {{ else }}
     <div class="uk-margin">

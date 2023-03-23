@@ -47,6 +47,12 @@ func FuncMap() []template.FuncMap {
 			"SentryDSN": func() string {
 				return conf.App.SentryDSN
 			},
+			"HidePhone": func(phone string) string {
+				if len(phone) < 11 {
+					return phone
+				}
+				return phone[:3] + "****" + phone[7:]
+			},
 		}}
 	})
 	return funcMap
