@@ -243,6 +243,7 @@ func testUsersGetByPhone(t *testing.T, ctx context.Context, db *users) {
 			Name:       "E99p1ant",
 			Password:   "super_secret",
 			Email:      "i@github.red",
+			Phone:      "13800138000",
 			Avatar:     "avater.png",
 			Domain:     "e99",
 			Background: "background.png",
