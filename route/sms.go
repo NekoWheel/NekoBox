@@ -63,16 +63,16 @@ func SendSMS(keyPrefix string) func(ctx context.Context, f form.SendSMS, sms sms
 			return ctx.ServerError()
 		}
 
-		if err := sms.SendCode(ctx.Request().Context(), phone, code); err != nil {
-			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to send sms code")
-			return ctx.JSONError(50000, "发送短信验证码失败，请稍后重试")
-		}
-
 		logrus.WithContext(ctx.Request().Context()).
 			WithField("key_prefix", keyPrefix).
 			WithField("phone", phone).
 			WithField("code", code).
 			Info("Send sms code successfully")
+
+		if err := sms.SendCode(ctx.Request().Context(), phone, code); err != nil {
+			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to send sms code")
+			return ctx.JSONError(50000, "发送短信验证码失败，请稍后重试")
+		}
 
 		return ctx.JSON("发送短信验证码成功")
 	}
