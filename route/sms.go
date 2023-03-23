@@ -1,6 +1,7 @@
 package route
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -30,6 +31,10 @@ func SendSMS(keyPrefix string) func(ctx context.Context, f form.SendSMS, sms sms
 		}
 		if !resp.Success {
 			return ctx.JSONError(40000, "验证码错误")
+		}
+
+		if ctx.HasError() {
+			return ctx.JSONError(40000, fmt.Sprintf("%s", ctx.Data["Error"]))
 		}
 
 		phone := f.Phone

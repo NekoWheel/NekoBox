@@ -1,27 +1,35 @@
 {{template "base/header" .}}
 <script>
     function onSendCode(recaptcha){
-        fetch('/api/v1/register/send-sms', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': _csrf,
-            },
-            body: JSON.stringify({
-                phone: document.getElementById('phone').value,
-                recaptcha: recaptcha,
-            }),
-        }).then((res) => {
-            res.json().then((data) => {
-                if(res.status === 200){
-                    alert(data.data)
-                } else {
-                    alert(data.message)
-                }
-            })
-        }).catch(() => {
-            alert('验证码发送失败，请稍后重试')
-        })
+      fetch('/api/v1/register/send-sms', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': _csrf,
+          },
+          body: JSON.stringify({
+              phone: document.getElementById('phone').value,
+              recaptcha: recaptcha,
+          }),
+      }).then((res) => {
+          res.json().then((data) => {
+              if(res.status === 200){
+                  alert(data.data)
+              } else {
+                  alert(data.message)
+              }
+          })
+      }).catch(() => {
+          alert('验证码发送失败，请稍后重试')
+      })
+    }
+
+    function onSubmitRegister(){
+      const textarea = document.querySelector("#sms-code textarea");
+      if(textarea){
+        textarea.parentNode.removeChild(textarea);
+      }
+      document.getElementById('form').submit();
     }
 </script>
 
@@ -45,8 +53,8 @@
         <div uk-form-custom="target: true">
           <input id="phone" name="phone" class="uk-input" type="text" value="{{.phone}}" placeholder="手机号">
         </div>
-        <div uk-form-custom="target: true">
-          <button class="uk-button uk-button-default g-recaptcha" data-sitekey="{{.RecaptchaSiteKey}}" data-callback="onSendCode">发送验证码</button>
+        <div id="sms-code" uk-form-custom="target: true">
+          <button type="button" class="uk-button uk-button-default g-recaptcha" data-sitekey="{{.RecaptchaSiteKey}}" data-callback="onSendCode">发送验证码</button>
         </div>
         <div uk-form-custom="target: true">
           <input name="verify_code" class="uk-input" type="text" placeholder="短信验证码">
@@ -67,7 +75,7 @@
     </div>
     <div class="uk-margin">
       <button type="submit" class="uk-button uk-button-primary g-recaptcha" data-sitekey="{{.RecaptchaSiteKey}}"
-              data-callback="onSubmit">注册
+              data-callback="onSubmitRegister">注册
       </button>
     </div>
   </fieldset>
