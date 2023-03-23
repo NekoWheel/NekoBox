@@ -231,7 +231,7 @@ func Contexter() flamego.Handler {
 		} else {
 			smsModule = sms.NewDummySMS()
 		}
-		ctx.MapTo(smsModule, (sms.SMS)(nil))
+		ctx.Map(smsModule)
 
 		ctx.Map(c)
 		ctx.Map(EndpointWeb)

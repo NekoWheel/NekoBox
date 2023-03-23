@@ -1,11 +1,12 @@
 package route
 
 import (
-	"net/http"
+	"os"
 	"time"
 
 	"github.com/flamego/cache"
 	"github.com/flamego/recaptcha"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/NekoWheel/NekoBox/internal/context"
@@ -28,12 +29,22 @@ func SendSMS(keyPrefix string) func(ctx context.Context, f form.SendSMS, sms sms
 			return ctx.ServerError()
 		}
 		if !resp.Success {
-			return ctx.JSONError(http.StatusBadRequest, "验证码错误")
+			return ctx.JSONError(40000, "验证码错误")
 		}
 
 		phone := f.Phone
-		code := strutil.RandomNumericString(6)
 		smsCodeCacheKey := keyPrefix + phone
+
+		_, err = cache.Get(ctx.Request().Context(), smsCodeCacheKey)
+		if err != nil && !errors.Is(err, os.ErrNotExist) {
+			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to read sms code cache")
+			return ctx.ServerError()
+		} else if err == nil {
+			return ctx.JSONError(40000, "请勿频繁发送短信验证码")
+		}
+
+		code := strutil.RandomNumericString(6)
+
 		if err := cache.Set(ctx.Request().Context(), smsCodeCacheKey, code, 5*time.Minute); err != nil {
 			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to set sms code cache")
 			return ctx.ServerError()
@@ -41,7 +52,7 @@ func SendSMS(keyPrefix string) func(ctx context.Context, f form.SendSMS, sms sms
 
 		if err := sms.SendCode(ctx.Request().Context(), phone, code); err != nil {
 			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to send sms code")
-			return ctx.JSONError(http.StatusBadRequest, "发送短信验证码失败，请稍后重试")
+			return ctx.JSONError(50000, "发送短信验证码失败，请稍后重试")
 		}
 
 		logrus.WithContext(ctx.Request().Context()).
