@@ -12,6 +12,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
+	"github.com/NekoWheel/NekoBox/internal/dbutil"
 )
 
 var Users UsersStore
@@ -23,6 +24,7 @@ type UsersStore interface {
 	GetByID(ctx context.Context, id uint) (*User, error)
 	GetByEmail(ctx context.Context, email string) (*User, error)
 	GetByDomain(ctx context.Context, domain string) (*User, error)
+	GetByPhone(ctx context.Context, phone string) (*User, error)
 	Update(ctx context.Context, id uint, opts UpdateUserOptions) error
 	UpdateHarassmentSetting(ctx context.Context, id uint, typ HarassmentSettingType) error
 	UpdateVerifyType(ctx context.Context, id uint, verifyType VerifyType) error
@@ -60,7 +62,7 @@ type User struct {
 	Name              string                `json:"name"`
 	Password          string                `json:"-"`
 	Email             string                `json:"email"`
-	Phone             string                `json:"-"`
+	Phone             string                `json:"-" gorm:"size:50;uniqueIndex:user_phone_unique_idx; default: NULL"`
 	Avatar            string                `json:"avatar"`
 	Domain            string                `json:"domain"`
 	Background        string                `json:"background"`
@@ -110,6 +112,7 @@ var (
 	ErrBadCredential   = errors.New("邮箱或密码错误")
 	ErrDuplicateEmail  = errors.New("这个邮箱已经注册过账号了！")
 	ErrDuplicateDomain = errors.New("个性域名重复了，换一个吧~")
+	ErrDuplicatePhone  = errors.New("这个手机号已经注册过账号了！")
 )
 
 func (db *users) Create(ctx context.Context, opts CreateUserOptions) error {
@@ -132,6 +135,9 @@ func (db *users) Create(ctx context.Context, opts CreateUserOptions) error {
 	newUser.EncodePassword()
 
 	if err := db.WithContext(ctx).Create(newUser).Error; err != nil {
+		if dbutil.IsUniqueViolation(err, "users.user_phone_unique_idx") {
+			return ErrDuplicatePhone
+		}
 		return errors.Wrap(err, "create user")
 	}
 	return nil
@@ -158,6 +164,10 @@ func (db *users) GetByEmail(ctx context.Context, email string) (*User, error) {
 
 func (db *users) GetByDomain(ctx context.Context, domain string) (*User, error) {
 	return db.getBy(ctx, "domain = ?", domain)
+}
+
+func (db *users) GetByPhone(ctx context.Context, phone string) (*User, error) {
+	return db.getBy(ctx, "phone = ?", phone)
 }
 
 type UpdateUserOptions struct {
@@ -189,6 +199,9 @@ func (db *users) Update(ctx context.Context, id uint, opts UpdateUserOptions) er
 		Phone:      opts.Phone,
 		Notify:     opts.Notify,
 	}).Error; err != nil {
+		if dbutil.IsUniqueViolation(err, "users.user_phone_unique_idx") {
+			return ErrDuplicatePhone
+		}
 		return errors.Wrap(err, "update user")
 	}
 	return nil

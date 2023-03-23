@@ -20,6 +20,7 @@ import (
 	sessionRedis "github.com/flamego/session/redis"
 	"github.com/flamego/template"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/context"
@@ -33,7 +34,7 @@ import (
 	"github.com/NekoWheel/NekoBox/templates"
 )
 
-func New() *flamego.Flame {
+func New(db *gorm.DB) *flamego.Flame {
 	f := flamego.Classic()
 	if conf.App.Production {
 		flamego.SetEnv(flamego.EnvTypeProd)
@@ -171,7 +172,7 @@ func New() *flamego.Flame {
 			FileSystem: templateFS,
 			FuncMaps:   templatepkg.FuncMap(),
 		}),
-		context.Contexter(),
+		context.Contexter(db),
 	)
 	f.NotFound(func(ctx flamego.Context) {
 		ctx.Redirect("/")

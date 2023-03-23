@@ -87,7 +87,8 @@ func RegisterAction(ctx context.Context, f form.Register, cache cache.Cache, rec
 		case errors.Is(err, db.ErrUserNotExists),
 			errors.Is(err, db.ErrBadCredential),
 			errors.Is(err, db.ErrDuplicateEmail),
-			errors.Is(err, db.ErrDuplicateDomain):
+			errors.Is(err, db.ErrDuplicateDomain),
+			errors.Is(err, db.ErrDuplicatePhone):
 			ctx.SetError(errors.Cause(err))
 
 		default:

@@ -18,9 +18,11 @@ import (
 	"github.com/unknwon/com"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+	"gorm.io/gorm"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/db"
+	"github.com/NekoWheel/NekoBox/internal/dbutil"
 	"github.com/NekoWheel/NekoBox/internal/security/sms"
 	templatepkg "github.com/NekoWheel/NekoBox/internal/template"
 )
@@ -150,7 +152,7 @@ func (c *Context) JSONError(errorCode int, message string) error {
 }
 
 // Contexter initializes a classic context for a request.
-func Contexter() flamego.Handler {
+func Contexter(gormDB *gorm.DB) flamego.Handler {
 	return func(ctx flamego.Context, data template.Data, session session.Session, x csrf.CSRF, t template.Template, flash session.Flash) {
 		c := Context{
 			Context:  ctx,
@@ -233,6 +235,7 @@ func Contexter() flamego.Handler {
 		}
 		ctx.Map(smsModule)
 
+		c.MapTo(gormDB, (*dbutil.Transactor)(nil))
 		ctx.Map(c)
 		ctx.Map(EndpointWeb)
 	}

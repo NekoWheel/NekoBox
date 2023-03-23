@@ -15,9 +15,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
+	"gorm.io/gorm"
 
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
+	"github.com/NekoWheel/NekoBox/internal/dbutil"
 	"github.com/NekoWheel/NekoBox/internal/form"
 	"github.com/NekoWheel/NekoBox/internal/security/sms"
 	"github.com/NekoWheel/NekoBox/internal/storage"
@@ -36,7 +38,7 @@ func SendProfileSMSAPI(ctx context.Context, f form.SendSMS, sms sms.SMS, cache c
 	return route.SendSMS(route.SMSCacheKeyPrefixBindPhone)(ctx, f, sms, cache, recaptcha)
 }
 
-func UpdateProfile(ctx context.Context, f form.UpdateProfile, cache cache.Cache) {
+func UpdateProfile(ctx context.Context, f form.UpdateProfile, cache cache.Cache, tx dbutil.Transactor) {
 	if ctx.HasError() {
 		ctx.Success("user/profile")
 		return
@@ -85,7 +87,8 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile, cache cache.Cache)
 
 	// Check sms code.
 	var phone string
-	if f.Phone != "" && f.VerifyCode != "" {
+	// ⚠️ Now user can only bind phone once.
+	if ctx.User.Phone == "" && f.Phone != "" && f.VerifyCode != "" {
 		verifyCodeInf, err := cache.Get(ctx.Request().Context(), route.SMSCacheKeyPrefixBindPhone+f.Phone)
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
@@ -118,19 +121,36 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile, cache cache.Cache)
 		notify = db.NotifyTypeNone
 	}
 
-	if err := db.Users.Update(ctx.Request().Context(), ctx.User.ID, db.UpdateUserOptions{
-		Name:       f.Name,
-		Phone:      phone,
-		Avatar:     avatarURL,
-		Background: backgroundURL,
-		Intro:      f.Intro,
-		Notify:     notify,
+	if err := tx.Transaction(func(tx *gorm.DB) error {
+		usersStore := db.NewUsersStore(tx)
+		if err := usersStore.Update(ctx.Request().Context(), ctx.User.ID, db.UpdateUserOptions{
+			Name:       f.Name,
+			Phone:      phone,
+			Avatar:     avatarURL,
+			Background: backgroundURL,
+			Intro:      f.Intro,
+			Notify:     notify,
+		}); err != nil {
+			return err
+		}
+
+		// If user has verified phone, update verify type to verified.
+		if phone != "" {
+			return usersStore.UpdateVerifyType(ctx.Request().Context(), ctx.User.ID, db.VerifyTypeVerified)
+		}
+		return nil
+
 	}); err != nil {
-		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update user profile")
-		ctx.SetInternalErrorFlash()
+		if errors.Is(err, db.ErrDuplicatePhone) {
+			ctx.SetErrorFlash(errors.Cause(err).Error())
+		} else {
+			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update user profile")
+			ctx.SetInternalErrorFlash()
+		}
 	} else {
 		ctx.SetSuccessFlash("更新个人信息成功")
 	}
+
 	ctx.Redirect("/user/profile")
 }
 

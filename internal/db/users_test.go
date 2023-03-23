@@ -29,6 +29,7 @@ func TestUsers(t *testing.T) {
 		{"GetByID", testUsersGetByID},
 		{"GetByEmail", testUsersGetByEmail},
 		{"GetByDomain", testUsersGetByDomain},
+		{"GetByPhone", testUsersGetByPhone},
 		{"Update", testUsersUpdate},
 		{"UpdateHarassmentSetting", testUsersUpdateHarassmentSetting},
 		{"UpdateVerifyType", testUsersUpdateVerifyType},
@@ -211,6 +212,49 @@ func testUsersGetByDomain(t *testing.T, ctx context.Context, db *users) {
 
 	t.Run("not found", func(t *testing.T) {
 		_, err := db.GetByDomain(ctx, "404")
+		require.Equal(t, ErrUserNotExists, err)
+	})
+}
+
+func testUsersGetByPhone(t *testing.T, ctx context.Context, db *users) {
+	err := db.Create(ctx, CreateUserOptions{
+		Name:       "E99p1ant",
+		Password:   "super_secret",
+		Email:      "i@github.red",
+		Phone:      "13800138000",
+		Avatar:     "avater.png",
+		Domain:     "e99",
+		Background: "background.png",
+		Intro:      "Be cool, but also be warm.",
+	})
+	require.Nil(t, err)
+
+	t.Run("normal", func(t *testing.T) {
+		got, err := db.GetByPhone(ctx, "13800138000")
+		require.Nil(t, err)
+
+		got.CreatedAt = time.Time{}
+		got.UpdatedAt = time.Time{}
+
+		want := &User{
+			Model: gorm.Model{
+				ID: 1,
+			},
+			Name:       "E99p1ant",
+			Password:   "super_secret",
+			Email:      "i@github.red",
+			Avatar:     "avater.png",
+			Domain:     "e99",
+			Background: "background.png",
+			Intro:      "Be cool, but also be warm.",
+			Notify:     NotifyTypeEmail,
+		}
+		want.EncodePassword()
+		require.Equal(t, want, got)
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		_, err := db.GetByPhone(ctx, "404")
 		require.Equal(t, ErrUserNotExists, err)
 	})
 }
