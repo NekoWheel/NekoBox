@@ -77,7 +77,7 @@ func Bind(model interface{}) flamego.Handler {
 					if val.Field(i).Kind() == reflect.Slice && val.Field(i).Type().Elem() == fhType {
 						continue
 					}
-					
+
 					// FIXME: We don't implement the slice type yet.
 					val.Field(i).Set(reflect.ValueOf(value[0]))
 				} else {
