@@ -16,7 +16,7 @@ import (
 )
 
 var AllTables = []interface{}{
-	&User{}, &Question{}, &CensorLog{},
+	&User{}, &Question{}, &CensorLog{}, &UploadImage{}, &UploadImageQuestion{},
 }
 
 func Init() (*gorm.DB, error) {
@@ -43,6 +43,7 @@ func Init() (*gorm.DB, error) {
 	Users = NewUsersStore(db)
 	Questions = NewQuestionsStore(db)
 	CensorLogs = NewCensorLogsStore(db)
+	UploadImgaes = NewUploadImagesStore(db)
 
 	if err := db.Use(otelgorm.NewPlugin(
 		otelgorm.WithDBName(conf.Database.Name),

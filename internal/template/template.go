@@ -5,11 +5,14 @@
 package template
 
 import (
+	"encoding/json"
 	"html"
 	"html/template"
 	"strings"
 	"sync"
 	"time"
+
+	"gorm.io/datatypes"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 )
@@ -46,6 +49,16 @@ func FuncMap() []template.FuncMap {
 			},
 			"SentryDSN": func() string {
 				return conf.App.SentryDSN
+			},
+			"ParsePublicURLs": func(input datatypes.JSON) string {
+				urls := make(map[string]string)
+				if err := json.Unmarshal(input, &urls); err != nil {
+					return ""
+				}
+				for _, url := range urls {
+					return url
+				}
+				return ""
 			},
 		}}
 	})

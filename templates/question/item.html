@@ -10,11 +10,33 @@
     <div class="uk-card-header">
       <div class="uk-text-left uk-text-small uk-text-muted">{{Date .Question.CreatedAt "Y-m-d H:i:s"}}</div>
       <h4 class="uk-text-center uk-margin-top uk-margin-bottom uk-text-break">{{.Question.Content}}</h4>
+      {{ if .AskUploadImages }}
+      <ul class="uk-thumbnav" uk-margin>
+        {{ range $index, $elem := .AskUploadImages }}
+        <div uk-lightbox>
+          <a href="{{ $elem.PublicURLs | ParsePublicURLs }}">
+            <img class="uk-border-rounded uk-object-fill" src="{{ $elem.PublicURLs | ParsePublicURLs }}" width="100" height="100" alt="">
+          </a>
+        </div>
+        {{ end }}
+      </ul>
+      {{ end }}
     </div>
 
     {{if ne .Question.Answer ""}}
     <div class="uk-card-body">
       <p class="uk-text-small uk-text-break">{{AnswerFormat .Question.Answer}}</p>
+      {{ if .AnswerUploadImages }}
+      <ul class="uk-thumbnav" uk-margin>
+        {{ range $index, $elem := .AnswerUploadImages }}
+        <div uk-lightbox>
+          <a href="{{ $elem.PublicURLs | ParsePublicURLs }}">
+            <img class="uk-border-rounded uk-object-fill" src="{{ $elem.PublicURLs | ParsePublicURLs }}" width="100" height="100" alt="">
+          </a>
+        </div>
+        {{ end }}
+      </ul>
+      {{ end }}
       <p class="uk-text-small uk-text-right uk-text-muted">-来自@{{.PageUser.Name}}的回答</p>
     </div>
     {{end}}
@@ -53,11 +75,20 @@
 
       {{ if .IsOwnPage}}
       <h5 class="uk-text-center">回答问题</h5>
-      <form method="post" action="/_/{{ .PageUser.Domain }}/{{ .Question.ID }}/answer">
+      <form method="post" action="/_/{{ .PageUser.Domain }}/{{ .Question.ID }}/answer" enctype="multipart/form-data">
         {{ .CSRFTokenHTML }}
         <div class="uk-margin uk-text-center">
               <textarea name="answer" class="uk-textarea" rows="5" maxlength="1000"
                         placeholder="在此处撰写你的回答...">{{ if ne .Question.Answer "" }}{{ .Question.Answer }}{{ else }}{{ .answer }}{{ end }}</textarea>
+              <div x-data="{ files: null }" style="width: 100%; background-color: #f8f8f8; display: flex; padding-top: 5px; padding-bottom: 5px; align-items: center; justify-content: start;gap: 5px">
+                <div uk-form-custom>
+                  <a href="#" class="uk-icon-link" uk-icon="image" style="margin-left: 10px"></a>
+                  <span style="font-size: 12px" x-text="files ? files[0].name : '添加图片'"></span>
+                  <input id="uploader" name="images" type="file" x-on:change="files = Object.values($event.target.files)">
+                </div>
+                <button x-show="files" type="button" class="uk-icon-link" uk-icon="close" style="margin-left: 10px;"
+                        @click="files = null"></button>
+              </div>
         </div>
         {{ if ne .Question.ReceiveReplyEmail "" }}
         <div class="uk-alert-warning uk-text-small" uk-alert>

@@ -5,12 +5,18 @@
 package question
 
 import (
+	"crypto/md5"
 	"fmt"
+	"io"
+	"mime/multipart"
+	"path/filepath"
+	"time"
 
 	"github.com/flamego/recaptcha"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/wuhan005/govalid"
+	"github.com/wuhan005/share/pkg/share"
 
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
@@ -185,6 +191,24 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 		return
 	}
 
+	if len(f.Images) > 0 {
+		image := f.Images[0]
+		if err := uploadImage(ctx, uploadImageOptions{
+			Type:           db.UploadImageQuestionTypeAsk,
+			Image:          image,
+			QuestionID:     question.ID,
+			UploaderUserID: askerUserID,
+		}); err != nil {
+			if errors.Is(err, ErrUploadImageSizeTooLarge) {
+				ctx.SetErrorFlash("图片文件大小不能大于 5Mb")
+				ctx.Success("question/list")
+				return
+			} else {
+				logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to upload image")
+			}
+		}
+	}
+
 	// Update censor result.
 	if err := db.Questions.UpdateCensor(ctx.Request().Context(), question.ID, db.UpdateQuestionCensorOptions{
 		ContentCensorMetadata: censorResponse.ToJSON(),
@@ -203,4 +227,64 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 
 	ctx.SetSuccessFlash("发送问题成功！")
 	ctx.Redirect("/_/" + pageUser.Domain)
+}
+
+type uploadImageOptions struct {
+	Type               db.UploadImageQuestionType
+	Image              *multipart.FileHeader
+	QuestionID         uint
+	UploaderUserID     uint
+	IsDeletingPrevious bool
+}
+
+var ErrUploadImageSizeTooLarge = errors.New("图片文件大小不能大于 5Mb")
+
+func uploadImage(ctx context.Context, opts uploadImageOptions) error {
+	image := opts.Image
+	fileName := image.Filename
+	fileExt := filepath.Ext(fileName)
+	fileSize := image.Size
+	if fileSize > 1024*1024*5 { // 5Mib
+		return ErrUploadImageSizeTooLarge
+	}
+
+	now := time.Now()
+	fileKey := fmt.Sprintf("%d/%d/%d/%d%s", now.Year(), now.Month(), opts.QuestionID, now.Unix(), fileExt)
+
+	uploadImageFile, err := image.Open()
+	if err != nil {
+		return errors.Wrap(err, "open image")
+	}
+	defer func() { _ = uploadImageFile.Close() }()
+
+	hasher := md5.New()
+	reader := io.TeeReader(uploadImageFile, hasher)
+	fileMd5 := fmt.Sprintf("%x", hasher.Sum(nil))
+
+	// Upload file with share.
+	shareServerName := share.RandomServer()
+	publicURL, err := share.Reader(shareServerName, reader)
+	if err != nil {
+		return errors.Wrap(err, "upload image with share")
+
+	}
+	publicURLs := map[string]string{
+		shareServerName: publicURL,
+	}
+
+	_, err = db.UploadImgaes.Create(ctx.Request().Context(), db.CreateUploadImageOptions{
+		Type:               opts.Type,
+		QuestionID:         opts.QuestionID,
+		UploaderUserID:     opts.UploaderUserID,
+		Name:               fileName,
+		FileSize:           fileSize,
+		Md5:                fileMd5,
+		Key:                fileKey,
+		PublicURLs:         publicURLs,
+		IsDeletingPrevious: opts.IsDeletingPrevious,
+	})
+	if err != nil {
+		return errors.Wrap(err, "create upload image")
+	}
+	return nil
 }

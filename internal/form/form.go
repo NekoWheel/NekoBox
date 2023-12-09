@@ -5,6 +5,8 @@
 package form
 
 import (
+	"mime"
+	"mime/multipart"
 	"reflect"
 
 	"github.com/flamego/flamego"
@@ -38,9 +40,19 @@ func Bind(model interface{}) flamego.Handler {
 		defer func() { c.Map(obj.Elem().Interface()) }()
 
 		r := c.Request()
-		if err := r.ParseForm(); err != nil {
-			c.Map(Error{Category: ErrorCategoryDeserialization, Error: err})
-			return
+
+		contentType, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
+		switch contentType {
+		case "application/x-www-form-urlencoded", "":
+			if err := r.ParseForm(); err != nil {
+				c.Map(Error{Category: ErrorCategoryDeserialization, Error: err})
+				return
+			}
+		case "multipart/form-data":
+			if err := r.ParseMultipartForm(10 * 1 << 20); err != nil { // 10 MiB
+				c.Map(Error{Category: ErrorCategoryDeserialization, Error: err})
+				return
+			}
 		}
 
 		// Bind the form data to the given struct.
@@ -56,7 +68,37 @@ func Bind(model interface{}) flamego.Handler {
 			if fieldName == "" {
 				fieldName = com.ToSnakeCase(field.Name)
 			}
-			val.Field(i).Set(reflect.ValueOf(r.Form.Get(fieldName)))
+
+			if r.MultipartForm != nil {
+				fhType := reflect.TypeOf((*multipart.FileHeader)(nil))
+
+				value, ok := r.MultipartForm.Value[fieldName]
+				if ok {
+					if val.Field(i).Kind() == reflect.Slice && val.Field(i).Type().Elem() == fhType {
+						continue
+					}
+					
+					// FIXME: We don't implement the slice type yet.
+					val.Field(i).Set(reflect.ValueOf(value[0]))
+				} else {
+					value, ok := r.MultipartForm.File[fieldName]
+					if ok {
+						numElems := len(value)
+
+						if val.Field(i).Kind() == reflect.Slice && numElems > 0 && val.Field(i).Type().Elem() == fhType {
+							slice := reflect.MakeSlice(val.Field(i).Type(), numElems, numElems)
+							for i := 0; i < numElems; i++ {
+								slice.Index(i).Set(reflect.ValueOf(value[i]))
+							}
+							val.Field(i).Set(slice)
+						} else if val.Field(i).Type() == fhType {
+							val.Field(i).Set(reflect.ValueOf(value[0]))
+						}
+					}
+				}
+			} else {
+				val.Field(i).Set(reflect.ValueOf(r.Form.Get(fieldName)))
+			}
 		}
 
 		errors, ok := govalid.Check(obj.Interface())
