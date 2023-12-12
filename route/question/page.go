@@ -266,7 +266,6 @@ func uploadImage(ctx context.Context, opts uploadImageOptions) error {
 
 	hasher := md5.New()
 	reader := io.TeeReader(uploadImageFile, hasher)
-	fileMd5 := fmt.Sprintf("%x", hasher.Sum(nil))
 
 	backupImageBuffer := bytes.Buffer{}
 	uploadReader := io.TeeReader(reader, &backupImageBuffer)
@@ -280,6 +279,7 @@ func uploadImage(ctx context.Context, opts uploadImageOptions) error {
 	publicURLs := map[string]string{
 		shareServerName: publicURL,
 	}
+	fileMd5 := fmt.Sprintf("%x", hasher.Sum(nil))
 
 	// Backup file.
 	go func() {
