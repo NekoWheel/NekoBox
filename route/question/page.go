@@ -5,6 +5,8 @@
 package question
 
 import (
+	"bytes"
+	gocontext "context"
 	"crypto/md5"
 	"fmt"
 	"io"
@@ -12,12 +14,17 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/flamego/recaptcha"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/wuhan005/govalid"
 	"github.com/wuhan005/share/pkg/share"
 
+	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
 	"github.com/NekoWheel/NekoBox/internal/dbutil"
@@ -249,7 +256,7 @@ func uploadImage(ctx context.Context, opts uploadImageOptions) error {
 	}
 
 	now := time.Now()
-	fileKey := fmt.Sprintf("%d/%d/%d/%d%s", now.Year(), now.Month(), opts.QuestionID, now.Unix(), fileExt)
+	fileKey := fmt.Sprintf("%d/%d/%d%s", now.Year(), now.Month(), now.Unix(), fileExt)
 
 	uploadImageFile, err := image.Open()
 	if err != nil {
@@ -261,16 +268,48 @@ func uploadImage(ctx context.Context, opts uploadImageOptions) error {
 	reader := io.TeeReader(uploadImageFile, hasher)
 	fileMd5 := fmt.Sprintf("%x", hasher.Sum(nil))
 
+	backupImageBuffer := bytes.Buffer{}
+	uploadReader := io.TeeReader(reader, &backupImageBuffer)
+
 	// Upload file with share.
 	shareServerName := share.RandomServer()
-	publicURL, err := share.Reader(shareServerName, reader)
+	publicURL, err := share.Reader(shareServerName, uploadReader)
 	if err != nil {
 		return errors.Wrap(err, "upload image with share")
-
 	}
 	publicURLs := map[string]string{
 		shareServerName: publicURL,
 	}
+
+	// Backup file.
+	go func() {
+		if conf.Upload.ImageBackupEndpoint != "" {
+			ctx := gocontext.Background()
+			r2Resolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+				return aws.Endpoint{
+					URL: conf.Upload.ImageBackupEndpoint,
+				}, nil
+			})
+
+			cfg, err := config.LoadDefaultConfig(ctx,
+				config.WithEndpointResolverWithOptions(r2Resolver),
+				config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(conf.Upload.ImageBackupAccessID, conf.Upload.ImageBackupAccessSecret, "")),
+			)
+			if err != nil {
+				logrus.WithContext(ctx).WithError(err).Error("Failed to load config")
+				return
+			}
+
+			client := s3.NewFromConfig(cfg)
+			if _, err := client.PutObject(ctx, &s3.PutObjectInput{
+				Bucket: aws.String(conf.Upload.ImageBackupBucket),
+				Key:    aws.String(fileKey),
+				Body:   &backupImageBuffer,
+			}); err != nil {
+				logrus.WithContext(ctx).WithError(err).Error("Failed to upload backup image")
+			}
+		}
+	}()
 
 	_, err = db.UploadImgaes.Create(ctx.Request().Context(), db.CreateUploadImageOptions{
 		Type:               opts.Type,
