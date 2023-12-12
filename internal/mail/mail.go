@@ -10,6 +10,7 @@ import (
 	"embed"
 	"fmt"
 	"html/template"
+	"time"
 
 	"github.com/pkg/errors"
 	"gopkg.in/gomail.v2"
@@ -49,6 +50,10 @@ func sendTemplateMail(email, title string, templateFS embed.FS, templatePath str
 	if err != nil {
 		return errors.Wrap(err, "parse template file")
 	}
+
+	// General params.
+	params["year"] = time.Now().Format("2006")
+
 	if err := t.Execute(&content, params); err != nil {
 		return errors.Wrap(err, "execute template")
 	}
