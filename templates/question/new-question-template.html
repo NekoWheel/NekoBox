@@ -8,11 +8,20 @@
   </div>
 </div>
 {{ else }}
-<form method="post" action="/_/{{.PageUser.Domain}}" id="form">
+<form method="post" action="/_/{{.PageUser.Domain}}" enctype="multipart/form-data" id="form">
   {{ .CSRFTokenHTML }}
   <div class="uk-margin uk-text-center">
         <textarea name="content" class="uk-textarea" rows="5" placeholder="在此处撰写你的问题..."
                   maxlength="1000">{{.content}}</textarea>
+    <div x-data="{ files: null }" style="width: 100%; background-color: #f8f8f8; display: flex; padding-top: 5px; padding-bottom: 5px; align-items: center; justify-content: start;gap: 5px">
+      <div uk-form-custom>
+        <a href="#" class="uk-icon-link" uk-icon="image" style="margin-left: 10px"></a>
+        <span style="font-size: 12px" x-text="files ? files[0].name : '添加图片'"></span>
+        <input id="uploader" name="images" type="file" x-on:change="files = Object.values($event.target.files)">
+      </div>
+      <button x-show="files" type="button" class="uk-icon-link" uk-icon="close" style="margin-left: 10px;"
+              @click="files = null"></button>
+    </div>
   </div>
   <div class="uk-margin uk-grid-small" x-data="{ receiveReplyViaEmail: '{{.receive_reply_via_email}}' === 'on' }">
     <label class="uk-text-small">

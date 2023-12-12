@@ -30,6 +30,18 @@ func Questioner(ctx context.Context, pageUser *db.User) {
 	}
 	ctx.Data["Question"] = question
 
+	askUploadImages, err := db.UploadImgaes.GetByTypeQuestionID(ctx.Request().Context(), db.UploadImageQuestionTypeAsk, questionID)
+	if err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get ask upload images")
+	}
+	ctx.Data["AskUploadImages"] = askUploadImages
+
+	answerUploadImages, err := db.UploadImgaes.GetByTypeQuestionID(ctx.Request().Context(), db.UploadImageQuestionTypeAnswer, questionID)
+	if err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get answer upload images")
+	}
+	ctx.Data["AnswerUploadImages"] = answerUploadImages
+
 	// Check the question is belongs to the correct page user.
 	// If the question has not been answered, we should check the question is belongs to the correct page user.
 	if question.UserID != pageUser.ID || ((question.Answer == "" || question.IsPrivate) && (!ctx.IsLogged || ctx.User.ID != question.UserID)) {
@@ -74,6 +86,26 @@ func PublishAnswer(ctx context.Context, pageUser *db.User, question *db.Question
 		ctx.SetError(errors.New(errorMessage), f)
 		ctx.Success("question/item")
 		return
+	}
+
+	if len(f.Images) > 0 {
+		image := f.Images[0]
+
+		if err := uploadImage(ctx, uploadImageOptions{
+			Type:               db.UploadImageQuestionTypeAnswer,
+			Image:              image,
+			QuestionID:         question.ID,
+			UploaderUserID:     ctx.User.ID,
+			IsDeletingPrevious: true,
+		}); err != nil {
+			if errors.Is(err, ErrUploadImageSizeTooLarge) {
+				ctx.SetErrorFlash("图片文件大小不能大于 5Mb")
+				ctx.Success("question/item")
+				return
+			} else {
+				logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to upload image")
+			}
+		}
 	}
 
 	if err := db.Questions.AnswerByID(ctx.Request().Context(), question.ID, f.Answer); err != nil {

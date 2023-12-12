@@ -10,6 +10,7 @@ import (
 	"github.com/uptrace/opentelemetry-go-extra/otellogrus"
 	"github.com/uptrace/uptrace-go/uptrace"
 	"github.com/urfave/cli/v2"
+	"github.com/wuhan005/share/pkg/share"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/db"
@@ -48,6 +49,12 @@ func runWeb(ctx *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "connect to database")
 	}
+
+	shareServers, err := share.LoadServerFromFile("./conf/share.yaml")
+	if err != nil {
+		return errors.Wrap(err, "load share server")
+	}
+	share.SetServers(shareServers)
 
 	logrus.WithContext(ctx.Context).WithField("external_url", conf.App.ExternalURL).Info("Starting web server")
 	r := route.New()

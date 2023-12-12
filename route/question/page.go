@@ -5,13 +5,26 @@
 package question
 
 import (
+	"bytes"
+	gocontext "context"
+	"crypto/md5"
 	"fmt"
+	"io"
+	"mime/multipart"
+	"path/filepath"
+	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/flamego/recaptcha"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/wuhan005/govalid"
+	"github.com/wuhan005/share/pkg/share"
 
+	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
 	"github.com/NekoWheel/NekoBox/internal/dbutil"
@@ -185,6 +198,24 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 		return
 	}
 
+	if len(f.Images) > 0 {
+		image := f.Images[0]
+		if err := uploadImage(ctx, uploadImageOptions{
+			Type:           db.UploadImageQuestionTypeAsk,
+			Image:          image,
+			QuestionID:     question.ID,
+			UploaderUserID: askerUserID,
+		}); err != nil {
+			if errors.Is(err, ErrUploadImageSizeTooLarge) {
+				ctx.SetErrorFlash("图片文件大小不能大于 5Mb")
+				ctx.Success("question/list")
+				return
+			} else {
+				logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to upload image")
+			}
+		}
+	}
+
 	// Update censor result.
 	if err := db.Questions.UpdateCensor(ctx.Request().Context(), question.ID, db.UpdateQuestionCensorOptions{
 		ContentCensorMetadata: censorResponse.ToJSON(),
@@ -203,4 +234,96 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 
 	ctx.SetSuccessFlash("发送问题成功！")
 	ctx.Redirect("/_/" + pageUser.Domain)
+}
+
+type uploadImageOptions struct {
+	Type               db.UploadImageQuestionType
+	Image              *multipart.FileHeader
+	QuestionID         uint
+	UploaderUserID     uint
+	IsDeletingPrevious bool
+}
+
+var ErrUploadImageSizeTooLarge = errors.New("图片文件大小不能大于 5Mb")
+
+func uploadImage(ctx context.Context, opts uploadImageOptions) error {
+	image := opts.Image
+	fileName := image.Filename
+	fileExt := filepath.Ext(fileName)
+	fileSize := image.Size
+	if fileSize > 1024*1024*5 { // 5Mib
+		return ErrUploadImageSizeTooLarge
+	}
+
+	now := time.Now()
+	fileKey := fmt.Sprintf("%d/%d/%d%s", now.Year(), now.Month(), now.Unix(), fileExt)
+
+	uploadImageFile, err := image.Open()
+	if err != nil {
+		return errors.Wrap(err, "open image")
+	}
+	defer func() { _ = uploadImageFile.Close() }()
+
+	hasher := md5.New()
+	reader := io.TeeReader(uploadImageFile, hasher)
+	fileMd5 := fmt.Sprintf("%x", hasher.Sum(nil))
+
+	backupImageBuffer := bytes.Buffer{}
+	uploadReader := io.TeeReader(reader, &backupImageBuffer)
+
+	// Upload file with share.
+	shareServerName := share.RandomServer()
+	publicURL, err := share.Reader(shareServerName, uploadReader)
+	if err != nil {
+		return errors.Wrap(err, "upload image with share")
+	}
+	publicURLs := map[string]string{
+		shareServerName: publicURL,
+	}
+
+	// Backup file.
+	go func() {
+		if conf.Upload.ImageBackupEndpoint != "" {
+			ctx := gocontext.Background()
+			r2Resolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+				return aws.Endpoint{
+					URL: conf.Upload.ImageBackupEndpoint,
+				}, nil
+			})
+
+			cfg, err := config.LoadDefaultConfig(ctx,
+				config.WithEndpointResolverWithOptions(r2Resolver),
+				config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(conf.Upload.ImageBackupAccessID, conf.Upload.ImageBackupAccessSecret, "")),
+			)
+			if err != nil {
+				logrus.WithContext(ctx).WithError(err).Error("Failed to load config")
+				return
+			}
+
+			client := s3.NewFromConfig(cfg)
+			if _, err := client.PutObject(ctx, &s3.PutObjectInput{
+				Bucket: aws.String(conf.Upload.ImageBackupBucket),
+				Key:    aws.String(fileKey),
+				Body:   &backupImageBuffer,
+			}); err != nil {
+				logrus.WithContext(ctx).WithError(err).Error("Failed to upload backup image")
+			}
+		}
+	}()
+
+	_, err = db.UploadImgaes.Create(ctx.Request().Context(), db.CreateUploadImageOptions{
+		Type:               opts.Type,
+		QuestionID:         opts.QuestionID,
+		UploaderUserID:     opts.UploaderUserID,
+		Name:               fileName,
+		FileSize:           fileSize,
+		Md5:                fileMd5,
+		Key:                fileKey,
+		PublicURLs:         publicURLs,
+		IsDeletingPrevious: opts.IsDeletingPrevious,
+	})
+	if err != nil {
+		return errors.Wrap(err, "create upload image")
+	}
+	return nil
 }
