@@ -50,7 +50,7 @@ func runWeb(ctx *cli.Context) error {
 		return errors.Wrap(err, "connect to database")
 	}
 
-	shareServers, err := share.LoadServerFromFile("share.yaml")
+	shareServers, err := share.LoadServerFromFile("./conf/share.yaml")
 	if err != nil {
 		return errors.Wrap(err, "load share server")
 	}
