@@ -70,4 +70,12 @@ var (
 		Port     int    `ini:"port"`
 		SMTP     string `ini:"smtp"`
 	}
+
+	SMS struct {
+		AliyunRegion          string `ini:"aliyun_region"`
+		AliyunAccessKey       string `ini:"aliyun_access_key"`
+		AliyunAccessKeySecret string `ini:"aliyun_access_key_secret"`
+		AliyunSignName        string `ini:"aliyun_sign_name"`
+		AliyunTemplateCode    string `ini:"aliyun_template_code"`
+	}
 )

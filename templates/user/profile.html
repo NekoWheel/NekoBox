@@ -1,4 +1,31 @@
 {{template "base/header" .}}
+
+<script>
+  function onSendCode(recaptcha){
+    fetch('/api/v1/user/profile/send-sms', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': _csrf,
+      },
+      body: JSON.stringify({
+        phone: document.getElementById('phone').value,
+        recaptcha: recaptcha,
+      }),
+    }).then((res) => {
+      res.json().then((data) => {
+        if(res.status === 200){
+          alert(data.data)
+        } else {
+          alert(data.message)
+        }
+      })
+    }).catch(() => {
+      alert('验证码发送失败，请稍后重试')
+    })
+  }
+</script>
+
 <form method="post" enctype="multipart/form-data" action="/user/profile/update">
   {{ .CSRFTokenHTML }}
   <legend class="uk-legend">个人信息</legend>
@@ -7,6 +34,27 @@
     <label class="uk-form-label" for="form-stacked-text">电子邮箱</label>
     <input class="uk-input" type="text" disabled value="{{.LoggedUser.Email}}">
   </div>
+  {{ if ne .LoggedUser.Phone "" }}
+    <div class="uk-margin">
+      <label class="uk-form-label" for="form-stacked-text">手机号</label>
+      <input class="uk-input" type="text" disabled value="{{.LoggedUser.Phone | HidePhone}}">
+    </div>
+  {{ else }}
+    <div class="uk-margin">
+      <label class="uk-form-label">手机号、短信验证码 (可选，新注册用户若不验证手机号，则<b>提问箱将不会公开展示所有已回答的问题列表</b>）</label>
+      <div class="uk-margin" uk-margin>
+        <div uk-form-custom="target: true">
+          <input id="phone" name="phone" class="uk-input" type="text" value="" placeholder="手机号">
+        </div>
+        <div id="sms-code" uk-form-custom="target: true">
+          <button type="button" class="uk-button uk-button-default g-recaptcha" data-sitekey="{{.RecaptchaSiteKey}}" data-callback="onSendCode">发送验证码</button>
+        </div>
+        <div uk-form-custom="target: true">
+          <input name="verify_code" class="uk-input" type="text" placeholder="短信验证码">
+        </div>
+      </div>
+    </div>
+  {{ end }}
   <div class="uk-margin">
     <label class="uk-form-label" for="form-stacked-text">昵称</label>
     <input name="name" class="uk-input" type="text" value="{{.LoggedUser.Name}}">

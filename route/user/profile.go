@@ -7,16 +7,23 @@ package user
 import (
 	"fmt"
 	"net/url"
+	"os"
 	"time"
 
+	"github.com/flamego/cache"
+	"github.com/flamego/recaptcha"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
+	"gorm.io/gorm"
 
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
+	"github.com/NekoWheel/NekoBox/internal/dbutil"
 	"github.com/NekoWheel/NekoBox/internal/form"
+	"github.com/NekoWheel/NekoBox/internal/security/sms"
 	"github.com/NekoWheel/NekoBox/internal/storage"
+	"github.com/NekoWheel/NekoBox/route"
 )
 
 func Profile(ctx context.Context) {
@@ -27,7 +34,11 @@ func ProfileAPI(ctx context.Context) error {
 	return ctx.JSON(ctx.User)
 }
 
-func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
+func SendProfileSMSAPI(ctx context.Context, f form.SendSMS, sms sms.SMS, cache cache.Cache, recaptcha recaptcha.RecaptchaV3) error {
+	return route.SendSMS(route.SMSCacheKeyPrefixBindPhone)(ctx, f, sms, cache, recaptcha)
+}
+
+func UpdateProfile(ctx context.Context, f form.UpdateProfile, cache cache.Cache, tx dbutil.Transactor) {
 	if ctx.HasError() {
 		ctx.Success("user/profile")
 		return
@@ -74,6 +85,40 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 		}
 	}
 
+	// Check sms code.
+	var phone string
+	// ⚠️ Now user can only bind phone once.
+	if ctx.User.Phone == "" && f.Phone != "" && f.VerifyCode != "" {
+		verifyCodeInf, err := cache.Get(ctx.Request().Context(), route.SMSCacheKeyPrefixBindPhone+f.Phone)
+		if err != nil {
+			if errors.Is(err, os.ErrNotExist) {
+				ctx.SetErrorFlash("验证码已过期")
+			} else {
+				logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to read password recovery code cache")
+				ctx.SetInternalErrorFlash()
+			}
+			ctx.Redirect("/register")
+			return
+		} else {
+			verifyCode, ok := verifyCodeInf.(string)
+			if ok && verifyCode != "" && verifyCode == f.VerifyCode {
+				// Remove the key.
+				if err := cache.Delete(ctx.Request().Context(), route.SMSCacheKeyPrefixBindPhone+f.Phone); err != nil {
+					logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to delete register code cache")
+				}
+
+				// Set user's verified phone.
+				phone = f.Phone
+
+				if err := db.Users.UpdateVerifyType(ctx.Request().Context(), ctx.User.ID, db.VerifyTypeVerified); err != nil {
+					logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update user verify type")
+					ctx.SetInternalErrorFlash()
+					return
+				}
+			}
+		}
+	}
+
 	var notify db.NotifyType
 	if f.NotifyEmail != "" {
 		notify = db.NotifyTypeEmail
@@ -81,18 +126,36 @@ func UpdateProfile(ctx context.Context, f form.UpdateProfile) {
 		notify = db.NotifyTypeNone
 	}
 
-	if err := db.Users.Update(ctx.Request().Context(), ctx.User.ID, db.UpdateUserOptions{
-		Name:       f.Name,
-		Avatar:     avatarURL,
-		Background: backgroundURL,
-		Intro:      f.Intro,
-		Notify:     notify,
+	if err := tx.Transaction(func(tx *gorm.DB) error {
+		usersStore := db.NewUsersStore(tx)
+		if err := usersStore.Update(ctx.Request().Context(), ctx.User.ID, db.UpdateUserOptions{
+			Name:       f.Name,
+			Phone:      phone,
+			Avatar:     avatarURL,
+			Background: backgroundURL,
+			Intro:      f.Intro,
+			Notify:     notify,
+		}); err != nil {
+			return err
+		}
+
+		// If user has verified phone, update verify type to verified.
+		if phone != "" {
+			return usersStore.UpdateVerifyType(ctx.Request().Context(), ctx.User.ID, db.VerifyTypeVerified)
+		}
+		return nil
+
 	}); err != nil {
-		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update user profile")
-		ctx.SetInternalErrorFlash()
+		if errors.Is(err, db.ErrDuplicatePhone) {
+			ctx.SetErrorFlash(errors.Cause(err).Error())
+		} else {
+			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update user profile")
+			ctx.SetInternalErrorFlash()
+		}
 	} else {
 		ctx.SetSuccessFlash("更新个人信息成功")
 	}
+
 	ctx.Redirect("/user/profile")
 }
 

@@ -5,6 +5,7 @@
 package form
 
 import (
+	"encoding/json"
 	"reflect"
 
 	"github.com/flamego/flamego"
@@ -33,30 +34,40 @@ func Bind(model interface{}) flamego.Handler {
 		panic("form: pointer can not be accepted as binding model")
 	}
 
-	return func(c context.Context, data template.Data) {
+	return func(c context.Context, endpointType context.EndpointType, data template.Data) {
 		obj := reflect.New(reflect.TypeOf(model))
 		defer func() { c.Map(obj.Elem().Interface()) }()
 
 		r := c.Request()
-		if err := r.ParseForm(); err != nil {
-			c.Map(Error{Category: ErrorCategoryDeserialization, Error: err})
-			return
-		}
-
-		// Bind the form data to the given struct.
-		typ := reflect.TypeOf(obj.Interface())
-		val := reflect.ValueOf(obj.Interface())
-		if typ.Kind() == reflect.Ptr {
-			typ = typ.Elem()
-			val = val.Elem()
-		}
-		for i := 0; i < typ.NumField(); i++ {
-			field := typ.Field(i)
-			fieldName := typ.Field(i).Tag.Get("form")
-			if fieldName == "" {
-				fieldName = com.ToSnakeCase(field.Name)
+		switch {
+		case endpointType.IsAPI():
+			err := json.NewDecoder(r.Body().ReadCloser()).Decode(obj.Interface())
+			if err != nil {
+				c.Map(Error{Category: ErrorCategoryDeserialization, Error: err})
+				return
 			}
-			val.Field(i).Set(reflect.ValueOf(r.Form.Get(fieldName)))
+
+		case endpointType.IsWeb():
+			if err := r.ParseForm(); err != nil {
+				c.Map(Error{Category: ErrorCategoryDeserialization, Error: err})
+				return
+			}
+
+			// Bind the form data to the given struct.
+			typ := reflect.TypeOf(obj.Interface())
+			val := reflect.ValueOf(obj.Interface())
+			if typ.Kind() == reflect.Ptr {
+				typ = typ.Elem()
+				val = val.Elem()
+			}
+			for i := 0; i < typ.NumField(); i++ {
+				field := typ.Field(i)
+				fieldName := typ.Field(i).Tag.Get("form")
+				if fieldName == "" {
+					fieldName = com.ToSnakeCase(field.Name)
+				}
+				val.Field(i).Set(reflect.ValueOf(r.Form.Get(fieldName)))
+			}
 		}
 
 		errors, ok := govalid.Check(obj.Interface())

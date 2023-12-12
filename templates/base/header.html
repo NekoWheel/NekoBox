@@ -27,6 +27,7 @@
   </script>
   {{ end }}
   <script>
+      const _csrf = '{{ .CSRFToken }}';
       function onSubmit() {document.getElementById('form').submit();}
   </script>
   <style>
