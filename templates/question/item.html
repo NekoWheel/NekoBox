@@ -14,8 +14,8 @@
       <ul class="uk-thumbnav" uk-margin>
         {{ range $index, $elem := .AskUploadImages }}
         <div uk-lightbox>
-          <a href="{{ $elem.PublicURLs | ParsePublicURLs }}">
-            <img class="uk-border-rounded uk-object-fill" src="{{ $elem.PublicURLs | ParsePublicURLs }}" width="100" height="100" alt="">
+          <a href="https://{{ ImageBucketCDNHost }}/{{ $elem.Key }}">
+            <img class="uk-border-rounded uk-object-fill" src="https://{{ ImageBucketCDNHost }}/{{ $elem.Key }}" width="100" height="100" alt="">
           </a>
         </div>
         {{ end }}
@@ -30,8 +30,8 @@
       <ul class="uk-thumbnav" uk-margin>
         {{ range $index, $elem := .AnswerUploadImages }}
         <div uk-lightbox>
-          <a href="{{ $elem.PublicURLs | ParsePublicURLs }}">
-            <img class="uk-border-rounded uk-object-fill" src="{{ $elem.PublicURLs | ParsePublicURLs }}" width="100" height="100" alt="">
+          <a href="https://{{ ImageBucketCDNHost }}/{{ $elem.Key }}">
+            <img class="uk-border-rounded uk-object-fill" src="https://{{ ImageBucketCDNHost }}/{{ $elem.Key }}" width="100" height="100" alt="">
           </a>
         </div>
         {{ end }}
