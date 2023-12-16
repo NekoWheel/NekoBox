@@ -60,6 +60,9 @@ func FuncMap() []template.FuncMap {
 				}
 				return ""
 			},
+			"ImageBucketCDNHost": func() string {
+				return conf.Upload.ImageBucketCDNHost
+			},
 		}}
 	})
 	return funcMap

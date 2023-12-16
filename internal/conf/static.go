@@ -55,17 +55,18 @@ var (
 	}
 
 	Upload struct {
-		DefaultAvatarURL        string `ini:"default_avatar"`
-		DefaultBackground       string `ini:"default_background"`
-		AliyunEndpoint          string `ini:"aliyun_endpoint"`
-		AliyunAccessID          string `ini:"aliyun_access_id"`
-		AliyunAccessSecret      string `ini:"aliyun_access_secret"`
-		AliyunBucket            string `ini:"aliyun_bucket"`
-		AliyunBucketCDNHost     string `ini:"aliyun_bucket_cdn_host"`
-		ImageBackupEndpoint     string `ini:"image_backup_endpoint"`
-		ImageBackupAccessID     string `ini:"image_backup_access_id"`
-		ImageBackupAccessSecret string `ini:"image_backup_access_secret"`
-		ImageBackupBucket       string `ini:"image_backup_bucket"`
+		DefaultAvatarURL    string `ini:"default_avatar"`
+		DefaultBackground   string `ini:"default_background"`
+		AliyunEndpoint      string `ini:"aliyun_endpoint"`
+		AliyunAccessID      string `ini:"aliyun_access_id"`
+		AliyunAccessSecret  string `ini:"aliyun_access_secret"`
+		AliyunBucket        string `ini:"aliyun_bucket"`
+		AliyunBucketCDNHost string `ini:"aliyun_bucket_cdn_host"`
+		ImageEndpoint       string `ini:"image_endpoint"`
+		ImageAccessID       string `ini:"image_access_id"`
+		ImageAccessSecret   string `ini:"image_access_secret"`
+		ImageBucket         string `ini:"image_bucket"`
+		ImageBucketCDNHost  string `ini:"image_bucket_cdn_host"`
 	}
 
 	Mail struct {
