@@ -269,13 +269,16 @@ func uploadImage(ctx context.Context, opts uploadImageOptions) error {
 
 	r2Resolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
 		return aws.Endpoint{
-			URL: conf.Upload.ImageEndpoint,
+			URL:               conf.Upload.ImageEndpoint,
+			HostnameImmutable: true,
+			Source:            aws.EndpointSourceCustom,
 		}, nil
 	})
 
 	cfg, err := config.LoadDefaultConfig(ctx.Request().Context(),
 		config.WithEndpointResolverWithOptions(r2Resolver),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(conf.Upload.ImageAccessID, conf.Upload.ImageAccessSecret, "")),
+		config.WithRegion("auto"),
 	)
 	if err != nil {
 		return errors.Wrap(err, "load config")
