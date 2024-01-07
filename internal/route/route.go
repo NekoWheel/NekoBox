@@ -151,8 +151,14 @@ func New() *flamego.Flame {
 		}),
 		recaptcha.V3(
 			recaptcha.Options{
-				Secret:    conf.Recaptcha.ServerKey,
-				VerifyURL: recaptcha.VerifyURLGlobal,
+				Secret: conf.Recaptcha.ServerKey,
+				VerifyURL: func() recaptcha.VerifyURL {
+					if conf.Recaptcha.TurnstileStyle {
+						// FYI: https://developers.cloudflare.com/turnstile/migration/migrating-from-recaptcha/
+						return "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+					}
+					return recaptcha.VerifyURLGlobal
+				}(),
 			},
 		),
 		sessioner,

@@ -9,7 +9,13 @@
   <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-y/uikit/3.3.3/js/uikit-icons.min.js"></script>
   <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-y/dayjs/1.10.8/dayjs.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.11.1/dist/cdn.min.js"/></script>
+  {{ if .RecaptchaTurnstileStyle }}
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?compat=recaptcha" async defer></script>
+  <script>function onSubmit() {}</script>
+  {{ else }}
   <script src="{{.RecaptchaDomain}}/recaptcha/api.js" async defer></script>
+  <script>function onSubmit() {document.getElementById('form').submit();}</script>
+  {{ end }}
   {{ if ne SentryDSN "" }}
   <script
           src="https://browser.sentry-cdn.com/7.37.2/bundle.tracing.replay.min.js"
@@ -26,9 +32,6 @@
       });
   </script>
   {{ end }}
-  <script>
-      function onSubmit() {document.getElementById('form').submit();}
-  </script>
   <style>
       .grecaptcha-badge {visibility: hidden;}
   </style>

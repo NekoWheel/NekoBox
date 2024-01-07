@@ -49,9 +49,10 @@ var (
 	}
 
 	Recaptcha struct {
-		Domain    string `ini:"domain"`
-		SiteKey   string `ini:"site_key"`
-		ServerKey string `ini:"server_key"`
+		Domain         string `ini:"domain"`
+		SiteKey        string `ini:"site_key"`
+		ServerKey      string `ini:"server_key"`
+		TurnstileStyle bool   `ini:"turnstile_style"`
 	}
 
 	Upload struct {
