@@ -43,4 +43,4 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6,linux/386
           push: true
           tags: |
-            ghcr.io/NekoWheel/nekobox:${{ env.IMAGE_TAG }}
+            ghcr.io/nekowheel/nekobox:${{ env.IMAGE_TAG }}
