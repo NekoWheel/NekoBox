@@ -26,7 +26,6 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: ${{ secrets.DOCKER_REGISTRY }}
           repository: ${{ secrets.DOCKER_NAME }}
-          auto_tag: true
           build_args: GITHUB_SHA=${{ github.sha }}
           tags: ${{ steps.image-tag.outputs.tag }}
 
