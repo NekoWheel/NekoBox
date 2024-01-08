@@ -4,6 +4,8 @@ WORKDIR /app
 
 ENV CGO_ENABLED=0
 
+ARG GITHUB_SHA=dev
+
 COPY . .
 
 RUN go mod tidy
