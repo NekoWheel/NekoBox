@@ -172,6 +172,9 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 	// A security problem may occur if the CDN is enabled and users can modify the header.
 	fromIP := ctx.Request().Header.Get("Ali-CDN-Real-IP")
 	if fromIP == "" {
+		fromIP = ctx.Request().Header.Get("CF-Connecting-IP")
+	}
+	if fromIP == "" {
 		fromIP = ctx.Request().Header.Get("X-Real-IP")
 	}
 
