@@ -53,7 +53,7 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	dbname := "cardinal-test-" + strconv.FormatUint(rng.Uint64(), 10)
 
-	err = db.WithContext(ctx).Exec(`CREATE DATABASE ` + QuoteIdentifier(dbname)).Error
+	err = db.WithContext(ctx).Exec(`CREATE DATABASE ` + QuoteIdentifier(dbType, dbname)).Error
 	if err != nil {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
@@ -98,7 +98,7 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 			t.Fatalf("Failed to close currently open database: %v", err)
 		}
 
-		err = db.WithContext(ctx).Exec(`DROP DATABASE ` + QuoteIdentifier(dbname)).Error
+		err = db.WithContext(ctx).Exec(`DROP DATABASE ` + QuoteIdentifier(dbType, dbname)).Error
 		if err != nil {
 			t.Fatalf("Failed to drop test database: %v", err)
 		}
@@ -110,7 +110,7 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 		}
 
 		for _, table := range tables {
-			err := testDB.WithContext(ctx).Exec(`TRUNCATE TABLE ` + QuoteIdentifier(table)).Error
+			err := testDB.WithContext(ctx).Exec(`TRUNCATE TABLE ` + QuoteIdentifier(dbType, table)).Error
 			if err != nil {
 				return err
 			}
@@ -121,6 +121,9 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 
 // QuoteIdentifier quotes an "identifier" (e.g. a table or a column name) to be
 // used as part of an SQL statement.
-func QuoteIdentifier(s string) string {
+func QuoteIdentifier(typ, s string) string {
+	if typ == "postgres" {
+		return `"` + strings.ReplaceAll(s, `"`, `""`) + `"`
+	}
 	return "`" + strings.ReplaceAll(s, "`", "``") + "`"
 }
