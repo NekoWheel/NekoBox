@@ -27,21 +27,21 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 	dbType := os.Getenv("DB_TYPE")
 
 	var dsn string
-	var dialect gorm.Dialector
+	var dialectFunc func(string) gorm.Dialector
 
 	switch dbType {
 	case "mysql":
 		dsn = os.ExpandEnv("$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_DATABASE?charset=utf8mb4&parseTime=True&loc=Local")
-		dialect = mysql.Open(dsn)
+		dialectFunc = mysql.Open
 	case "postgres":
-		dsn = os.ExpandEnv("host=$DB_HOST user=$DB_USER password=$DB_PASSWORD dbname=$DB_DATABASE port=$DB_PORT sslmode=disable TimeZone=Asia/Shanghai")
-		dialect = postgres.Open(dsn)
+		dsn = os.ExpandEnv("host=$DB_HOST user=$DB_USER password=$DB_PASSWORD port=$DB_PORT sslmode=disable TimeZone=Asia/Shanghai")
+		dialectFunc = postgres.Open
 	default:
 		t.Fatalf("Unknown database type: %q", dbType)
 	}
 
 	fmt.Println(dsn)
-	db, err := gorm.Open(dialect, &gorm.Config{
+	db, err := gorm.Open(dialectFunc(dsn), &gorm.Config{
 		NowFunc:                Now,
 		SkipDefaultTransaction: true,
 	})
@@ -63,7 +63,7 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 
 	flagParseOnce.Do(flag.Parse)
 
-	testDB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+	testDB, err = gorm.Open(dialectFunc(dsn), &gorm.Config{
 		NowFunc:                Now,
 		SkipDefaultTransaction: true,
 	})
