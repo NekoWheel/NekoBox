@@ -47,11 +47,11 @@ type Question struct {
 	UserID                uint                     `gorm:"index:idx_question_user_id" json:"-"`
 	Content               string                   `json:"content"`
 	ContentCensorMetadata datatypes.JSON           `json:"-"`
-	ContentCensorPass     dbutil.ContentCensorPass `json:"-"`
+	ContentCensorPass     dbutil.ContentCensorPass `gorm:"->" json:"-"`
 	Token                 string                   `json:"-"`
 	Answer                string                   `json:"answer"`
 	AnswerCensorMetadata  datatypes.JSON           `json:"-"`
-	AnswerCensorPass      dbutil.AnswerCensorPass  `json:"-"`
+	AnswerCensorPass      dbutil.AnswerCensorPass  `gorm:"->" json:"-"`
 	ReceiveReplyEmail     string                   `json:"-"`
 	AskerUserID           uint                     `json:"-"`
 	IsPrivate             bool                     `gorm:"default: FALSE; NOT NULL" json:"-"`
