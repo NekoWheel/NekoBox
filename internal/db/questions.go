@@ -43,18 +43,18 @@ type questions struct {
 
 type Question struct {
 	dbutil.Model
-	FromIP                string         `json:"-"`
-	UserID                uint           `gorm:"index:idx_question_user_id" json:"-"`
-	Content               string         `json:"content"`
-	ContentCensorMetadata datatypes.JSON `json:"-"`
-	ContentCensorPass     bool           `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(content_censor_metadata->'$.pass' = true, false)) STORED NOT NULL" json:"-"`
-	Token                 string         `json:"-"`
-	Answer                string         `json:"answer"`
-	AnswerCensorMetadata  datatypes.JSON `json:"-"`
-	AnswerCensorPass      bool           `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(answer_censor_metadata->'$.pass' = true, false)) STORED NOT NULL" json:"-"`
-	ReceiveReplyEmail     string         `json:"-"`
-	AskerUserID           uint           `json:"-"`
-	IsPrivate             bool           `gorm:"default: FALSE; NOT NULL" json:"-"`
+	FromIP                string                   `json:"-"`
+	UserID                uint                     `gorm:"index:idx_question_user_id" json:"-"`
+	Content               string                   `json:"content"`
+	ContentCensorMetadata datatypes.JSON           `json:"-"`
+	ContentCensorPass     dbutil.ContentCensorPass `json:"-"`
+	Token                 string                   `json:"-"`
+	Answer                string                   `json:"answer"`
+	AnswerCensorMetadata  datatypes.JSON           `json:"-"`
+	AnswerCensorPass      dbutil.AnswerCensorPass  `json:"-"`
+	ReceiveReplyEmail     string                   `json:"-"`
+	AskerUserID           uint                     `json:"-"`
+	IsPrivate             bool                     `gorm:"default: FALSE; NOT NULL" json:"-"`
 }
 
 type CreateQuestionOptions struct {

@@ -51,7 +51,7 @@ func runWeb(ctx *cli.Context) error {
 	var dsn string
 	switch dbType {
 	case "mysql", "":
-		dsn = fmt.Sprintf("%s:%s@%s:%s/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 			conf.Database.User,
 			conf.Database.Password,
 			conf.Database.Host,

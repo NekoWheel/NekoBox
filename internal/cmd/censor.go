@@ -31,7 +31,7 @@ func runCensor(ctx *cli.Context) error {
 		return errors.New("text censor is disabled")
 	}
 
-	dsn := fmt.Sprintf("%s:%s@%s:%s/%s?charset=utf8mb4&parseTime=True&loc=Local",
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		conf.Database.User,
 		conf.Database.Password,
 		conf.Database.Host,
