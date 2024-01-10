@@ -17,15 +17,31 @@ import (
 	"time"
 
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var flagParseOnce sync.Once
 
 func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, cleanup func(...string) error) {
-	dsn := os.ExpandEnv("$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_DATABASE?charset=utf8mb4&parseTime=True&loc=Local")
+	dbType := os.Getenv("DB_TYPE")
+
+	var dsn string
+	var dialect gorm.Dialector
+
+	switch dbType {
+	case "mysql":
+		dsn = os.ExpandEnv("$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_DATABASE?charset=utf8mb4&parseTime=True&loc=Local")
+		dialect = mysql.Open(dsn)
+	case "postgres":
+		dsn = os.ExpandEnv("host=$DB_HOST user=$DB_USER password=$DB_PASSWORD dbname=$DB_DATABASE port=$DB_PORT sslmode=disable TimeZone=Asia/Shanghai")
+		dialect = postgres.Open(dsn)
+	default:
+		t.Fatalf("Unknown database type: %q", dbType)
+	}
+
 	fmt.Println(dsn)
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+	db, err := gorm.Open(dialect, &gorm.Config{
 		NowFunc:                Now,
 		SkipDefaultTransaction: true,
 	})
