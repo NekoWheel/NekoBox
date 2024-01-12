@@ -5,6 +5,8 @@
 package dbutil
 
 import (
+	"database/sql"
+
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
@@ -21,6 +23,15 @@ func (ContentCensorPass) GormDBDataType(db *gorm.DB, field *schema.Field) string
 	return ""
 }
 
+func (c *ContentCensorPass) Scan(value interface{}) error {
+	var i sql.NullBool
+	if err := i.Scan(value); err != nil {
+		return err
+	}
+	*c = ContentCensorPass(i.Bool)
+	return nil
+}
+
 type AnswerCensorPass bool
 
 func (AnswerCensorPass) GormDBDataType(db *gorm.DB, field *schema.Field) string {
@@ -31,4 +42,13 @@ func (AnswerCensorPass) GormDBDataType(db *gorm.DB, field *schema.Field) string 
 		return "BOOLEAN GENERATED ALWAYS AS (COALESCE(answer_censor_metadata->>'$.pass' = 'true', false)) STORED"
 	}
 	return ""
+}
+
+func (c *AnswerCensorPass) Scan(value interface{}) error {
+	var i sql.NullBool
+	if err := i.Scan(value); err != nil {
+		return err
+	}
+	*c = AnswerCensorPass(i.Bool)
+	return nil
 }
