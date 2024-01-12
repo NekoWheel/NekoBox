@@ -100,7 +100,7 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 			t.Fatalf("Failed to close currently open database: %v", err)
 		}
 
-		err = testDB.WithContext(ctx).Exec(`DROP DATABASE ` + QuoteIdentifier(dbType, dbname)).Error
+		err = db.WithContext(ctx).Exec(`DROP DATABASE ` + QuoteIdentifier(dbType, dbname)).Error
 		if err != nil {
 			t.Fatalf("Failed to drop test database: %v", err)
 		}
