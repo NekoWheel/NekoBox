@@ -31,7 +31,7 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 
 	switch dbType {
 	case "mysql":
-		dsn = os.ExpandEnv("mysql://$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)?charset=utf8mb4&parseTime=True&loc=Local")
+		dsn = os.ExpandEnv("$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/DB_DATABASE?charset=utf8mb4&parseTime=True&loc=Local")
 		dialectFunc = mysql.Open
 	case "postgres":
 		dsn = os.ExpandEnv("postgres://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT?sslmode=disable")
@@ -57,15 +57,21 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 
-	cfg, err := url.Parse(dsn)
-	if err != nil {
-		t.Fatalf("Failed to parse DSN")
+	switch dbType {
+	case "mysql":
+		dsn = strings.ReplaceAll(dsn, os.Getenv("DB_DATABASE"), dbname)
+	case "postgres":
+		cfg, err := url.Parse(dsn)
+		if err != nil {
+			t.Fatalf("Failed to parse DSN")
+		}
+		cfg.Path = "/" + dbname
+		dsn = cfg.String()
 	}
-	cfg.Path = "/" + dbname
 
 	flagParseOnce.Do(flag.Parse)
 
-	testDB, err = gorm.Open(dialectFunc(cfg.String()), &gorm.Config{
+	testDB, err = gorm.Open(dialectFunc(dsn), &gorm.Config{
 		NowFunc:                Now,
 		SkipDefaultTransaction: true,
 	})
