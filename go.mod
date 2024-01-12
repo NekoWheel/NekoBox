@@ -38,8 +38,8 @@ require (
 	gopkg.in/ini.v1 v1.66.2
 	gorm.io/datatypes v1.0.7
 	gorm.io/driver/mysql v1.3.6
-	gorm.io/driver/postgres v1.3.4
-	gorm.io/gorm v1.23.8
+	gorm.io/driver/postgres v1.4.5
+	gorm.io/gorm v1.24.1-0.20221019064659-5dd2bb482755
 )
 
 require (
