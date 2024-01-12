@@ -7,7 +7,6 @@ package dbutil
 import (
 	"context"
 	"flag"
-	"fmt"
 	"math/rand"
 	"net/url"
 	"os"
@@ -35,7 +34,7 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 		dsn = os.ExpandEnv("$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_DATABASE?charset=utf8mb4&parseTime=True&loc=Local")
 		dialectFunc = mysql.Open
 	case "postgres":
-		dsn = os.ExpandEnv("postgres://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_DATABASE?sslmode=disable")
+		dsn = os.ExpandEnv("postgres://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT?sslmode=disable")
 		dialectFunc = postgres.Open
 	default:
 		t.Fatalf("Unknown database type: %q", dbType)
@@ -52,7 +51,6 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 	ctx := context.Background()
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	dbname := "nekobox-test-" + strconv.FormatUint(rng.Uint64(), 10)
-	fmt.Println(dbname)
 
 	err = db.WithContext(ctx).Exec(`CREATE DATABASE ` + QuoteIdentifier(dbType, dbname)).Error
 	if err != nil {
@@ -102,7 +100,7 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 			t.Fatalf("Failed to close currently open database: %v", err)
 		}
 
-		err = db.WithContext(ctx).Exec(`DROP DATABASE ` + QuoteIdentifier(dbType, dbname)).Error
+		err = testDB.WithContext(ctx).Exec(`DROP DATABASE ` + QuoteIdentifier(dbType, dbname)).Error
 		if err != nil {
 			t.Fatalf("Failed to drop test database: %v", err)
 		}
