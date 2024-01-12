@@ -31,7 +31,7 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 
 	switch dbType {
 	case "mysql":
-		dsn = os.ExpandEnv("$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_DATABASE?charset=utf8mb4&parseTime=True&loc=Local")
+		dsn = os.ExpandEnv("mysql://$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)?charset=utf8mb4&parseTime=True&loc=Local")
 		dialectFunc = mysql.Open
 	case "postgres":
 		dsn = os.ExpandEnv("postgres://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT?sslmode=disable")
