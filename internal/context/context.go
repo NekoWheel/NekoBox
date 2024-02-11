@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"strings"
 
 	"github.com/flamego/csrf"
 	"github.com/flamego/flamego"
@@ -158,7 +159,7 @@ func Contexter() flamego.Handler {
 			Template: t,
 		}
 
-		if ctx.Request().Method == http.MethodPost {
+		if ctx.Request().Method == http.MethodPost && !strings.HasPrefix(ctx.Request().URL.Path, "/api/v1/pixel/") {
 			x.Validate(ctx)
 		}
 
@@ -178,6 +179,8 @@ func Contexter() flamego.Handler {
 			c.Data["LoggedUserID"] = 0
 			c.Data["LoggedUserName"] = ""
 		}
+
+		c.Data["IsPixel"] = ctx.Request().URL.Path == "/pixel"
 
 		span := trace.SpanFromContext(ctx.Request().Context())
 		if span.IsRecording() {

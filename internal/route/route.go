@@ -27,6 +27,7 @@ import (
 	templatepkg "github.com/NekoWheel/NekoBox/internal/template"
 	"github.com/NekoWheel/NekoBox/route"
 	"github.com/NekoWheel/NekoBox/route/auth"
+	"github.com/NekoWheel/NekoBox/route/pixel"
 	"github.com/NekoWheel/NekoBox/route/question"
 	"github.com/NekoWheel/NekoBox/route/user"
 	"github.com/NekoWheel/NekoBox/static"
@@ -83,6 +84,7 @@ func New() *flamego.Flame {
 
 	f.Group("", func() {
 		f.Get("/", route.Home)
+		f.Get("/pixel", reqUserSignIn, pixel.Index)
 		f.Get("/sponsor", route.Sponsor)
 		f.Get("/change-logs", route.ChangeLogs)
 		f.Get("/robots.txt", func(c context.Context) {
@@ -137,6 +139,8 @@ func New() *flamego.Flame {
 					})
 				})
 			})
+
+			f.Any("/pixel/{**}", reqUserSignIn, pixel.Proxy)
 		}, context.APIEndpoint)
 	},
 		cache.Cacher(cache.Options{

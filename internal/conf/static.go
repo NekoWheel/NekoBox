@@ -55,6 +55,10 @@ var (
 		TurnstileStyle bool   `ini:"turnstile_style"`
 	}
 
+	Pixel struct {
+		Host string `ini:"host"`
+	}
+
 	Upload struct {
 		DefaultAvatarURL    string `ini:"default_avatar"`
 		DefaultBackground   string `ini:"default_background"`
