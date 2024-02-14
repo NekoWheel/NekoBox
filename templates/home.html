@@ -5,7 +5,7 @@
   <br>
   <hr>
   <div x-data="{ c: '' }" x-init="c = await (async () => {
-    let log = (await(await fetch('https://pb.app.apicon.cn/api/collections/changelogs/records?sort=-published_at&perPage=1')).json()).items[0];
+    let log = (await(await fetch('https://pb.n3ko.cc/api/collections/changelogs/records?sort=-published_at&perPage=1')).json()).items[0];
     return `<p class=uk-article-meta>开发日记 - ${new Date(log.published_at).toLocaleDateString()}</p><span class=uk-text-small>${log.content}</span>`;
   })()" x-html="c">
   </div>

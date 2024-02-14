@@ -95,7 +95,7 @@
     <tbody x-data="{ s: '' }" x-init="
     s = await (async () => {
       let html = '';
-      let items = (await(await fetch('https://pb.app.apicon.cn/api/collections/nekobox_sponsors/records?perPage=500&sort=-date')).json()).items;
+      let items = (await(await fetch('https://pb.n3ko.cc/api/collections/nekobox_sponsors/records?perPage=500&sort=-date')).json()).items;
       items.forEach(item => {
         html += `<tr class=uk-text-meta><td>${item.date.slice(0,10)}</td><td>${item.desc}</td><td>¥ ${item.price.toFixed(2)}</td></tr>`;
       })
