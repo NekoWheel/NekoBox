@@ -4,6 +4,7 @@
 
 package storage
 
+// PictureKeyPrefix is the prefix of the picture key.
 const PictureKeyPrefix = "picture/"
 
 // MaxAvatarSize is the max avatar size which is 2MB.
