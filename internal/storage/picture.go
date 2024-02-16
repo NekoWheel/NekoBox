@@ -4,6 +4,8 @@
 
 package storage
 
+const PictureKeyPrefix = "picture/"
+
 // MaxAvatarSize is the max avatar size which is 2MB.
 const MaxAvatarSize = 2 * 1024 * 1024
 
