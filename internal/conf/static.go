@@ -37,9 +37,11 @@ var (
 
 	Database struct {
 		DSN      string
+		Type     string `ini:"type"`
 		User     string `ini:"user"`
 		Password string `ini:"password"`
-		Address  string `ini:"address"`
+		Host     string `ini:"host"`
+		Port     string `ini:"port"`
 		Name     string `ini:"name"`
 	}
 
