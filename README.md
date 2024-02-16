@@ -1,5 +1,5 @@
 <h1 align="center">
-<img src="https://nekobox-public.oss-cn-hangzhou.aliyuncs.com/images/Neko.png" width=100px/>
+<img src="https://box-user-assets.n3ko.cc/public/Neko.png" width=100px/>
 
 NekoBox
 </h1>
