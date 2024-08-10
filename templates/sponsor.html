@@ -64,7 +64,7 @@
     <div>
       <h2>给 NekoBox 打钱</h2>
       <p>NekoBox 创立于 2020 年疫情初期，一开始是我疫情在家花了三天时间随手写得一个匿名留言箱。</p>
-      <p>目前 NekoBox 的服务器、CDN 开销还是我一个人承担，如果你也想为我分担一些，欢迎给 NekoBox 打钱！👏🏻</p>
+      <p>目前 NekoBox 的服务器开销还是我一个人承担，如果你也想为我分担一些，欢迎给 NekoBox 打钱！👏🏻</p>
     </div>
     <div>
       <div class="sponsor">
@@ -84,7 +84,7 @@
     </div>
   </div>
   <div uk-alert class="uk-text-small">感谢以下小伙伴对 NekoBox 的支持！</div>
-  <table class="uk-table uk-table-small uk-table-divider">
+  <table class="uk-table uk-table-small uk-table-divider uk-text-small">
     <tbody x-data="{ s: '' }" x-init="
     s = await (async () => {
       return (await(await fetch('https://json.n3ko.cc/nekobox-sponsor/index.json')).json()).data[0].content;
