@@ -53,7 +53,7 @@
     }
 
     .sponsor ul.platform li.icon-alipay {
-        background: url(https://cdn.github.red/wp-content/plugins/you-shang/image/alipay.svg) no-repeat center center;
+        background: url(https://img10.360buyimg.com/ceco/jfs/t1/188386/33/41420/3658/66b6ecf9F03bfd7eb/781b0e5e0a6db211.png) no-repeat center center;
         width: 24px;
         height: 24px;
         background-size: cover;
@@ -72,8 +72,8 @@
           <div class="head">谢谢老板 Thanks♪(･ω･)ﾉ</div>
           <div class="qrcode">
             <div class="qrcode-li alipay"><img
-                    src="https://unpkg.com/@e99p1ant/public@1.0.0/images/alipay_qrcode.jpg">
-              <noscript><img src="https://unpkg.com/@e99p1ant/public@1.0.0/images/alipay_qrcode.jpg"/></noscript>
+                    src="https://img13.360buyimg.com/ceco/jfs/t1/2848/30/22668/22212/66b6ee87F15f75426/9f8969181dd1f244.png" referrerpolicy="no-referrer">
+              <noscript><img src="https://img13.360buyimg.com/ceco/jfs/t1/2848/30/22668/22212/66b6ee87F15f75426/9f8969181dd1f244.png" referrerpolicy="no-referrer"/></noscript>
             </div>
           </div>
           <ul class="platform">
@@ -85,21 +85,9 @@
   </div>
   <div uk-alert class="uk-text-small">感谢以下小伙伴对 NekoBox 的支持！</div>
   <table class="uk-table uk-table-small uk-table-divider">
-    <thead>
-    <tr>
-      <th>日期</th>
-      <th>附言</th>
-      <th>金额</th>
-    </tr>
-    </thead>
     <tbody x-data="{ s: '' }" x-init="
     s = await (async () => {
-      let html = '';
-      let items = (await(await fetch('https://pb.n3ko.cc/api/collections/nekobox_sponsors/records?perPage=500&sort=-date')).json()).items;
-      items.forEach(item => {
-        html += `<tr class=uk-text-meta><td>${item.date.slice(0,10)}</td><td>${item.desc}</td><td>¥ ${item.price.toFixed(2)}</td></tr>`;
-      })
-      return html;
+      return (await(await fetch('https://json.n3ko.cc/nekobox-sponsor/index.json')).json()).data[0].content;
     })()
   " x-html="s">
     </tbody>
