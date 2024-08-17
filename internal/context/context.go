@@ -205,6 +205,8 @@ func Contexter() flamego.Handler {
 				case "warning":
 					c.Data["Warning"] = flash.Message
 				}
+
+				c.Data["FlashTip"] = flash.FlashTip
 			}
 		}
 

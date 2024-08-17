@@ -63,6 +63,7 @@ func FuncMap() []template.FuncMap {
 			"ImageBucketCDNHost": func() string {
 				return conf.Upload.ImageBucketCDNHost
 			},
+			"Safe": Safe,
 		}}
 	})
 	return funcMap
