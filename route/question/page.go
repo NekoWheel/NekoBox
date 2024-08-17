@@ -156,6 +156,7 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 	}
 
 	content := f.Content
+	isPrivate := f.IsPrivate != ""
 
 	// 🚨 Content security check.
 	censorResponse, err := censor.Text(ctx.Request().Context(), content)
@@ -191,6 +192,7 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 		Content:           content,
 		ReceiveReplyEmail: receiveReplyEmail,
 		AskerUserID:       askerUserID,
+		IsPrivate:         isPrivate,
 	})
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to create new question")

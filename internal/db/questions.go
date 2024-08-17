@@ -63,6 +63,7 @@ type CreateQuestionOptions struct {
 	Content           string
 	ReceiveReplyEmail string
 	AskerUserID       uint
+	IsPrivate         bool
 }
 
 func (db *questions) Create(ctx context.Context, opts CreateQuestionOptions) (*Question, error) {
@@ -73,6 +74,7 @@ func (db *questions) Create(ctx context.Context, opts CreateQuestionOptions) (*Q
 		Content:           opts.Content,
 		ReceiveReplyEmail: opts.ReceiveReplyEmail,
 		AskerUserID:       opts.AskerUserID,
+		IsPrivate:         opts.IsPrivate,
 	}
 	return &question, db.WithContext(ctx).Create(&question).Error
 }
