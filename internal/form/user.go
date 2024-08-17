@@ -14,4 +14,5 @@ type UpdateProfile struct {
 
 type UpdateHarassment struct {
 	RegisterOnly string `label:"仅允许注册用户"`
+	BlockWords   string `label:"屏蔽词"`
 }

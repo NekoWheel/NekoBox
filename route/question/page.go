@@ -158,6 +158,18 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 	content := f.Content
 	isPrivate := f.IsPrivate != ""
 
+	// 🚨 User's block words check.
+	if len(pageUser.BlockWords) > 0 {
+		blockWords := strings.Split(pageUser.BlockWords, ",")
+		for _, word := range blockWords {
+			if strings.Contains(content, word) {
+				ctx.SetError(errors.New(fmt.Sprintf("提问内容中包含了提问箱主人设置的屏蔽词，发送失败")), f)
+				ctx.Success("question/list")
+				return
+			}
+		}
+	}
+
 	// 🚨 Content security check.
 	censorResponse, err := censor.Text(ctx.Request().Context(), content)
 	if err != nil {

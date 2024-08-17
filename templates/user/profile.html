@@ -65,6 +65,10 @@
       </label>
     </div>
     <div class="uk-margin">
+      <label class="uk-form-label">屏蔽词设置（使用半角逗号 <code>,</code> 分隔，最多支持 10 个屏蔽词，每个屏蔽词最大长度为 10）</label>
+      <input name="block_words" class="uk-input" type="text" value="{{.LoggedUser.BlockWords}}">
+    </div>
+    <div class="uk-margin">
       <button type="submit" class="uk-button uk-button-primary">更新防骚扰设置</button>
     </div>
   </form>

@@ -24,7 +24,7 @@ type UsersStore interface {
 	GetByEmail(ctx context.Context, email string) (*User, error)
 	GetByDomain(ctx context.Context, domain string) (*User, error)
 	Update(ctx context.Context, id uint, opts UpdateUserOptions) error
-	UpdateHarassmentSetting(ctx context.Context, id uint, typ HarassmentSettingType) error
+	UpdateHarassmentSetting(ctx context.Context, id uint, options HarassmentSettingOptions) error
 	Authenticate(ctx context.Context, email, password string) (*User, error)
 	ChangePassword(ctx context.Context, id uint, oldPassword, newPassword string) error
 	UpdatePassword(ctx context.Context, id uint, newPassword string) error
@@ -50,6 +50,7 @@ type User struct {
 	Intro             string                `json:"intro"`
 	Notify            NotifyType            `json:"notify"`
 	HarassmentSetting HarassmentSettingType `json:"harassment_setting"`
+	BlockWords        string                `json:"-"`
 }
 
 type NotifyType string
@@ -170,15 +171,23 @@ func (db *users) Update(ctx context.Context, id uint, opts UpdateUserOptions) er
 	return nil
 }
 
-func (db *users) UpdateHarassmentSetting(ctx context.Context, id uint, typ HarassmentSettingType) error {
+type HarassmentSettingOptions struct {
+	Type       HarassmentSettingType
+	BlockWords string
+}
+
+func (db *users) UpdateHarassmentSetting(ctx context.Context, id uint, options HarassmentSettingOptions) error {
+	typ := options.Type
+
 	switch typ {
 	case HarassmentSettingNone, HarassmentSettingTypeRegisterOnly:
 	default:
 		return errors.Errorf("unexpected harassment setting type: %q", typ)
 	}
 
-	if err := db.WithContext(ctx).Where("id = ?", id).Updates(&User{
-		HarassmentSetting: typ,
+	if err := db.WithContext(ctx).Model(&User{}).Where("id = ?", id).Updates(map[string]interface{}{
+		"HarassmentSetting": typ,
+		"BlockWords":        options.BlockWords,
 	}).Error; err != nil {
 		return errors.Wrap(err, "update user")
 	}
