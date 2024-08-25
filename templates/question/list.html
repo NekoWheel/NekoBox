@@ -33,13 +33,13 @@
         <button class="uk-modal-close-default" type="button" uk-close></button>
         <div style="width: 100%;padding-top: 100%;position: relative;">
           <div id="qrcode_background"
-               style="position: absolute;max-width: 400px;max-height: 400px;top: 0;left: 0;right: 0;bottom: 0;background-image: url('https://box-user-assets.n3ko.cc/public/qrcode_template.png');background-size: 100% 100%;background-repeat: no-repeat;user-select: none;-webkit-user-select: none;">
+               style="position: absolute;max-width: 400px;max-height: 400px;top: 0;left: 0;right: 0;bottom: 0;background-image: url('https://box-user-assets.n3ko.cc/public/qrcode_template');background-size: 100% 100%;background-repeat: no-repeat;user-select: none;-webkit-user-select: none;">
             <div id="qrcode" style="position: absolute;top: 16.5%;left: 26.5%;width: 47%;height: 47%;">
               <img alt="avatar"
                    style="position: absolute;width: 25%;height: 25%;top: 38%;left: 38%;background: #fff;border: 2px solid #ffffff;border-radius: 5%;"
                    src="{{ .PageUser.Avatar }}?x-oss-process=image/auto-orient,1/quality,q_70/sharpen,200/resize,limit_0,m_fill,w_200,h_200/format,png"/>
             </div>
-            <div style="position: absolute;top: 73%;width: 100%;font-size: 140%;text-align: center;color: #ffffff;">
+            <div style="font-family: lucida grande, helvetica neue, Helvetica, Arial, Verdana, pingfang sc, STHeiti, microsoft yahei, SimSun, sans-serif;position: absolute;top: 73%;width: 100%;font-size: 140%;text-align: center;color: #ffffff;">
               {{ .PageUser.Name }} 的提问箱
             </div>
           </div>
