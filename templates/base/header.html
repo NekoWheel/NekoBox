@@ -12,8 +12,11 @@
           type="application/javascript"></script>
   <script defer src="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/html2canvas/1.4.1/html2canvas.min.js"
           type="application/javascript"></script>
-  <script defer src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/alpinejs/3.9.0/cdn.min.js"/>
-  </script>
+  <script defer src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/alpinejs/3.9.0/cdn.min.js"/></script>
+  {{ if .VConsole }}
+  <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/vConsole/3.12.1/vconsole.min.js" type="application/javascript"></script>
+  <script>new window.VConsole()</script>
+  {{ end }}
   {{ if .RecaptchaTurnstileStyle }}
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?compat=recaptcha" async defer></script>
   <script>

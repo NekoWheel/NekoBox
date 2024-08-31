@@ -221,6 +221,9 @@ func Contexter() flamego.Handler {
 		c.Data["CurrentURI"] = ctx.Request().Request.RequestURI
 		c.Data["ExternalURL"] = conf.App.ExternalURL
 
+		// ⚠️ VConsole can only be enabled for the first user for security reasons.
+		c.Data["VConsole"] = ctx.Query("debug") == "on" && c.IsLogged && c.User.ID == 1
+
 		// 🚨 SECURITY: Prevent MIME type sniffing in some browsers,
 		c.ResponseWriter().Header().Set("X-Content-Type-Options", "nosniff")
 		c.ResponseWriter().Header().Set("X-Frame-Options", "DENY")
