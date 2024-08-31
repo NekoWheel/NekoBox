@@ -29,7 +29,7 @@
     </div>
 
     <div id="qrcode-modal" class="uk-flex-top" uk-modal>
-      <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical" style="max-width: 440px !important" x-data="{loading: false}">
+      <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical" style="max-width: 440px !important">
         <button class="uk-modal-close-default" type="button" uk-close></button>
         <div style="width: 100%;padding-top: 100%;position: relative;">
           <div id="qrcode_background"
@@ -45,21 +45,7 @@
             </div>
           </div>
         </div>
-        <button class="uk-button uk-margin-small-top uk-button-primary uk-width-1-1 uk-margin-small-bottom" x-on:click.debounce="()=>{
-          loading = true;
-          domtoimage.toPng(document.getElementById('qrcode_background'), {
-              useCors: true
-          }).then(function (dataURL) {
-              const link = document.createElement('a');
-              link.href = dataURL;
-              link.download = '提问箱二维码.png';
-              link.click();
-          }).finally(() => {
-              loading = false;
-          });
-        }">
-          下载二维码 <div uk-spinner="ratio: 0.5" x-show="loading"></div>
-        </button>
+        <div class="uk-text-center uk-text-small uk-text-muted uk-margin-top">截图保存二维码</div>
       </div>
     </div>
 
