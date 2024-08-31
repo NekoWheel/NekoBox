@@ -9,7 +9,7 @@
   <div class="uk-card uk-card-default">
     <div class="uk-card-header">
       <div class="uk-text-left uk-text-small uk-text-muted">{{Date .Question.CreatedAt "Y-m-d H:i:s"}}</div>
-      <h4 class="uk-text-center uk-margin-top uk-margin-bottom uk-text-break">{{.Question.Content}}</h4>
+      <h4 class="uk-text-center uk-margin-top uk-margin-bottom uk-text-break">{{QuestionFormat .Question.Content}}</h4>
       {{ if .AskUploadImages }}
       <ul class="uk-thumbnav" uk-margin>
         {{ range $index, $elem := .AskUploadImages }}
