@@ -273,12 +273,16 @@ func testUsersUpdateHarassmentSetting(t *testing.T, ctx context.Context, db *use
 	require.Nil(t, err)
 
 	t.Run("normal", func(t *testing.T) {
-		err := db.UpdateHarassmentSetting(ctx, 1, HarassmentSettingNone)
+		err := db.UpdateHarassmentSetting(ctx, 1, HarassmentSettingOptions{
+			Type: HarassmentSettingNone,
+		})
 		require.Nil(t, err)
 	})
 
 	t.Run("unexpected harassment setting", func(t *testing.T) {
-		err := db.UpdateHarassmentSetting(ctx, 1, "not found")
+		err := db.UpdateHarassmentSetting(ctx, 1, HarassmentSettingOptions{
+			Type: "not found",
+		})
 		require.NotNil(t, err)
 	})
 }

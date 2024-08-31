@@ -163,7 +163,7 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 		blockWords := strings.Split(pageUser.BlockWords, ",")
 		for _, word := range blockWords {
 			if strings.Contains(content, word) {
-				ctx.SetError(errors.New(fmt.Sprintf("提问内容中包含了提问箱主人设置的屏蔽词，发送失败")), f)
+				ctx.SetError(errors.New("提问内容中包含了提问箱主人设置的屏蔽词，发送失败"), f)
 				ctx.Success("question/list")
 				return
 			}
