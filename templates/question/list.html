@@ -47,10 +47,9 @@
         </div>
         <button class="uk-button uk-margin-small-top uk-button-primary uk-width-1-1 uk-margin-small-bottom" x-on:click.debounce="()=>{
           loading = true;
-          html2canvas(document.getElementById('qrcode_background'), {
+          htmlToImage.toPng(document.getElementById('qrcode_background'), {
               useCORS: true
-          }).then(function (canvas) {
-              const dataURL = canvas.toDataURL('image/png');
+          }).then(function (dataURL) {
               const link = document.createElement('a');
               link.href = dataURL;
               link.download = '提问箱二维码.png';
