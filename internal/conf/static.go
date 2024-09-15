@@ -18,8 +18,6 @@ var (
 		ExternalURL           string `ini:"external_url"`
 		ICP                   string `ini:"icp"`
 		UptraceDSN            string `ini:"uptrace_dsn"`
-		QiniuAccessKey        string `ini:"qiniu_access_key"`
-		QiniuAccessSecret     string `ini:"qiniu_access_secret"`
 		AliyunAccessKey       string `ini:"aliyun_access_key"`
 		AliyunAccessKeySecret string `ini:"aliyun_access_key_secret"`
 		SentryDSN             string `ini:"sentry_dsn"`
