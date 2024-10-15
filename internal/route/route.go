@@ -66,7 +66,7 @@ func New() *flamego.Flame {
 				Password: conf.Redis.Password,
 				DB:       1,
 			},
-			Lifetime: 7 * 24 * time.Hour,
+			Lifetime: 30 * 24 * time.Hour,
 		}
 	}
 	sessioner := session.Sessioner(session.Options{
