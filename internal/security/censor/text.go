@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 type ForbiddenType string
@@ -68,4 +69,22 @@ func (r *TextCensorResponse) ErrorMessage() string {
 type TextCensor interface {
 	Censor(ctx context.Context, text string) (*TextCensorResponse, error)
 	String() string
+}
+
+var TrustedHosts = []string{
+	"xhslink.com", // 小红书
+	"weibo.com",   // 微博
+	"b23.tv",      // Bilibili
+}
+
+// RemoveTrustedURL removes the trusted URL from the text,
+// in order to bypass the URL censoring.
+func RemoveTrustedURL(str string) string {
+	for _, host := range TrustedHosts {
+		for _, protocol := range []string{"http://", "https://"} {
+			replaceText := fmt.Sprintf("%s%s", protocol, host)
+			str = strings.ReplaceAll(str, replaceText, "")
+		}
+	}
+	return str
 }
