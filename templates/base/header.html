@@ -53,12 +53,12 @@
       .grecaptcha-badge {visibility: hidden;}
   </style>
 
-  <meta itemprop="image" content="https://box-user-assets.n3ko.cc/public/Neko.png"/>
   <meta name="msapplication-TileImage" content="https://box-user-assets.n3ko.cc/public/Neko.png"/>
   <link rel="shortcut icon" href="https://box-user-assets.n3ko.cc/public/Neko.png"/>
   <link rel="apple-touch-icon" href="https://box-user-assets.n3ko.cc/public/Neko.png"/>
   <link rel="icon" sizes="192x192" href="https://box-user-assets.n3ko.cc/public/Neko.png">
   {{ if .IsUserPage }}
+  <meta itemprop="image" content="{{ .PageUser.Avatar }}"/>
   <meta property="og:image" content="{{ .PageUser.Avatar }}" />
   <meta property="og:image:alt" content="{{ .PageUser.Name }}" />
   <meta property="og:image:width" content="120" />
@@ -68,6 +68,8 @@
   <meta property="og:title" content="「提问箱」向我匿名提问吧~" />
   <meta property="og:url" content="{{ .ExternalURL }}/_/{{ .PageUser.Domain }}" />
   <meta property="og:description" content="{{ .PageUser.Name }} 的提问箱，向我匿名提问吧~" />
+  {{ else }}
+  <meta itemprop="image" content="https://box-user-assets.n3ko.cc/public/Neko.png"/>
   {{ end }}
 </head>
 <body>
