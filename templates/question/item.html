@@ -79,7 +79,7 @@
         {{ .CSRFTokenHTML }}
         <div class="uk-margin uk-text-center">
               <textarea name="answer" class="uk-textarea" rows="5" maxlength="1000"
-                        placeholder="在此处撰写你的回答...">{{ if ne .Question.Answer "" }}{{ .Question.Answer }}{{ else }}{{ .answer }}{{ end }}</textarea>
+                        placeholder="在此处撰写你的回答...">{{ if .answer }}{{ .answer }}{{ else }}{{ .Question.Answer }}{{ end }}</textarea>
               <div x-data="{ files: null }" style="width: 100%; background-color: #f8f8f8; display: flex; padding-top: 5px; padding-bottom: 5px; align-items: center; justify-content: start;gap: 5px">
                 <div uk-form-custom>
                   <a href="#" class="uk-icon-link" uk-icon="image" style="margin-left: 10px"></a>
