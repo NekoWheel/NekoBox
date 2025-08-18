@@ -36,7 +36,7 @@ jobs:
     needs: build
     steps:
       - name: Deploy to server
-        uses: cross-the-world/ssh-pipeline@master
+        uses: wuhan005/ssh-pipeline@master
         env:
           DOCKER_NAME: ${{ secrets.DOCKER_NAME }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
