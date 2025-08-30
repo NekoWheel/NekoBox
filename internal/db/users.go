@@ -8,6 +8,7 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
+	"github.com/rs/xid"
 	"github.com/wuhan005/gadget"
 	"gorm.io/gorm"
 
@@ -54,10 +55,10 @@ type User struct {
 	BlockWords        string                `json:"-"`
 }
 
-//func (u *User) BeforeCreate(_ *gorm.DB) error {
-//	u.UID = xid.New().String()
-//	return nil
-//}
+func (u *User) BeforeCreate(_ *gorm.DB) error {
+	u.UID = xid.New().String()
+	return nil
+}
 
 type NotifyType string
 
