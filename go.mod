@@ -17,6 +17,7 @@ require (
 	github.com/flamego/template v1.0.0
 	github.com/pkg/errors v0.9.1
 	github.com/qiniu/go-sdk/v7 v7.13.0
+	github.com/rs/xid v1.2.1
 	github.com/samber/lo v1.34.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.8.1
