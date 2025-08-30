@@ -8,6 +8,7 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
+	"github.com/rs/xid"
 	"github.com/wuhan005/gadget"
 	"gorm.io/gorm"
 
@@ -41,6 +42,7 @@ type users struct {
 
 type User struct {
 	gorm.Model        `json:"-"`
+	UID               string                `json:"-"`
 	Name              string                `json:"name"`
 	Password          string                `json:"-"`
 	Email             string                `json:"email"`
@@ -51,6 +53,11 @@ type User struct {
 	Notify            NotifyType            `json:"notify"`
 	HarassmentSetting HarassmentSettingType `json:"harassment_setting"`
 	BlockWords        string                `json:"-"`
+}
+
+func (u *User) BeforeCreate(_ *gorm.DB) error {
+	u.UID = xid.New().String()
+	return nil
 }
 
 type NotifyType string
