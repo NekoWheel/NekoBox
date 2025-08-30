@@ -111,6 +111,7 @@ func testUsersGetByID(t *testing.T, ctx context.Context, db *users) {
 			Model: gorm.Model{
 				ID: 1,
 			},
+			UID:        got.UID,
 			Name:       "E99p1ant",
 			Password:   "super_secret",
 			Email:      "i@github.red",
@@ -153,6 +154,7 @@ func testUsersGetByEmail(t *testing.T, ctx context.Context, db *users) {
 			Model: gorm.Model{
 				ID: 1,
 			},
+			UID:        got.UID,
 			Name:       "E99p1ant",
 			Password:   "super_secret",
 			Email:      "i@github.red",
@@ -195,6 +197,7 @@ func testUsersGetByDomain(t *testing.T, ctx context.Context, db *users) {
 			Model: gorm.Model{
 				ID: 1,
 			},
+			UID:        got.UID,
 			Name:       "E99p1ant",
 			Password:   "super_secret",
 			Email:      "i@github.red",
@@ -246,6 +249,7 @@ func testUsersUpdate(t *testing.T, ctx context.Context, db *users) {
 			Model: gorm.Model{
 				ID: 1,
 			},
+			UID:        got.UID,
 			Name:       "e99",
 			Password:   "super_secret",
 			Email:      "i@github.red",
@@ -309,6 +313,7 @@ func testUsersAuthenticate(t *testing.T, ctx context.Context, db *users) {
 		Model: gorm.Model{
 			ID: 1,
 		},
+		UID:        got.UID,
 		Name:       "E99p1ant",
 		Password:   "super_secret",
 		Email:      "i@github.red",
