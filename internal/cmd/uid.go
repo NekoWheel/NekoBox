@@ -42,7 +42,7 @@ func runUid(ctx *cli.Context) error {
 			fmt.Printf("Processing user %d/%d\n", idx, len(users))
 		}
 
-		uid := xid.New().String()
+		uid := xid.NewWithTime(user.CreatedAt).String()
 		if err := database.WithContext(ctx.Context).Unscoped().
 			Model(&db.User{}).
 			Omit("updated_at").
