@@ -12,7 +12,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.16.12
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.47.5
 	github.com/flamego/cache v1.1.0
-	github.com/flamego/csrf v1.0.1
 	github.com/flamego/flamego v1.7.0
 	github.com/flamego/recaptcha v1.0.2
 	github.com/flamego/session v1.2.1
@@ -25,6 +24,7 @@ require (
 	github.com/stretchr/testify v1.8.1
 	github.com/tdewolff/minify/v2 v2.12.4
 	github.com/thanhpk/randstr v1.0.4
+	github.com/unknwon/com v1.0.1
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.1.16
 	github.com/uptrace/opentelemetry-go-extra/otellogrus v0.1.16
 	github.com/uptrace/uptrace-go v1.9.0

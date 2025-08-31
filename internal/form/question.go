@@ -8,13 +8,12 @@ import (
 	"mime/multipart"
 )
 
-type NewQuestion struct {
-	Content              string `form:"content" valid:"required;maxlen:1000" label:"问题内容"`
-	ReceiveReplyViaEmail string
-	ReceiveReplyEmail    string                  `label:"接收回复的电子邮箱"`
-	Recaptcha            string                  `form:"g-recaptcha-response" valid:"required" label:"Recaptcha" msg:"无感验证码加载错误，请尝试刷新页面重试。"`
-	Images               []*multipart.FileHeader `form:"images" label:"图片"`
-	IsPrivate            string                  `form:"private"`
+type PostQuestion struct {
+	Content           string                  `form:"content" valid:"required;maxlen:1000" label:"提问内容"`
+	ReceiveReplyEmail string                  `form:"receiveReplyEmail"`
+	Images            []*multipart.FileHeader `form:"images[]" label:"图片"`
+	IsPrivate         bool                    `form:"isPrivate"`
+	Recaptcha         string                  `form:"recaptcha" valid:"required" label:"无感验证码" msg:"无感验证码加载错误，请尝试刷新页面重试。"`
 }
 
 type PublishAnswerQuestion struct {

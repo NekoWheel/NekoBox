@@ -5,10 +5,13 @@
 package route
 
 import (
+	"net/http"
+	"strings"
 	"time"
 
 	cacheRedis "github.com/flamego/cache/redis"
 	"github.com/flamego/flamego"
+	"github.com/flamego/recaptcha"
 	"github.com/flamego/session"
 	"github.com/flamego/session/mysql"
 	sessionRedis "github.com/flamego/session/redis"
@@ -50,15 +53,36 @@ func New(db *gorm.DB) *flamego.Flame {
 	sessioner := session.Sessioner(session.Options{
 		Initer: initer,
 		Config: sessionStorage,
+		ReadIDFunc: func(r *http.Request) string {
+			authorizationHeader := strings.TrimSpace(r.Header.Get("Authorization"))
+			groups := strings.Fields(authorizationHeader)
+			if len(groups) != 2 {
+				return ""
+			}
+			return groups[1]
+		},
+		WriteIDFunc: func(_ http.ResponseWriter, _ *http.Request, _ string, _ bool) {},
 	})
 
 	f.Use(
 		sessioner,
+		recaptcha.V3(
+			recaptcha.Options{
+				Secret: conf.Recaptcha.ServerKey,
+				VerifyURL: func() recaptcha.VerifyURL {
+					if conf.Recaptcha.TurnstileStyle {
+						// FYI: https://developers.cloudflare.com/turnstile/migration/migrating-from-recaptcha/
+						return "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+					}
+					return recaptcha.VerifyURLGlobal
+				}(),
+			},
+		),
 		context.Contexter(db),
 	)
 
 	reqUserSignOut := context.Toggle(&context.ToggleOptions{UserSignOutRequired: true})
-	//reqUserSignIn := context.Toggle(&context.ToggleOptions{UserSignInRequired: true})
+	reqUserSignIn := context.Toggle(&context.ToggleOptions{UserSignInRequired: true})
 
 	f.Group("/api", func() {
 		authHandler := NewAuthHandler()
@@ -68,6 +92,37 @@ func New(db *gorm.DB) *flamego.Flame {
 			f.Post("/forgot-password")
 			f.Post("/recover-password")
 		}, reqUserSignOut)
+
+		userHandler := NewUserHandler()
+		f.Group("/users/{domain}", func() {
+			f.Get("/profile", userHandler.Profile)
+			f.Group("/questions", func() {
+				f.Combo("").
+					Get(userHandler.ListQuestions).
+					Post(form.BindMultipart(form.PostQuestion{}), userHandler.PostQuestion)
+				f.Get("/{questionID}", userHandler.GetQuestion)
+			})
+		}, userHandler.Domainer)
+
+		mineHandler := NewMineHandler()
+		f.Group("/mine", func() {
+			f.Group("/questions", func() {
+				f.Get("", mineHandler.ListQuestions)
+				f.Group("/{questionID}", func() {
+					f.Put("/answer", form.BindMultipart(form.AnswerQuestion{}), mineHandler.AnswerQuestion)
+					f.Delete("", mineHandler.DeleteQuestion)
+					f.Put("/visible", form.Bind(form.QuestionVisible{}), mineHandler.SetQuestionVisible)
+				}, mineHandler.Questioner)
+			})
+
+			f.Group("/settings", func() {
+				f.Combo("/profile").Get(mineHandler.Profile).Put(form.Bind(form.UpdateProfile{}), mineHandler.UpdateProfile)
+				f.Combo("/box").Get(mineHandler.BoxSettings).Put(mineHandler.UpdateBoxSettings)
+				f.Combo("/harassment").Get().Put()
+				f.Post("/export-data")
+				f.Post("/deactivate")
+			})
+		}, reqUserSignIn)
 	})
 
 	//f.Group("", func() {

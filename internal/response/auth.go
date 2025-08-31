@@ -1,9 +1,12 @@
 package response
 
 type SignIn struct {
-	Domain    string `json:"domain"`
-	SessionID string `json:"sessionID"`
+	Profile   *SignInUserProfile `json:"profile"`
+	SessionID string             `json:"sessionID"`
 }
 
-type UserProfile struct {
+type SignInUserProfile struct {
+	UID    string `json:"uid"`
+	Name   string `json:"name"`
+	Domain string `json:"domain"`
 }
