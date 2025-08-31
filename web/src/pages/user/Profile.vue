@@ -1,0 +1,72 @@
+<template>
+  <ProfileCard
+      :name="profile.name"
+      :intro="profile.intro"
+      :avatar="profile.avatar"
+      :background="profile.background"
+  />
+
+  <div>
+    <div class="uk-card uk-card-default uk-card-small uk-card-body">
+      <div style="display: flex;align-items: center;justify-content: space-between;">
+        <div style="width: 36px"></div>
+        <p class="uk-text-center uk-text-small">谁都可以以匿名的形式提问</p>
+        <a href="#qrcode-modal" class="uk-icon-button" uk-icon="social" uk-toggle></a>
+      </div>
+
+      <ShareQRCode :name="profile.name" :avatar="profile.avatar" :qrcode="`${ExternalURL}/_/${profile.domain}`"/>
+
+      <NewQuestion
+          v-if="!isLoading"
+          :page-profile-domain="profile.domain"
+          :harassment-setting="profile.harassmentSetting"
+      />
+
+      <hr class="uk-divider-icon">
+      <PageQuestions
+          v-if="!isLoading"
+          :page-profile-name="profile.name"
+          :page-profile-domain="profile.domain"
+      />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import {ref, onMounted} from "vue";
+import {type Profile, getUserProfile} from "@/api/user.ts";
+import {useRoute, useRouter} from "vue-router";
+import {ExternalURL} from "@/utils/consts.ts";
+import PageQuestions from "@/components/PageQuestions.vue";
+import NewQuestion from "@/components/NewQuestion.vue";
+import ShareQRCode from "@/components/ShareQRCode.vue";
+import ProfileCard from "@/components/ProfileCard.vue";
+
+const route = useRoute()
+const router = useRouter()
+const domain = ref<string>(route.params.domain as string || '')
+
+const isLoading = ref<boolean>(true)
+const profile = ref<Profile>({} as Profile)
+
+onMounted(() => {
+  isLoading.value = true
+  getUserProfile(domain.value)
+      .then(res => {
+        profile.value = res
+      })
+      .catch(err => {
+        const statusCode = err.response?.status
+        if (statusCode === 404) {
+          router.push({name: 'home'})
+        }
+      })
+      .finally(() => {
+        isLoading.value = false
+      })
+})
+</script>
+
+<style scoped>
+
+</style>

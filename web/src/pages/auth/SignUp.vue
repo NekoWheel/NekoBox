@@ -1,0 +1,85 @@
+<template>
+  <Form @submit="handleSignUp">
+    <fieldset class="uk-fieldset">
+      <legend class="uk-legend">新用户注册</legend>
+
+      <div class="uk-margin">
+        <label class="uk-form-label" for="email">电子邮箱地址</label>
+        <Field v-model="signUpForm.email" name="email" class="uk-input" type="text" rules="required|email"
+               label="电子邮箱"/>
+        <ErrorMessage class="field-error-message" name="email"/>
+      </div>
+      <div class="uk-margin">
+        <label class="uk-form-label" for="domain">个性域名 (你的问答箱网址将会是：
+          <code>{{ ExternalURL }}/_/{{ signUpForm.domain }}</code>)</label>
+        <Field v-model="signUpForm.domain" name="domain" class="uk-input" type="text"
+               rules="required|alpha_dash|min:3|max:20" label="个性域名"/>
+        <ErrorMessage class="field-error-message" name="domain"/>
+      </div>
+      <div class="uk-margin">
+        <label class="uk-form-label" for="name">昵称</label>
+        <Field v-model="signUpForm.name" name="name" class="uk-input" type="text" rules="required|max:20" label="昵称"/>
+        <ErrorMessage class="field-error-message" name="name"/>
+      </div>
+      <div class="uk-margin">
+        <label class="uk-form-label" for="password">密码</label>
+        <Field v-model="signUpForm.password" type="password" name="password" class="uk-input"
+               rules="required|min:8|max:30" label="密码"/>
+        <ErrorMessage class="field-error-message" name="password"/>
+      </div>
+      <div class="uk-margin">
+        <label class="uk-form-label" for="repeatPassword">确认密码</label>
+        <Field v-model="signUpForm.repeatPassword" type="password" name="repeatPassword" class="uk-input"
+               rules="required|confirmed:@password" label="确认密码"/>
+        <ErrorMessage class="field-error-message" name="repeatPassword"/>
+      </div>
+
+      <div class="uk-margin">
+        <button type="submit" class="uk-button uk-button-primary">注册
+        </button>
+      </div>
+    </fieldset>
+  </Form>
+</template>
+
+<script setup lang="ts">
+import {ref} from 'vue'
+import {Form, Field, ErrorMessage} from 'vee-validate';
+import {signUp, type SignUpRequest} from "@/api/auth.ts";
+import {ToastError, ToastSuccess} from "@/utils/notify.ts";
+import {type IReCaptchaComposition, useReCaptcha} from "vue-recaptcha-v3";
+import {useRouter} from "vue-router";
+import {ExternalURL} from "@/utils/consts.ts";
+
+const router = useRouter()
+const {executeRecaptcha, recaptchaLoaded} = useReCaptcha() as IReCaptchaComposition
+
+const signUpForm = ref<SignUpRequest>({
+  email: '',
+  domain: '',
+  name: '',
+  password: '',
+  repeatPassword: '',
+  recaptcha: '',
+})
+
+const handleSignUp = async () => {
+  try {
+    await recaptchaLoaded()
+    signUpForm.value.recaptcha = await executeRecaptcha('submit')
+  } catch (error) {
+    ToastError('无感验证码加载失败，请刷新页面重试')
+    return
+  }
+
+  signUp(signUpForm.value)
+      .then(res => {
+        ToastSuccess(res)
+        router.push({name: 'sign-in'})
+      })
+}
+</script>
+
+<style scoped>
+
+</style>

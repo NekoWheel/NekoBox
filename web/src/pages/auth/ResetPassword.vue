@@ -1,0 +1,29 @@
+<template>
+  <form>
+    <fieldset class="uk-fieldset">
+      <legend class="uk-legend">重置密码</legend>
+      <div class="uk-margin">
+        .User.Name，您正在重置您的密码：
+      </div>
+      <div class="uk-margin">
+        <label class="uk-form-label" for="form-stacked-text">新密码</label>
+        <input type="password" name="new_password" class="uk-input"/>
+      </div>
+      <div class="uk-margin">
+        <label class="uk-form-label" for="form-stacked-text">确认密码</label>
+        <input type="password" name="repeat_password" class="uk-input"/>
+      </div>
+      <div class="uk-margin">
+        <button type="submit" class="uk-button uk-button-primary">重置密码</button>
+      </div>
+    </fieldset>
+  </form>
+</template>
+
+<script setup lang="ts">
+
+</script>
+
+<style scoped>
+
+</style>
