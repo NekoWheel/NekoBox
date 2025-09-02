@@ -20,3 +20,10 @@ type MineProfile struct {
 	Email string `json:"email"`
 	Name  string `json:"name"`
 }
+
+type MineBoxSettings struct {
+	Intro         string `json:"intro"`
+	NotifyType    string `json:"notifyType"`
+	AvatarURL     string `json:"avatarURL"`
+	BackgroundURL string `json:"backgroundURL"`
+}

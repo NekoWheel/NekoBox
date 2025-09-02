@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
 	"github.com/NekoWheel/NekoBox/internal/dbutil"
@@ -190,7 +191,7 @@ func (*MineHandler) Profile(ctx context.Context) error {
 	})
 }
 
-func (*MineHandler) UpdateProfile(ctx context.Context, tx dbutil.Transactor, f form.UpdateProfile) error {
+func (*MineHandler) UpdateProfileSettings(ctx context.Context, tx dbutil.Transactor, f form.UpdateProfile) error {
 	if err := tx.Transaction(func(tx *gorm.DB) error {
 		usersStore := db.NewUsersStore(tx)
 		if err := usersStore.SetName(ctx.Request().Context(), ctx.User.ID, f.Name); err != nil {
@@ -216,9 +217,68 @@ func (*MineHandler) UpdateProfile(ctx context.Context, tx dbutil.Transactor, f f
 }
 
 func (*MineHandler) BoxSettings(ctx context.Context) error {
-	return ctx.Success("未实现")
+	user := ctx.User
+
+	return ctx.Success(&response.MineBoxSettings{
+		Intro:         user.Intro,
+		NotifyType:    string(user.Notify),
+		AvatarURL:     user.Avatar,
+		BackgroundURL: user.Background,
+	})
 }
 
-func (*MineHandler) UpdateBoxSettings(ctx context.Context, tx dbutil.Transactor) error {
-	return ctx.Success("未实现")
+func (*MineHandler) UpdateBoxSettings(ctx context.Context, f form.UpdateBoxSettings) error {
+	user := ctx.User
+
+	notifyType := db.NotifyType(f.NotifyType)
+	switch notifyType {
+	case db.NotifyTypeEmail, db.NotifyTypeNone:
+	default:
+		return ctx.Error(http.StatusBadRequest, "未知的通知类型")
+	}
+
+	var avatarURL string
+	if f.Avatar != nil {
+		uploadAvatar, err := uploadImageFile(ctx, uploadImageFileOptions{
+			Image:          f.Avatar,
+			UploaderUserID: user.ID,
+		})
+		if err != nil {
+			if errors.Is(err, ErrUploadImageSizeTooLarge) {
+				return ctx.Error(http.StatusBadRequest, "头像文件大小不能大于 5Mb")
+			} else {
+				logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to upload avatar")
+				return ctx.Error(http.StatusInternalServerError, "上传头像失败，请重试")
+			}
+		}
+		avatarURL = "https://" + conf.Upload.ImageBucketCDNHost + "/" + uploadAvatar.Key
+	}
+
+	var backgroundURL string
+	if f.Background != nil {
+		uploadBackground, err := uploadImageFile(ctx, uploadImageFileOptions{
+			Image:          f.Background,
+			UploaderUserID: ctx.User.ID,
+		})
+		if err != nil {
+			if errors.Is(err, ErrUploadImageSizeTooLarge) {
+				return ctx.Error(http.StatusBadRequest, "背景图文件大小不能大于 5Mb")
+			} else {
+				logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to upload background")
+				return ctx.Error(http.StatusInternalServerError, "上传背景图失败，请重试")
+			}
+		}
+		backgroundURL = "https://" + conf.Upload.ImageBucketCDNHost + "/" + uploadBackground.Key
+	}
+
+	if err := db.Users.Update(ctx.Request().Context(), user.ID, db.UpdateUserOptions{
+		Avatar:     avatarURL,
+		Background: backgroundURL,
+		Intro:      f.Intro,
+		Notify:     notifyType,
+	}); err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update box settings")
+		return ctx.ServerError()
+	}
+	return ctx.Success("提问箱设置更新成功")
 }

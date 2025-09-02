@@ -56,12 +56,38 @@ export function getMineProfile() {
     return axios.get<MineProfile, MineProfile>('/mine/settings/profile');
 }
 
-export interface UpdateProfileRequest {
+export interface UpdateMineProfileRequest {
     name: string;
     oldPassword?: string;
     newPassword?: string;
 }
 
-export function updateMineProfile(data: UpdateProfileRequest) {
+export function updateMineProfile(data: UpdateMineProfileRequest) {
     return axios.put<string, string>('/mine/settings/profile', data);
+}
+
+export interface MineBoxSettings {
+    intro: string;
+    notifyType: 'none' | 'email';
+    avatarURL: string;
+    backgroundURL: string;
+}
+
+export function getMineBoxSettings() {
+    return axios.get<MineBoxSettings, MineBoxSettings>('/mine/settings/box');
+}
+
+export interface UpdateMineBoxSettingsRequest {
+    intro: string;
+    notifyType: 'none' | 'email';
+    avatar?: File | null;
+    background?: File | null;
+}
+
+export function updateMineBoxSettings(data: UpdateMineBoxSettingsRequest) {
+    return axios.put<string, string>('/mine/settings/box', data, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        }
+    });
 }

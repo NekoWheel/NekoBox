@@ -78,6 +78,8 @@ func BindMultipart(model interface{}) flamego.Handler {
 			if err := r.ParseMultipartForm(10 * 1 << 20); err != nil { // 10 MiB
 				return ctx.Error(http.StatusBadRequest, "表单解析失败")
 			}
+		default:
+			return ctx.Error(http.StatusBadRequest, "不支持的 Content-Type")
 		}
 
 		// Bind the form data to the given struct.

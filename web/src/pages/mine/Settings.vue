@@ -39,35 +39,50 @@
     </template>
 
     <template #box>
-      <Form @submit="updateProfile">
+      <Form @submit="updateBoxSettings">
         <div class="uk-margin">
           <label class="uk-form-label" for="intro">提问箱介绍</label>
-          <input id="intro" name="intro" class="uk-input" type="text" value="{{.LoggedUser.Intro}}">
+          <input v-model="updateMineBoxSettingsForm.intro" id="intro" name="intro" class="uk-input" type="text">
         </div>
         <div class="uk-margin">
-          <label class="uk-form-label" for="form-stacked-text">新提问通知</label>
-          <label>
-            <!--        <input name="notify_email" class="uk-checkbox" type="checkbox"-->
-            <!--               { if eq .LoggedUser.Notify "email"}}checked{ end }}>-->
-            <span class="uk-text-small"> 邮件</span>
+          <label class="uk-form-label" for="form-stacked-text">新提问通知方式</label>
+          <br/>
+          <label class="uk-text-small">
+            <input v-model="notifyTypeEmail" name="notifyType" type="checkbox"
+                   class="uk-checkbox"/> 邮件
           </label>
         </div>
+
+        <!--          <div class="uk-form-custom">-->
+        <!--            <a href="#" class="uk-icon-link" uk-icon="image" style="margin-left: 10px"></a>-->
+        <!--            <span style="font-size: 12px; margin-left: 5px">-->
+        <!--                      {{ answerQuestionForm.images.length === 0 ? '添加图片' : answerQuestionForm.images[0].name }}-->
+        <!--                    </span>-->
+        <!--            <input ref="imageUploader" name="images" type="file" accept="image/*" @change="handleSelectImage">-->
+        <!--          </div>-->
+
         <div class="uk-margin">
-          <label class="uk-form-label" for="form-stacked-text">个人头像</label>
+          <label class="uk-form-label" for="form-stacked-text">提问箱头像</label>
+          <br/>
           <div uk-form-custom="target: true">
-            <input type="file" name="avatar">
-            <input class="uk-input uk-form-width-large" type="text" placeholder="上传个人头像" disabled>
+            <input ref="avatarImageUploader" name="avatar" type="file" accept="image/*"
+                   @change="handleSelectAvatarImage">
+            <input class="uk-input uk-form-width-large" type="text" placeholder="点击选择个人提问箱头像" disabled>
           </div>
         </div>
         <div class="uk-margin">
           <label class="uk-form-label" for="form-stacked-text">提问箱背景</label>
+          <br/>
           <div uk-form-custom="target: true">
-            <input type="file" name="background">
-            <input class="uk-input uk-form-width-large" type="text" placeholder="上传提问箱背景" disabled>
+            <input ref="backgroundImageUploader" name="avatar" type="file" accept="image/*"
+                   @click="handleSelectBackgroundImage">
+            <input class="uk-input uk-form-width-large" type="text" placeholder="点击选择提问箱背景" disabled>
           </div>
         </div>
         <div class="uk-margin">
-          <button type="submit" class="uk-button uk-button-primary">保存配置</button>
+          <button type="submit" class="uk-button uk-button-primary" :disabled="boxSettingsLoading">
+            {{ boxSettingsLoading ? '保存中...' : '保存配置' }}
+          </button>
         </div>
       </Form>
     </template>
@@ -101,7 +116,6 @@
       <dl class="uk-description-list uk-description-list-divider">
         <dt>
           <form action="/user/profile/export" method="post" target="_blank">
-            { .CSRFTokenHTML }}
             <button class="uk-button uk-button-default">导出我的所有数据</button>
             <br><br>
             <span
@@ -120,7 +134,15 @@
 <script setup lang="ts">
 import {ref, onMounted} from "vue";
 import UkTabs from "@/components/UkTabs.vue";
-import {getMineProfile, type MineProfile, updateMineProfile, type UpdateProfileRequest} from "@/api/mine.ts";
+import {
+  getMineBoxSettings,
+  getMineProfile,
+  updateMineProfile,
+  type MineBoxSettings,
+  type MineProfile,
+  type UpdateMineBoxSettingsRequest,
+  type UpdateMineProfileRequest, updateMineBoxSettings
+} from "@/api/mine.ts";
 import {Form, Field, ErrorMessage} from 'vee-validate';
 import {ToastSuccess} from "@/utils/notify.ts";
 import {useAuthStore} from "@/store";
@@ -140,11 +162,12 @@ const handleChangeTab = (tab: string) => {
   currentTab.value = tab
 }
 
+// ===== PROFILE SETTINGS ===== //
 const profile = ref<MineProfile>({
   name: '',
   email: '',
 } as MineProfile)
-const updateProfileForm = ref<UpdateProfileRequest>({
+const updateProfileForm = ref<UpdateMineProfileRequest>({
   name: '',
   oldPassword: '',
   newPassword: '',
@@ -173,8 +196,75 @@ const handleSignOut = () => {
   })
 }
 
+// ===== BOX SETTINGS ===== //
+const boxSettings = ref<MineBoxSettings>({
+  intro: '',
+  notifyType: 'none',
+  avatarURL: '',
+  backgroundURL: '',
+} as MineBoxSettings)
+const notifyTypeEmail = ref<boolean>(false)
+const updateMineBoxSettingsForm = ref<UpdateMineBoxSettingsRequest>({
+  intro: '',
+  notifyType: 'none',
+  avatar: null,
+  background: null,
+})
+const boxSettingsLoading = ref<boolean>(false)
+const avatarImageUploader = ref<HTMLInputElement | null>(null)
+const backgroundImageUploader = ref<HTMLInputElement | null>(null)
+const fetchBoxSettings = () => {
+  getMineBoxSettings().then(res => {
+    boxSettings.value = res
+    updateMineBoxSettingsForm.value.intro = res.intro
+    notifyTypeEmail.value = res.notifyType === 'email' // TODO: Find a better way to handle this
+  })
+}
+const updateBoxSettings = () => {
+  if (notifyTypeEmail.value) {
+    updateMineBoxSettingsForm.value.notifyType = 'email'
+  } else {
+    updateMineBoxSettingsForm.value.notifyType = 'none'
+  }
+
+  boxSettingsLoading.value = true
+  updateMineBoxSettings(updateMineBoxSettingsForm.value).then(res => {
+    ToastSuccess(res)
+  }).finally(() => {
+    boxSettingsLoading.value = false
+    
+    updateMineBoxSettingsForm.value.avatar = null
+    updateMineBoxSettingsForm.value.background = null
+    if (avatarImageUploader.value) {
+      avatarImageUploader.value.value = ''
+    }
+    if (backgroundImageUploader.value) {
+      backgroundImageUploader.value.value = ''
+    }
+    fetchBoxSettings()
+  })
+}
+const handleSelectAvatarImage = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  console.log(target)
+  if (target.files && target.files.length > 0) {
+    updateMineBoxSettingsForm.value.avatar = target.files[0]
+  } else {
+    updateMineBoxSettingsForm.value.avatar = null
+  }
+}
+const handleSelectBackgroundImage = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files.length > 0) {
+    updateMineBoxSettingsForm.value.background = target.files[0]
+  } else {
+    updateMineBoxSettingsForm.value.background = null
+  }
+}
+
 onMounted(() => {
   fetchProfile()
+  fetchBoxSettings()
 })
 </script>
 
