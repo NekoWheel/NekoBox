@@ -91,3 +91,21 @@ export function updateMineBoxSettings(data: UpdateMineBoxSettingsRequest) {
         }
     });
 }
+
+export interface MineHarassmentSettings {
+    harassmentSettingType: 'none' | 'register_only';
+    blockWords: string;
+}
+
+export function getMineHarassmentSettings() {
+    return axios.get<MineHarassmentSettings, MineHarassmentSettings>('/mine/settings/harassment');
+}
+
+export interface UpdateMineHarassmentSettingsRequest {
+    harassmentSettingType: 'none' | 'register_only';
+    blockWords: string;
+}
+
+export function updateMineHarassmentSettings(data: UpdateMineHarassmentSettingsRequest) {
+    return axios.put<string, string>('/mine/settings/harassment', data);
+}

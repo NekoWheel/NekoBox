@@ -118,7 +118,7 @@ func New(db *gorm.DB) *flamego.Flame {
 			f.Group("/settings", func() {
 				f.Combo("/profile").Get(mineHandler.Profile).Put(form.Bind(form.UpdateProfile{}), mineHandler.UpdateProfileSettings)
 				f.Combo("/box").Get(mineHandler.BoxSettings).Put(form.BindMultipart(form.UpdateBoxSettings{}), mineHandler.UpdateBoxSettings)
-				f.Combo("/harassment").Get().Put()
+				f.Combo("/harassment").Get(mineHandler.HarassmentSettings).Put(form.Bind(form.UpdateHarassmentSettings{}), mineHandler.UpdateHarassmentSettings)
 				f.Post("/export-data")
 				f.Post("/deactivate")
 			})

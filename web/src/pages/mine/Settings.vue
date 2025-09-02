@@ -52,15 +52,6 @@
                    class="uk-checkbox"/> 邮件
           </label>
         </div>
-
-        <!--          <div class="uk-form-custom">-->
-        <!--            <a href="#" class="uk-icon-link" uk-icon="image" style="margin-left: 10px"></a>-->
-        <!--            <span style="font-size: 12px; margin-left: 5px">-->
-        <!--                      {{ answerQuestionForm.images.length === 0 ? '添加图片' : answerQuestionForm.images[0].name }}-->
-        <!--                    </span>-->
-        <!--            <input ref="imageUploader" name="images" type="file" accept="image/*" @change="handleSelectImage">-->
-        <!--          </div>-->
-
         <div class="uk-margin">
           <label class="uk-form-label" for="form-stacked-text">提问箱头像</label>
           <br/>
@@ -89,25 +80,24 @@
 
     <template #harassment>
       <div class="uk-margin">
-        <form method="post" enctype="multipart/form-data" action="/user/harassment/update">
+        <Form @submit="updateHarassmentSettings">
           <div class="uk-margin">
             <label class="uk-form-label" for="form-stacked-text">提问限制</label>
-            <br>
-            <label>
-              <!--          <input name="register_only" class="uk-checkbox" type="checkbox"-->
-              <!--                 { if eq .LoggedUser.HarassmentSetting "register_only"}}checked{ end }} >-->
-              <span class="uk-text-small"> 仅允许注册用户向我提问</span>
+            <br/>
+            <label class="uk-text-small">
+              <input v-model="harassmentSettingTypeRegisterOnly" name="notifyType" type="checkbox"
+                     class="uk-checkbox"/> 仅允许注册用户向我提问
             </label>
           </div>
           <div class="uk-margin">
             <label class="uk-form-label">屏蔽词设置（使用半角逗号 <code>,</code> 分隔，最多支持 10 个屏蔽词，每个屏蔽词最大长度为
               10）</label>
-            <input name="block_words" class="uk-input" type="text" value="{{.LoggedUser.BlockWords}}">
+            <input v-model="updateMineHarassmentSettingForm.blockWords" name="blockWords" class="uk-input" type="text"/>
           </div>
           <div class="uk-margin">
             <button type="submit" class="uk-button uk-button-primary">更新防骚扰设置</button>
           </div>
-        </form>
+        </Form>
       </div>
     </template>
 
@@ -141,7 +131,8 @@ import {
   type MineBoxSettings,
   type MineProfile,
   type UpdateMineBoxSettingsRequest,
-  type UpdateMineProfileRequest, updateMineBoxSettings
+  type UpdateMineProfileRequest, updateMineBoxSettings, type UpdateMineHarassmentSettingsRequest,
+  getMineHarassmentSettings, updateMineHarassmentSettings
 } from "@/api/mine.ts";
 import {Form, Field, ErrorMessage} from 'vee-validate';
 import {ToastSuccess} from "@/utils/notify.ts";
@@ -232,7 +223,7 @@ const updateBoxSettings = () => {
     ToastSuccess(res)
   }).finally(() => {
     boxSettingsLoading.value = false
-    
+
     updateMineBoxSettingsForm.value.avatar = null
     updateMineBoxSettingsForm.value.background = null
     if (avatarImageUploader.value) {
@@ -262,9 +253,37 @@ const handleSelectBackgroundImage = (event: Event) => {
   }
 }
 
+// ===== HARASSMENT SETTINGS ===== //
+const updateMineHarassmentSettingForm = ref<UpdateMineHarassmentSettingsRequest>({
+  harassmentSettingType: 'none',
+  blockWords: '',
+} as UpdateMineHarassmentSettingsRequest)
+const harassmentSettingTypeRegisterOnly = ref<boolean>(false)
+const fetchHarassmentSettings = () => {
+  getMineHarassmentSettings().then(res => {
+    harassmentSettingTypeRegisterOnly.value = res.harassmentSettingType === 'register_only'
+    updateMineHarassmentSettingForm.value.harassmentSettingType = res.harassmentSettingType
+    updateMineHarassmentSettingForm.value.blockWords = res.blockWords
+  })
+}
+const updateHarassmentSettings = () => {
+  if (harassmentSettingTypeRegisterOnly.value) {
+    updateMineHarassmentSettingForm.value.harassmentSettingType = 'register_only'
+  } else {
+    updateMineHarassmentSettingForm.value.harassmentSettingType = 'none'
+  }
+  
+  updateMineHarassmentSettings(updateMineHarassmentSettingForm.value).then(res => {
+    ToastSuccess(res)
+  }).finally(() => {
+    fetchHarassmentSettings()
+  })
+}
+
 onMounted(() => {
   fetchProfile()
   fetchBoxSettings()
+  fetchHarassmentSettings()
 })
 </script>
 

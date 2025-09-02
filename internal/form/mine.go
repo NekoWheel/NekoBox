@@ -25,3 +25,8 @@ type UpdateBoxSettings struct {
 	Avatar     *multipart.FileHeader `form:"avatar" label:"提问箱头像"`
 	Background *multipart.FileHeader `form:"background" label:"提问箱背景"`
 }
+
+type UpdateHarassmentSettings struct {
+	HarassmentSettingType string `json:"harassmentSettingType"`
+	BlockWords            string `json:"blockWords"`
+}

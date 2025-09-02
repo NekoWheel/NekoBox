@@ -1,8 +1,10 @@
 package route
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/context"
@@ -281,4 +283,57 @@ func (*MineHandler) UpdateBoxSettings(ctx context.Context, f form.UpdateBoxSetti
 		return ctx.ServerError()
 	}
 	return ctx.Success("提问箱设置更新成功")
+}
+
+func (*MineHandler) HarassmentSettings(ctx context.Context) error {
+	user := ctx.User
+	return ctx.Success(&response.HarassmentSettings{
+		HarassmentSettingType: user.HarassmentSetting,
+		BlockWords:            user.BlockWords,
+	})
+}
+
+func (*MineHandler) UpdateHarassmentSettings(ctx context.Context, f form.UpdateHarassmentSettings) error {
+	user := ctx.User
+
+	harassmentSettingType := db.HarassmentSettingType(f.HarassmentSettingType)
+	switch harassmentSettingType {
+	case db.HarassmentSettingTypeRegisterOnly:
+	default:
+		harassmentSettingType = db.HarassmentSettingNone
+	}
+
+	blockWords := f.BlockWords
+	blockWords = strings.ReplaceAll(blockWords, "，", ",")
+	blockWords = strings.TrimSpace(blockWords)
+
+	words := make([]string, 0)
+	wordSet := make(map[string]struct{})
+	for _, word := range strings.Split(blockWords, ",") {
+		word := strings.TrimSpace(word)
+		if word == "" {
+			continue
+		}
+		if _, ok := wordSet[word]; ok {
+			continue
+		}
+		wordSet[word] = struct{}{}
+
+		if len(word) > 10 {
+			return ctx.Error(http.StatusBadRequest, fmt.Sprintf("屏蔽词长度不能超过 10 个字符：%s", word))
+		}
+		words = append(words, word)
+	}
+	if len(words) > 10 {
+		return ctx.Error(http.StatusBadRequest, "屏蔽词不能超过 10 个")
+	}
+
+	if err := db.Users.UpdateHarassmentSetting(ctx.Request().Context(), user.ID, db.HarassmentSettingOptions{
+		Type:       harassmentSettingType,
+		BlockWords: strings.Join(words, ","),
+	}); err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to update harassment setting")
+		return ctx.ServerError()
+	}
+	return ctx.Success("防骚扰设置更新成功")
 }

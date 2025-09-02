@@ -1,6 +1,10 @@
 package response
 
-import "time"
+import (
+	"time"
+
+	"github.com/NekoWheel/NekoBox/internal/db"
+)
 
 type MineQuestionsItem struct {
 	ID         uint      `json:"id"`
@@ -26,4 +30,9 @@ type MineBoxSettings struct {
 	NotifyType    string `json:"notifyType"`
 	AvatarURL     string `json:"avatarURL"`
 	BackgroundURL string `json:"backgroundURL"`
+}
+
+type HarassmentSettings struct {
+	HarassmentSettingType db.HarassmentSettingType `json:"harassmentSettingType"`
+	BlockWords            string                   `json:"blockWords"`
 }
