@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/flamego/cache"
 	cacheRedis "github.com/flamego/cache/redis"
 	"github.com/flamego/flamego"
 	"github.com/flamego/recaptcha"
@@ -66,6 +67,16 @@ func New(db *gorm.DB) *flamego.Flame {
 
 	f.Use(
 		sessioner,
+		cache.Cacher(cache.Options{
+			Initer: cacheRedis.Initer(),
+			Config: cacheRedis.Config{
+				Options: &cacheRedis.Options{
+					Addr:     conf.Redis.Addr,
+					Password: conf.Redis.Password,
+					DB:       0,
+				},
+			},
+		}),
 		recaptcha.V3(
 			recaptcha.Options{
 				Secret: conf.Recaptcha.ServerKey,
@@ -89,8 +100,8 @@ func New(db *gorm.DB) *flamego.Flame {
 		f.Group("/auth", func() {
 			f.Post("/sign-up", form.Bind(form.SignUp{}), authHandler.SignUp)
 			f.Post("/sign-in", form.Bind(form.SignIn{}), authHandler.SignIn)
-			f.Post("/forgot-password")
-			f.Post("/recover-password")
+			f.Post("/forgot-password", form.Bind(form.ForgotPassword{}), authHandler.ForgotPassword)
+			f.Combo("/recover-password").Get(authHandler.GetRecoverPasswordCode).Post(form.Bind(form.RecoverPassword{}), authHandler.RecoverPassword)
 		}, reqUserSignOut)
 
 		userHandler := NewUserHandler()

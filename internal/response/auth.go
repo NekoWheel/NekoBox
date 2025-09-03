@@ -10,3 +10,7 @@ type SignInUserProfile struct {
 	Name   string `json:"name"`
 	Domain string `json:"domain"`
 }
+
+type RecoverPassword struct {
+	Name string `json:"name"`
+}

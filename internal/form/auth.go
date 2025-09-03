@@ -19,6 +19,17 @@ type SignUp struct {
 	Recaptcha      string `json:"recaptcha" valid:"required" label:"无感验证码" msg:"无感验证码加载错误，请尝试刷新页面重试。"`
 }
 
+type ForgotPassword struct {
+	Email     string `json:"email" valid:"required;email;maxlen:100" label:"电子邮箱"`
+	Recaptcha string `json:"recaptcha" valid:"required" label:"无感验证码" msg:"无感验证码加载错误，请尝试刷新页面重试。"`
+}
+
+type RecoverPassword struct {
+	NewPassword    string `json:"newPassword" valid:"required;minlen:8;maxlen:30" label:"新密码"`
+	RepeatPassword string `json:"repeatPassword" valid:"required;equal:NewPassword" label:"重复密码"`
+	Code           string `json:"code" valid:"required" label:"恢复码"`
+}
+
 type Register struct {
 	Email          string `valid:"required;email;maxlen:100" label:"电子邮箱"`
 	Domain         string `valid:"required;alphadash;minlen:3;maxlen:20" label:"个性域名"`
@@ -34,12 +45,12 @@ type Login struct {
 	Recaptcha string `form:"g-recaptcha-response" valid:"required" label:"Recaptcha"`
 }
 
-type ForgotPassword struct {
-	Email     string `valid:"required;email;maxlen:100" label:"电子邮箱"`
-	Recaptcha string `form:"g-recaptcha-response" valid:"required" label:"Recaptcha"`
-}
+//type ForgotPassword struct {
+//	Email     string `valid:"required;email;maxlen:100" label:"电子邮箱"`
+//	Recaptcha string `form:"g-recaptcha-response" valid:"required" label:"Recaptcha"`
+//}
 
-type RecoverPassword struct {
-	NewPassword    string `valid:"required;minlen:8;maxlen:30" label:"新密码"`
-	RepeatPassword string `valid:"required;equal:NewPassword" label:"重复密码"`
-}
+//type RecoverPassword struct {
+//	NewPassword    string `valid:"required;minlen:8;maxlen:30" label:"新密码"`
+//	RepeatPassword string `valid:"required;equal:NewPassword" label:"重复密码"`
+//}

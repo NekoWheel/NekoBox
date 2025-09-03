@@ -34,6 +34,14 @@ const allRoutes: Array<RouteRecordRaw> = [
         }
     },
     {
+        path: '/recover-password',
+        name: 'recover-password',
+        component: () => import('@/pages/auth/RecoverPassword.vue'),
+        meta: {
+            signOutRequired: true,
+        }
+    },
+    {
         path: '/_/:domain',
         name: 'profile',
         component: () => import('@/pages/user/Profile.vue'),
@@ -47,16 +55,25 @@ const allRoutes: Array<RouteRecordRaw> = [
         path: '/mine/questions',
         name: 'my-questions',
         component: () => import('@/pages/mine/QuestionList.vue'),
+        meta: {
+            signInRequired: true,
+        }
     },
     {
         path: '/mine/deactivate',
         name: 'deactivate-account',
         component: () => import('@/pages/mine/DeactivateAccount.vue'),
+        meta: {
+            signInRequired: true,
+        }
     },
     {
         path: '/settings',
         name: 'settings',
         component: () => import('@/pages/mine/Settings.vue'),
+        meta: {
+            signInRequired: true,
+        }
     },
     {
         path: '/:pathMatch(.*)*',
@@ -77,6 +94,8 @@ router.beforeEach((to, _, next) => {
     const authStore = useAuthStore()
     if (to.meta.signOutRequired && authStore.isSignedIn) {
         next({name: 'home'})
+    } else if (to.meta.signInRequired && !authStore.isSignedIn) {
+        next({name: 'sign-in'})
     } else {
         next()
     }
