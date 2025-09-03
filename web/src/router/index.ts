@@ -118,4 +118,8 @@ router.beforeEach((to, _, next) => {
     }
 })
 
+router.afterEach((to, _, next) => {
+    document.title = to.meta.title ? `${to.meta.title} - NekoBox` : 'NekoBox'
+})
+
 export default router

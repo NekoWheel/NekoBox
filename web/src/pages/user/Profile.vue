@@ -54,6 +54,8 @@ onMounted(() => {
   getUserProfile(domain.value)
       .then(res => {
         profile.value = res
+        
+        document.title = `${profile.value.name} - NekoBox`
       })
       .catch(err => {
         const statusCode = err.response?.status
