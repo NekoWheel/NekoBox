@@ -3,8 +3,10 @@ package route
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
 	"github.com/NekoWheel/NekoBox/internal/context"
@@ -17,6 +19,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 )
 
@@ -336,4 +339,103 @@ func (*MineHandler) UpdateHarassmentSettings(ctx context.Context, f form.UpdateH
 		return ctx.ServerError()
 	}
 	return ctx.Success("防骚扰设置更新成功")
+}
+
+func (*MineHandler) ExportData(ctx context.Context) error {
+	user := ctx.User
+
+	questions, err := db.Questions.GetByUserID(ctx.Request().Context(), user.ID, db.GetQuestionsByUserIDOptions{
+		FilterAnswered: false,
+		ShowPrivate:    true,
+	})
+	if err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get questions")
+		return ctx.Error(http.StatusInternalServerError, "导出失败：获取问题信息失败")
+	}
+
+	f, err := createExportExcelFile(user, questions)
+	if err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to create excel file")
+		return ctx.Error(http.StatusInternalServerError, "导出失败：创建Excel文件失败")
+	}
+
+	fileName := fmt.Sprintf("NekoBox账号信息导出-%s-%s.xlsx", user.Domain, time.Now().Format("20060102150405"))
+	ctx.ResponseWriter().Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	ctx.ResponseWriter().Header().Set("Content-Disposition", "attachment; filename*=UTF-8''"+url.QueryEscape(fileName))
+
+	if err := f.Write(ctx.ResponseWriter()); err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to write excel file")
+		return ctx.Error(http.StatusInternalServerError, "导出失败：写入Excel文件失败")
+	}
+	return nil
+}
+
+func createXLSXStreamWriter(xlsx *excelize.File, sheet string, headers []string) (*excelize.StreamWriter, error) {
+	xlsx.NewSheet(sheet)
+	sw, err := xlsx.NewStreamWriter(sheet)
+	if err != nil {
+		return nil, errors.Wrap(err, "new stream writer")
+	}
+
+	cols := make([]interface{}, 0, len(headers))
+	for _, c := range headers {
+		cols = append(cols, c)
+	}
+	err = sw.SetRow("A1", cols)
+	if err != nil {
+		return nil, errors.Wrap(err, "set header row")
+	}
+	return sw, nil
+}
+
+func createExportExcelFile(user *db.User, questions []*db.Question) (*excelize.File, error) {
+	f := excelize.NewFile()
+
+	sw, err := createXLSXStreamWriter(f, "账号信息", nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "create xlsx stream writer: 提问")
+	}
+	// Set personal information sheet.
+	personalData := [][]interface{}{
+		{"NekoBox 账号信息导出", fmt.Sprintf("导出时间 %s", time.Now().Format("2006-01-02 15:04:05"))},
+		{"电子邮箱", user.Email},
+		{"昵称", user.Name},
+		{"个性域名", user.Domain},
+		{"介绍", user.Intro},
+		{"头像 URL", user.Avatar},
+		{"背景图 URL", user.Background},
+		{"注册时间", user.CreatedAt},
+	}
+	currentRow := 1
+	for _, row := range personalData {
+		cell, _ := excelize.CoordinatesToCellName(1, currentRow)
+		_ = sw.SetRow(cell, row)
+		currentRow++
+	}
+	if err := sw.Flush(); err != nil {
+		return nil, errors.Wrap(err, "flush personal data")
+	}
+
+	// Set questions sheet.
+	sw, err = createXLSXStreamWriter(f, "提问", []string{"提问时间", "问题", "回答"})
+	if err != nil {
+		return nil, errors.Wrap(err, "create xlsx stream writer: 提问")
+	}
+
+	currentRow = 2 // Include header row.
+	for _, question := range questions {
+		question := question
+		vals := []interface{}{question.CreatedAt, question.Content, question.Answer}
+		cell, _ := excelize.CoordinatesToCellName(1, currentRow)
+		_ = sw.SetRow(cell, vals)
+		currentRow++
+	}
+	if err := sw.Flush(); err != nil {
+		return nil, errors.Wrap(err, "flush personal data")
+	}
+
+	f.SetActiveSheet(f.GetSheetIndex("提问"))
+	f.DeleteSheet("Sheet1") // Delete default sheet.
+
+	return f, nil
 }

@@ -109,3 +109,9 @@ export interface UpdateMineHarassmentSettingsRequest {
 export function updateMineHarassmentSettings(data: UpdateMineHarassmentSettingsRequest) {
     return axios.put<string, string>('/mine/settings/harassment', data);
 }
+
+export function exportData() {
+    return axios.post<Blob, Blob>('/mine/settings/export-data', {}, {
+        responseType: 'blob',
+    })
+}

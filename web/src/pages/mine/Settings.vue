@@ -102,19 +102,23 @@
     </template>
 
     <template #account>
-      <legend class="uk-legend">账号设置</legend>
+
       <dl class="uk-description-list uk-description-list-divider">
         <dt>
-          <form action="/user/profile/export" method="post" target="_blank">
-            <button class="uk-button uk-button-default">导出我的所有数据</button>
-            <br><br>
-            <span
-                class="uk-text-muted">您可以导出您在 NekoBox 中的所有个人数据，包括你的基本信息、收到的问题以及回答。</span>
-          </form>
+          <h2 class="uk-legend">数据导出</h2>
+          <span
+              class="uk-text-muted">您可以导出您在 NekoBox 中的所有个人数据，包括你的基本信息、收到的问题以及回答。
+            </span>
+          <br><br>
+          <button class="uk-button uk-button-default" @click="handleExportData" :disabled="exportDataLoading">
+            {{ exportDataLoading ? '导出中...' : '导出我的数据' }}
+          </button>
         </dt>
         <dt>
-          <a class="uk-button uk-button-danger" href="/user/profile/deactivate">停用我的账号</a><br><br>
+          <h2 class="uk-legend">账号停用</h2>
           <span class="uk-text-muted">您随时可以选择停用您的账号。停用后，您的账号将无法登录，您的提问箱页面以及提问将无法访问，其他人也无法再给您发送新的提问。<b>该操作无法撤销！请谨慎操作！</b></span>
+          <br><br>
+          <button class="uk-button uk-button-danger">停用我的账号</button>
         </dt>
       </dl>
     </template>
@@ -132,12 +136,13 @@ import {
   type MineProfile,
   type UpdateMineBoxSettingsRequest,
   type UpdateMineProfileRequest, updateMineBoxSettings, type UpdateMineHarassmentSettingsRequest,
-  getMineHarassmentSettings, updateMineHarassmentSettings
+  getMineHarassmentSettings, updateMineHarassmentSettings, exportData
 } from "@/api/mine.ts";
 import {Form, Field, ErrorMessage} from 'vee-validate';
 import {ToastSuccess} from "@/utils/notify.ts";
 import {useAuthStore} from "@/store";
 import {useRouter} from "vue-router";
+import {saveAs} from 'file-saver';
 
 const router = useRouter()
 const authStore = useAuthStore();
@@ -272,11 +277,21 @@ const updateHarassmentSettings = () => {
   } else {
     updateMineHarassmentSettingForm.value.harassmentSettingType = 'none'
   }
-  
+
   updateMineHarassmentSettings(updateMineHarassmentSettingForm.value).then(res => {
     ToastSuccess(res)
   }).finally(() => {
     fetchHarassmentSettings()
+  })
+}
+
+const exportDataLoading = ref<boolean>(false)
+const handleExportData = () => {
+  exportDataLoading.value = true
+  exportData().then(res => {
+    saveAs(res)
+  }).finally(() => {
+    exportDataLoading.value = false
   })
 }
 
