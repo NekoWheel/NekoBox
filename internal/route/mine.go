@@ -108,6 +108,7 @@ func (*MineHandler) AnswerQuestion(ctx context.Context, question *db.Question, t
 	}
 	if err == nil && !censorResponse.Pass {
 		errorMessage := censorResponse.ErrorMessage()
+		//nolint:govet
 		return ctx.Error(http.StatusBadRequest, errorMessage)
 	}
 
@@ -325,7 +326,7 @@ func (*MineHandler) UpdateHarassmentSettings(ctx context.Context, f form.UpdateH
 		wordSet[word] = struct{}{}
 
 		if len(word) > 10 {
-			return ctx.Error(http.StatusBadRequest, fmt.Sprintf("屏蔽词长度不能超过 10 个字符：%s", word))
+			return ctx.Error(http.StatusBadRequest, "屏蔽词长度不能超过 10 个字符：%s", word)
 		}
 		words = append(words, word)
 	}

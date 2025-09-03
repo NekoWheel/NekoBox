@@ -53,6 +53,7 @@ func (*AuthHandler) SignUp(ctx context.Context, recaptcha recaptcha.RecaptchaV3,
 			errors.Is(err, db.ErrBadCredential),
 			errors.Is(err, db.ErrDuplicateEmail),
 			errors.Is(err, db.ErrDuplicateDomain):
+			//nolint:govet
 			return ctx.Error(http.StatusBadRequest, errors.Cause(err).Error())
 
 		default:
