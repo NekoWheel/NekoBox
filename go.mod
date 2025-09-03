@@ -1,8 +1,6 @@
 module github.com/NekoWheel/NekoBox
 
-go 1.23.0
-
-toolchain go1.23.6
+go 1.24
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.62.26
