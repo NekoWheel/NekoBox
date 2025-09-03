@@ -15,13 +15,3 @@ type PostQuestion struct {
 	IsPrivate         bool                    `form:"isPrivate"`
 	Recaptcha         string                  `form:"recaptcha" valid:"required" label:"无感验证码" msg:"无感验证码加载错误，请尝试刷新页面重试。"`
 }
-
-type PublishAnswerQuestion struct {
-	Answer string                  `form:"answer" valid:"required;maxlen:1000" label:"回答内容"`
-	Images []*multipart.FileHeader `form:"images" label:"图片"`
-}
-
-type UpdateAnswerQuestion struct {
-	Answer string                  `form:"answer" valid:"required;maxlen:1000" label:"回答内容"`
-	Images []*multipart.FileHeader `form:"images" label:"图片"`
-}

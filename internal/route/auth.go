@@ -7,8 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/NekoWheel/NekoBox/internal/mail"
-	"github.com/NekoWheel/NekoBox/internal/response"
 	"github.com/flamego/cache"
 	"github.com/flamego/recaptcha"
 	"github.com/flamego/session"
@@ -20,6 +18,8 @@ import (
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/db"
 	"github.com/NekoWheel/NekoBox/internal/form"
+	"github.com/NekoWheel/NekoBox/internal/mail"
+	"github.com/NekoWheel/NekoBox/internal/response"
 )
 
 type AuthHandler struct{}

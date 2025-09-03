@@ -11,14 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/NekoWheel/NekoBox/internal/conf"
-	"github.com/NekoWheel/NekoBox/internal/context"
-	"github.com/NekoWheel/NekoBox/internal/db"
-	"github.com/NekoWheel/NekoBox/internal/dbutil"
-	"github.com/NekoWheel/NekoBox/internal/form"
-	"github.com/NekoWheel/NekoBox/internal/mail"
-	"github.com/NekoWheel/NekoBox/internal/response"
-	"github.com/NekoWheel/NekoBox/internal/security/censor"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
@@ -29,6 +21,15 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/wuhan005/govalid"
 	"gorm.io/gorm"
+
+	"github.com/NekoWheel/NekoBox/internal/conf"
+	"github.com/NekoWheel/NekoBox/internal/context"
+	"github.com/NekoWheel/NekoBox/internal/db"
+	"github.com/NekoWheel/NekoBox/internal/dbutil"
+	"github.com/NekoWheel/NekoBox/internal/form"
+	"github.com/NekoWheel/NekoBox/internal/mail"
+	"github.com/NekoWheel/NekoBox/internal/response"
+	"github.com/NekoWheel/NekoBox/internal/security/censor"
 )
 
 type UserHandler struct{}
