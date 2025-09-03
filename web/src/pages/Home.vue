@@ -5,12 +5,42 @@
       App，不需要绑定社交账号，甚至连邮箱都不需要是真的。（划掉</p>
     <br>
     <hr>
-    Change log here
+
+    <div v-if="!isLogLoading">
+      <div>
+        <p class=uk-article-meta>开发日记 - {{ humanizeDate(log.date) }}</p>
+        <span class=uk-text-small v-html="log.content"></span>
+      </div>
+      <p class="uk-text-right uk-text-small">
+        <a class="uk-link-text" @click="handleViewChangeLogs">查看更多...</a>
+      </p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import {ref, onMounted} from "vue";
+import {useRouter} from "vue-router";
+import {type ChangeLogItem, getChangeLogs} from "@/api/general.ts";
+import {humanizeDate} from "@/utils/humanize.ts";
 
+const router = useRouter()
+const isLogLoading = ref<boolean>(true)
+const log = ref<ChangeLogItem>({
+  date: '',
+  content: ''
+})
+const handleViewChangeLogs = () => {
+  router.push({name: 'change-logs'})
+}
+
+onMounted(() => {
+  getChangeLogs().then(res => {
+    log.value = res.data[0]
+  }).finally(() => {
+    isLogLoading.value = false
+  })
+})
 </script>
 
 <style scoped>

@@ -75,6 +75,23 @@ const allRoutes: Array<RouteRecordRaw> = [
             signInRequired: true,
         }
     },
+
+    {
+        path: '/change-logs',
+        name: 'change-logs',
+        component: () => import('@/pages/general/ChangeLogs.vue'),
+    },
+    {
+        path: '/pixel',
+        name: 'pixel',
+        component: () => import('@/pages/general/Pixel.vue'),
+    },
+    {
+        path: '/sponsor',
+        name: 'sponsor',
+        component: () => import('@/pages/general/Sponsor.vue'),
+    },
+
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
