@@ -137,8 +137,7 @@ func (*UserHandler) PostQuestion(ctx context.Context, pageUser *db.User, recaptc
 		}{
 			Email: f.ReceiveReplyEmail,
 		}); !ok {
-			//nolint:govet
-			return ctx.Error(http.StatusBadRequest, errs[0].Error())
+			return ctx.Error(http.StatusBadRequest, "%s", errs[0].Error())
 		}
 	}
 
@@ -170,8 +169,7 @@ func (*UserHandler) PostQuestion(ctx context.Context, pageUser *db.User, recaptc
 	}
 	if err == nil && !censorResponse.Pass {
 		errorMessage := censorResponse.ErrorMessage()
-		//nolint:govet
-		return ctx.Error(http.StatusBadRequest, errorMessage)
+		return ctx.Error(http.StatusBadRequest, "%s", errorMessage)
 	}
 
 	// ⚠️ Here is the aliyun CDN origin IP header.

@@ -53,8 +53,7 @@ func (*AuthHandler) SignUp(ctx context.Context, recaptcha recaptcha.RecaptchaV3,
 			errors.Is(err, db.ErrBadCredential),
 			errors.Is(err, db.ErrDuplicateEmail),
 			errors.Is(err, db.ErrDuplicateDomain):
-			//nolint:govet
-			return ctx.Error(http.StatusBadRequest, errors.Cause(err).Error())
+			return ctx.Error(http.StatusBadRequest, "%s", errors.Cause(err).Error())
 
 		default:
 			logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to create new user")

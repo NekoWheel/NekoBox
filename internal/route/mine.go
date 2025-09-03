@@ -108,8 +108,7 @@ func (*MineHandler) AnswerQuestion(ctx context.Context, question *db.Question, t
 	}
 	if err == nil && !censorResponse.Pass {
 		errorMessage := censorResponse.ErrorMessage()
-		//nolint:govet
-		return ctx.Error(http.StatusBadRequest, errorMessage)
+		return ctx.Error(http.StatusBadRequest, "%s", errorMessage)
 	}
 
 	// Upload image if exists.
