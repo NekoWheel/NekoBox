@@ -118,7 +118,7 @@
           <h2 class="uk-legend">账号停用</h2>
           <span class="uk-text-muted">您随时可以选择停用您的账号。停用后，您的账号将无法登录，您的提问箱页面以及提问将无法访问，其他人也无法再给您发送新的提问。<b>该操作无法撤销！请谨慎操作！</b></span>
           <br><br>
-          <button class="uk-button uk-button-danger">停用我的账号</button>
+          <button class="uk-button uk-button-danger" @click="handleDeactivateAccount">停用我的账号</button>
         </dt>
       </dl>
     </template>
@@ -292,6 +292,12 @@ const handleExportData = () => {
     saveAs(res)
   }).finally(() => {
     exportDataLoading.value = false
+  })
+}
+
+const handleDeactivateAccount = () => {
+  router.push({
+    name: 'deactivate-account'
   })
 }
 

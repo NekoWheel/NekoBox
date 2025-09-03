@@ -115,3 +115,7 @@ export function exportData() {
         responseType: 'blob',
     })
 }
+
+export function deactivateAccount() {
+    return axios.post<string, string>('/mine/settings/deactivate', {})
+}

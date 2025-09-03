@@ -49,6 +49,11 @@ const allRoutes: Array<RouteRecordRaw> = [
         component: () => import('@/pages/mine/QuestionList.vue'),
     },
     {
+        path: '/mine/deactivate',
+        name: 'deactivate-account',
+        component: () => import('@/pages/mine/DeactivateAccount.vue'),
+    },
+    {
         path: '/settings',
         name: 'settings',
         component: () => import('@/pages/mine/Settings.vue'),

@@ -16,6 +16,7 @@ import (
 	"github.com/NekoWheel/NekoBox/internal/mail"
 	"github.com/NekoWheel/NekoBox/internal/response"
 	"github.com/NekoWheel/NekoBox/internal/security/censor"
+	"github.com/flamego/session"
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
@@ -368,6 +369,17 @@ func (*MineHandler) ExportData(ctx context.Context) error {
 		return ctx.Error(http.StatusInternalServerError, "导出失败：写入Excel文件失败")
 	}
 	return nil
+}
+
+func (*MineHandler) Deactivate(ctx context.Context, session session.Session) error {
+	if err := db.Users.Deactivate(ctx.Request().Context(), ctx.User.ID); err != nil {
+		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to deactivate user")
+		return ctx.ServerError()
+	}
+
+	session.Flush()
+
+	return ctx.Success("您的账号已停用，感谢您使用 NekoBox。期待未来还能再见 👋🏻")
 }
 
 func createXLSXStreamWriter(xlsx *excelize.File, sheet string, headers []string) (*excelize.StreamWriter, error) {
