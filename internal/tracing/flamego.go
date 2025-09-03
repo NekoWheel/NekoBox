@@ -26,9 +26,9 @@ func Middleware(service string, opts ...Option) flamego.Handler {
 		oteltrace.WithInstrumentationVersion("1.0.0"),
 	)
 	return func(res http.ResponseWriter, req *http.Request, c flamego.Context) {
-		savedCtx := c.Request().Request.Context()
+		savedCtx := c.Request().Context()
 		defer func() {
-			c.Request().Request = c.Request().Request.WithContext(savedCtx)
+			c.Request().Request = c.Request().WithContext(savedCtx)
 		}()
 
 		ctx := cfg.Propagators.Extract(savedCtx, propagation.HeaderCarrier(c.Request().Header))
@@ -47,7 +47,7 @@ func Middleware(service string, opts ...Option) flamego.Handler {
 		defer span.End()
 
 		// pass the span through the request context
-		c.Request().Request = c.Request().Request.WithContext(ctx)
+		c.Request().Request = c.Request().WithContext(ctx)
 
 		// serve the request to the next middleware
 		c.Next()
