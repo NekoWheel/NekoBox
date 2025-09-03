@@ -30,7 +30,7 @@ func NewAuthHandler() *AuthHandler {
 
 func (*AuthHandler) SignUp(ctx context.Context, recaptcha recaptcha.RecaptchaV3, f form.SignUp) error {
 	// Check recaptcha code.
-	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
+	resp, err := recaptcha.Verify(f.Recaptcha, ctx.IP())
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")
 		return ctx.Error(http.StatusInternalServerError, "无感验证码请求失败，请稍后再试")
@@ -67,7 +67,7 @@ func (*AuthHandler) SignUp(ctx context.Context, recaptcha recaptcha.RecaptchaV3,
 
 func (*AuthHandler) SignIn(ctx context.Context, sess session.Session, recaptcha recaptcha.RecaptchaV3, f form.SignIn) error {
 	// Check recaptcha code.
-	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
+	resp, err := recaptcha.Verify(f.Recaptcha, ctx.IP())
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")
 		return ctx.Error(http.StatusInternalServerError, "无感验证码请求失败，请稍后再试")
@@ -99,7 +99,7 @@ func (*AuthHandler) SignIn(ctx context.Context, sess session.Session, recaptcha 
 
 func (*AuthHandler) ForgotPassword(ctx context.Context, recaptcha recaptcha.RecaptchaV3, cache cache.Cache, f form.ForgotPassword) error {
 	// Check recaptcha code.
-	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
+	resp, err := recaptcha.Verify(f.Recaptcha, ctx.IP())
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")
 		return ctx.Error(http.StatusInternalServerError, "无感验证码请求失败，请稍后再试")

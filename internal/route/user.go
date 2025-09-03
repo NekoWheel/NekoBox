@@ -143,7 +143,7 @@ func (*UserHandler) PostQuestion(ctx context.Context, pageUser *db.User, recaptc
 	}
 
 	// Check recaptcha code.
-	resp, err := recaptcha.Verify(f.Recaptcha, ctx.Request().Request.RemoteAddr)
+	resp, err := recaptcha.Verify(f.Recaptcha, ctx.IP())
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to check recaptcha")
 		return ctx.Error(http.StatusInternalServerError, "无感验证码请求失败，请稍后再试")
