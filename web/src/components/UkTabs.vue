@@ -40,9 +40,9 @@ const props = defineProps({
     default: '',
   },
   tabs: {
-    type: Array,
+    type: Array as () => { label?: string; name: string; content?: string; disabled?: boolean; }[],
     required: true,
-    validator: (tabs: { label?: string; name?: string; content?: string; disabled?: boolean; }[]) => {
+    validator: (tabs: { label?: string; name: string; content?: string; disabled?: boolean; }[]) => {
       return tabs.every(tab =>
           tab.hasOwnProperty('label') &&
           (tab.hasOwnProperty('name') || tab.hasOwnProperty('content'))
@@ -54,9 +54,9 @@ const props = defineProps({
     default: ''
   },
   align: {
-    type: String,
+    type: String as () => 'left' | 'right' | 'center',
     default: 'left', // left, right, center
-    validator: (value) => ['left', 'right', 'center'].includes(value)
+    validator: (value: 'left' | 'right' | 'center') => ['left', 'right', 'center'].includes(value)
   }
 })
 
