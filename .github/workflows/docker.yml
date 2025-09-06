@@ -15,7 +15,7 @@ jobs:
       packages: write
     steps:
       - name: Compute image tag name
-        run: echo "IMAGE_TAG=$(echo $GITHUB_REF_NAME-$GITHUB_SHA)" >> $GITHUB_ENV
+        run: echo "IMAGE_TAG=$(echo $GITHUB_REF_NAME-$GITHUB_SHA | sed 's/\//-/g')" >> $GITHUB_ENV
       - name: Checkout code
         uses: actions/checkout@v5
       - name: Set up Docker Buildx
