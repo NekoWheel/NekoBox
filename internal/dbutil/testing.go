@@ -7,7 +7,6 @@ package dbutil
 import (
 	"context"
 	"flag"
-	"fmt"
 	"math/rand"
 	"os"
 	"strconv"
@@ -24,7 +23,6 @@ var flagParseOnce sync.Once
 
 func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, cleanup func(...string) error) {
 	dsn := os.ExpandEnv("$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_DATABASE?charset=utf8mb4&parseTime=True&loc=Local")
-	fmt.Println(dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		NowFunc:                Now,
 		SkipDefaultTransaction: true,

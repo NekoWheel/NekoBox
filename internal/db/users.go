@@ -6,6 +6,7 @@ package db
 
 import (
 	"context"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/rs/xid"
@@ -25,6 +26,7 @@ type UsersStore interface {
 	GetByEmail(ctx context.Context, email string) (*User, error)
 	GetByDomain(ctx context.Context, domain string) (*User, error)
 	Update(ctx context.Context, id uint, opts UpdateUserOptions) error
+	SetName(ctx context.Context, id uint, name string) error
 	UpdateHarassmentSetting(ctx context.Context, id uint, options HarassmentSettingOptions) error
 	Authenticate(ctx context.Context, email, password string) (*User, error)
 	ChangePassword(ctx context.Context, id uint, oldPassword, newPassword string) error
@@ -174,6 +176,17 @@ func (db *users) Update(ctx context.Context, id uint, opts UpdateUserOptions) er
 		Notify:     opts.Notify,
 	}).Error; err != nil {
 		return errors.Wrap(err, "update user")
+	}
+	return nil
+}
+
+func (db *users) SetName(ctx context.Context, id uint, name string) error {
+	if strings.TrimSpace(name) == "" {
+		return errors.New("name cannot be empty")
+	}
+
+	if err := db.WithContext(ctx).Model(&User{}).Where("id = ?", id).Update("name", name).Error; err != nil {
+		return errors.Wrap(err, "update user name")
 	}
 	return nil
 }
