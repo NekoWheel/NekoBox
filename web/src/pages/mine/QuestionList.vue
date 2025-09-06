@@ -1,13 +1,17 @@
 <template>
-  <a v-for="(question) in questions" v-bind:key="question.id" @click="handleView(question)">
-    <div>
-      <hr>
-      <span v-if="!question.isAnswered" class="uk-label uk-float-right uk-margin-small-right">未回答</span>
-      <span v-if="question.isPrivate" class="uk-label uk-label-warning uk-float-right uk-margin-small-right">私密</span>
-      <div class="uk-text-left uk-text-small uk-text-muted">{{ humanizeDate(question.createdAt) }}</div>
-      <p class="uk-text-small">{{ question.content }}</p>
-    </div>
-  </a>
+  <Skeleton :count="3" :loading="isLoading">
+    <a v-for="(question) in questions" v-bind:key="question.id" @click="handleView(question)">
+      <div>
+        <hr>
+        <span v-if="!question.isAnswered" class="uk-label uk-float-right uk-margin-small-right">未回答</span>
+        <span v-if="question.isPrivate"
+              class="uk-label uk-label-warning uk-float-right uk-margin-small-right">私密</span>
+        <div class="uk-text-left uk-text-small uk-text-muted">{{ humanizeDate(question.createdAt) }}</div>
+        <p class="uk-text-small">{{ question.content }}</p>
+      </div>
+    </a>
+  </Skeleton>
+
   <div>
     <button v-if="hasMore" type="button" class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom"
             :disabled="isLoading"
@@ -29,6 +33,7 @@ import {type MineQuestionItem, mineQuestions} from "@/api/mine.ts";
 import {useRouter} from "vue-router";
 import {humanizeDate} from "@/utils/humanize.ts";
 import {useAuthStore} from "@/store";
+import {Skeleton} from "vue-loading-skeleton";
 
 const router = useRouter()
 const authStore = useAuthStore()

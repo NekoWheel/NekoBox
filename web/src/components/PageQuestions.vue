@@ -1,5 +1,6 @@
 <template>
-  <div v-if="questionCount > 0">
+  <Skeleton :loading="isLoading" :count="5"></Skeleton>
+  <div v-if="!isLoading && questionCount > 0">
     <p class="uk-text-left uk-text-muted uk-text-small">@{{ props.pageProfileName }} 以前回答过的问题 ({{
         questionCount
       }})</p>
@@ -35,6 +36,7 @@ import {defineProps, onMounted, ref} from "vue";
 import {getUserQuestions, type PageQuestionItem} from '@/api/user.ts'
 import {humanizeDate} from "@/utils/humanize.ts";
 import {useRouter} from "vue-router";
+import {Skeleton} from "vue-loading-skeleton";
 
 const props = defineProps({
   pageProfileName: {

@@ -2,8 +2,12 @@
   <div>
     <div class="uk-card uk-card-default">
       <div class="uk-card-header">
-        <div class="uk-text-left uk-text-small uk-text-muted">{{ humanizeDate(question.createdAt) }}</div>
-        <h4 class="uk-text-center uk-margin-top uk-margin-bottom uk-text-break">{{ question.content }}</h4>
+        <div class="uk-text-left uk-text-small uk-text-muted">
+          <Skeleton :loading="!question.createdAt" width="20%">{{ humanizeDate(question.createdAt) }}</Skeleton>
+        </div>
+        <h4 class="uk-text-center uk-margin-top uk-margin-bottom uk-text-break">
+          <Skeleton>{{ question.content }}</Skeleton>
+        </h4>
         <ul v-if="question.questionImageURLs.length > 0" class="uk-thumbnav" uk-margin>
           <div v-for="(imageURL, index) in question.questionImageURLs" v-bind:key="index" uk-lightbox>
             <a :href="imageURL">
@@ -14,7 +18,9 @@
       </div>
 
       <div v-if="question.answer" class="uk-card-body">
-        <p class="uk-text-small uk-text-break">{{ question.answer }}</p>
+        <p class="uk-text-small uk-text-break">
+          <Skeleton>{{ question.answer }}</Skeleton>
+        </p>
         <ul v-if="question.answerImageURLs.length > 0" class="uk-thumbnav" uk-margin>
           <div v-for="(imageURL, index) in question.answerImageURLs" v-bind:key="index" uk-lightbox>
             <a :href="imageURL">
@@ -77,20 +83,22 @@
           </Form>
         </div>
 
-        <div v-else>
+        <div v-else-if="!isLoading">
           <h5 class="uk-text-center">再问点别的问题？</h5>
           <NewQuestion
               :page-profile-domain="profile.domain"
               :harassment-setting="profile.harassmentSetting"
           />
         </div>
+        <Skeleton v-else :count="3"></Skeleton>
 
         <hr class="uk-divider-icon">
-        <PageQuestions
-            v-if="!isLoading"
-            :page-profile-name="profile.name"
-            :page-profile-domain="profile.domain"
-        />
+        <Skeleton :loading="isInitalLoading" :count="5">
+          <PageQuestions
+              :page-profile-name="profile.name"
+              :page-profile-domain="profile.domain"
+          />
+        </Skeleton>
       </div>
     </div>
   </div>
@@ -106,6 +114,7 @@ import NewQuestion from "@/components/NewQuestion.vue";
 import {answerQuestion, type AnswerQuestionRequest, deleteQuestion, setQuestionVisible} from "@/api/mine.ts";
 import {ToastSuccess} from "@/utils/notify.ts";
 import {Form} from "vee-validate";
+import {Skeleton} from "vue-loading-skeleton";
 
 const route = useRoute()
 const router = useRouter()
@@ -115,18 +124,19 @@ const questionToken = ref<string>(route.query.t as string || '')
 
 const isLoading = ref<boolean>(true)
 const profile = ref<Profile>({} as Profile)
-const question = ref<PageQuestion>({
+const EMPTY_QUESTION: PageQuestion = {
   id: 0,
   isOwner: false,
-  createdAt: new Date(),
-  answeredAt: new Date(),
+  createdAt: null,
+  answeredAt: null,
   content: '',
   answer: '',
   questionImageURLs: [],
   answerImageURLs: [],
   isPrivate: false,
   hasReplyEmail: false,
-} as PageQuestion)
+}
+const question = ref<PageQuestion>(EMPTY_QUESTION)
 
 const isSubmitting = ref<boolean>(false)
 const answerQuestionForm = ref<AnswerQuestionRequest>({
@@ -191,6 +201,9 @@ watch(() => route.params, () => {
 })
 
 const fetchQuestion = () => {
+  isLoading.value = true
+  question.value = EMPTY_QUESTION
+
   getUserQuestion(domain.value, questionID.value, questionToken.value)
       .then(res => {
         question.value = res
@@ -202,10 +215,14 @@ const fetchQuestion = () => {
           router.push({name: 'home'})
         }
       })
+      .finally(() => {
+        isLoading.value = false
+      })
 }
 
+const isInitalLoading = ref<boolean>(true)
 onMounted(() => {
-  isLoading.value = true
+  isInitalLoading.value = true
   getUserProfile(domain.value)
       .then(res => {
         profile.value = res
@@ -217,7 +234,7 @@ onMounted(() => {
         }
       })
       .finally(() => {
-        isLoading.value = false
+        isInitalLoading.value = false
       })
 
   fetchQuestion()

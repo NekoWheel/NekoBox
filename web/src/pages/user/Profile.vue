@@ -16,18 +16,20 @@
 
       <ShareQRCode :name="profile.name" :avatar="profile.avatar" :qrcode="`${ExternalURL}/_/${profile.domain}`"/>
 
-      <NewQuestion
-          v-if="!isLoading"
-          :page-profile-domain="profile.domain"
-          :harassment-setting="profile.harassmentSetting"
-      />
+      <Skeleton :loading="isLoading" :count="3">
+        <NewQuestion
+            :page-profile-domain="profile.domain"
+            :harassment-setting="profile.harassmentSetting"
+        />
+      </Skeleton>
 
       <hr class="uk-divider-icon">
-      <PageQuestions
-          v-if="!isLoading"
-          :page-profile-name="profile.name"
-          :page-profile-domain="profile.domain"
-      />
+      <Skeleton :loading="isLoading" :count="5">
+        <PageQuestions
+            :page-profile-name="profile.name"
+            :page-profile-domain="profile.domain"
+        />
+      </Skeleton>
     </div>
   </div>
 </template>
@@ -41,6 +43,7 @@ import PageQuestions from "@/components/PageQuestions.vue";
 import NewQuestion from "@/components/NewQuestion.vue";
 import ShareQRCode from "@/components/ShareQRCode.vue";
 import ProfileCard from "@/components/ProfileCard.vue";
+import {Skeleton} from 'vue-loading-skeleton';
 
 const route = useRoute()
 const router = useRouter()
@@ -54,7 +57,7 @@ onMounted(() => {
   getUserProfile(domain.value)
       .then(res => {
         profile.value = res
-        
+
         document.title = `${profile.value.name} - NekoBox`
       })
       .catch(err => {

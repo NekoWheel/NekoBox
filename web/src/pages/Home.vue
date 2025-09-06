@@ -6,7 +6,7 @@
     <br>
     <hr>
 
-    <div v-if="!isLogLoading">
+    <Skeleton :count="3" :loading="isLogLoading">
       <div>
         <p class=uk-article-meta>开发日记 - {{ humanizeDate(log.date) }}</p>
         <span class=uk-text-small v-html="log.content"></span>
@@ -14,7 +14,7 @@
       <p class="uk-text-right uk-text-small">
         <a class="uk-link-text" @click="handleViewChangeLogs">查看更多...</a>
       </p>
-    </div>
+    </Skeleton>
   </div>
 </template>
 
@@ -23,6 +23,7 @@ import {ref, onMounted} from "vue";
 import {useRouter} from "vue-router";
 import {type ChangeLogItem, getChangeLogs} from "@/api/general.ts";
 import {humanizeDate} from "@/utils/humanize.ts";
+import {Skeleton} from 'vue-loading-skeleton';
 
 const router = useRouter()
 const isLogLoading = ref<boolean>(true)

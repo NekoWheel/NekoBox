@@ -17,6 +17,8 @@ import UIkit from 'uikit';
 import Icons from 'uikit/dist/js/uikit-icons';
 import "../node_modules/uikit/dist/js/uikit-icons.min.js"
 
+import "vue-loading-skeleton/dist/style.css"
+
 UIkit.use(Icons);
 
 Object.keys(AllRules).forEach(rule => {

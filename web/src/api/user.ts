@@ -55,8 +55,8 @@ export function postQuestion(domain: string, data: PostQuestionRequest) {
 export interface PageQuestion {
     id: number;
     isOwner: boolean;
-    createdAt: Date;
-    answeredAt: Date;
+    createdAt: Date | null;
+    answeredAt: Date | null;
     content: string;
     answer: string;
     questionImageURLs: string[];
