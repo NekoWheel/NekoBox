@@ -11,6 +11,7 @@ import (
 
 	"github.com/flamego/cache"
 	cacheRedis "github.com/flamego/cache/redis"
+	"github.com/flamego/cors"
 	"github.com/flamego/flamego"
 	"github.com/flamego/recaptcha"
 	"github.com/flamego/session"
@@ -66,6 +67,11 @@ func New(db *gorm.DB) *flamego.Flame {
 	})
 
 	f.Use(
+		cors.CORS(cors.Options{
+			Scheme:      "*",
+			AllowDomain: []string{conf.App.CorsAllowDomain},
+			Methods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions},
+		}),
 		sessioner,
 		cache.Cacher(cache.Options{
 			Initer: cacheRedis.Initer(),
