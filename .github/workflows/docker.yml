@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - wh/refactor-pwa # For testing
   workflow_dispatch:
 
 jobs:
