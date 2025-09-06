@@ -118,7 +118,7 @@ router.beforeEach((to, _, next) => {
     }
 })
 
-router.afterEach((to, _, next) => {
+router.afterEach((to, _, _) => {
     document.title = to.meta.title ? `${to.meta.title} - NekoBox` : 'NekoBox'
 })
 
