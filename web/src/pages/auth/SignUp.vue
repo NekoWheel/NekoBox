@@ -35,7 +35,8 @@
       </div>
 
       <div class="uk-margin">
-        <button type="submit" class="uk-button uk-button-primary">注册
+        <button type="submit" class="uk-button uk-button-primary" :disabled="isLoading">
+          {{ isLoading ? '注册中...' : '注册' }}
         </button>
       </div>
     </fieldset>
@@ -54,6 +55,7 @@ import {ExternalURL} from "@/utils/consts.ts";
 const router = useRouter()
 const {executeRecaptcha, recaptchaLoaded} = useReCaptcha() as IReCaptchaComposition
 
+const isLoading = ref<boolean>(false)
 const signUpForm = ref<SignUpRequest>({
   email: '',
   domain: '',
@@ -72,10 +74,14 @@ const handleSignUp = async () => {
     return
   }
 
+  isLoading.value = true
   signUp(signUpForm.value)
       .then(res => {
         ToastSuccess(res)
         router.push({name: 'sign-in'})
+      })
+      .finally(() => {
+        isLoading.value = false
       })
 }
 </script>

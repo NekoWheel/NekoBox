@@ -17,7 +17,8 @@
       </div>
 
       <div class="uk-margin">
-        <button type="submit" class="uk-button uk-button-primary">登录
+        <button type="submit" class="uk-button uk-button-primary" :disabled="isLoading">
+          {{ isLoading ? '登录中...' : '登录' }}
         </button>
         <button type="button" class="uk-button uk-button-default" @click="handleForgotPassword">忘记密码
         </button>
@@ -39,6 +40,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 const {executeRecaptcha, recaptchaLoaded} = useReCaptcha() as IReCaptchaComposition
 
+const isLoading = ref<boolean>(false)
 const signInForm = ref<SignInRequest>({
   email: '',
   password: '',
@@ -54,6 +56,7 @@ const handleSignIn = async () => {
     return
   }
 
+  isLoading.value = true
   signIn(signInForm.value)
       .then(res => {
         ToastSuccess('登录成功，欢迎回来~')
@@ -64,6 +67,9 @@ const handleSignIn = async () => {
             domain: res.profile.domain
           }
         })
+      })
+      .finally(() => {
+        isLoading.value = false
       })
 }
 

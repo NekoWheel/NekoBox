@@ -1,5 +1,5 @@
 <template>
-  <Skeleton :loading="isLoading" :count="5"></Skeleton>
+  <Skeleton :loading="isLoading && questionCount === 0" :count="5"></Skeleton>
   <div v-if="!isLoading && questionCount > 0">
     <p class="uk-text-left uk-text-muted uk-text-small">@{{ props.pageProfileName }} 以前回答过的问题 ({{
         questionCount
