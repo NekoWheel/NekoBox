@@ -9,7 +9,7 @@ export interface HttpResponse<T = unknown> {
     data: T;
 }
 
-axios.defaults.baseURL = '/api';
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL || '/api';
 
 axios.interceptors.request.use(
     (config) => {

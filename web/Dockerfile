@@ -3,6 +3,10 @@ FROM guergeiro/pnpm:22-9-slim AS vite_builder
 RUN apt update && apt install -y tzdata git && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
 && echo "Asia/Shanghai" > /etc/timezone
 
+ARG GITHUB_SHA=dev
+
+ENV VITE_COMMIT_SHA=${GITHUB_SHA}
+
 WORKDIR /app
 
 COPY . .
