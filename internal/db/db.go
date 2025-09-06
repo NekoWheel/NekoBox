@@ -28,7 +28,6 @@ func Init() (*gorm.DB, error) {
 	)
 	conf.Database.DSN = dsn
 
-	fmt.Println(dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction: true,
 	})
