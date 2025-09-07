@@ -18,7 +18,7 @@ func (ContentCensorPass) GormDBDataType(db *gorm.DB, field *schema.Field) string
 	case "mysql":
 		return "boolean GENERATED ALWAYS AS (IFNULL(content_censor_metadata->'$.pass' = true, false)) STORED NOT NULL"
 	case "postgres":
-		return "BOOLEAN GENERATED ALWAYS AS (COALESCE(content_censor_metadata->>'$.pass' = 'true', false)) STORED"
+		return "BOOLEAN GENERATED ALWAYS AS (COALESCE(content_censor_metadata->>'pass' = 'true', false)) STORED"
 	}
 	return ""
 }
@@ -39,7 +39,7 @@ func (AnswerCensorPass) GormDBDataType(db *gorm.DB, field *schema.Field) string 
 	case "mysql":
 		return "boolean GENERATED ALWAYS AS (IFNULL(answer_censor_metadata->'$.pass' = true, false)) STORED NOT NULL"
 	case "postgres":
-		return "BOOLEAN GENERATED ALWAYS AS (COALESCE(answer_censor_metadata->>'$.pass' = 'true', false)) STORED"
+		return "BOOLEAN GENERATED ALWAYS AS (COALESCE(answer_censor_metadata->>'pass' = 'true', false)) STORED"
 	}
 	return ""
 }
