@@ -34,7 +34,8 @@ var (
 	}
 
 	Database struct {
-		DSN      string
+		DSN string
+
 		Type     string `ini:"type"`
 		User     string `ini:"user"`
 		Password string `ini:"password"`

@@ -5,8 +5,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/uptrace/opentelemetry-go-extra/otellogrus"
@@ -51,21 +49,9 @@ func runWeb(ctx *cli.Context) error {
 	var dsn string
 	switch dbType {
 	case "mysql", "":
-		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-			conf.Database.User,
-			conf.Database.Password,
-			conf.Database.Host,
-			conf.Database.Port,
-			conf.Database.Name,
-		)
+		dsn = conf.MySQLDsn()
 	case "postgres":
-		dsn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable TimeZone=Asia/Shanghai",
-			conf.Database.Host,
-			conf.Database.Port,
-			conf.Database.User,
-			conf.Database.Password,
-			conf.Database.Name,
-		)
+		dsn = conf.PostgresDsn()
 	default:
 		return errors.Errorf("unknown database type: %q", dbType)
 	}

@@ -5,8 +5,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -31,17 +29,10 @@ func runCensor(ctx *cli.Context) error {
 		return errors.New("text censor is disabled")
 	}
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		conf.Database.User,
-		conf.Database.Password,
-		conf.Database.Host,
-		conf.Database.Port,
-		conf.Database.Name,
-	)
-	dbType := conf.Database.Type
-	conf.Database.DSN = dsn
+	dbType := "mysql"
+	conf.Database.DSN = conf.MySQLDsn()
 
-	database, err := db.Init(dbType, dsn)
+	database, err := db.Init(dbType, conf.Database.DSN)
 	if err != nil {
 		return errors.Wrap(err, "connect to database")
 	}
