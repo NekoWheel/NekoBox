@@ -5,9 +5,9 @@
     <p>这里记录了 NekoBox 的功能迭代历史以及我的一些碎碎念。</p>
   </div>
   <dl class="uk-description-list uk-description-list-divider" x-data="{ list: [] }"
-      x-init="list = (await(await fetch('https://pb.app.apicon.cn/api/collections/changelogs/records?sort=-published_at')).json())">
-    <template x-for="log in list.items">
-      <div x-html="`<br><hr><dt>${new Date(log.published_at).toLocaleDateString()}</dt><dd class=uk-text-small>${log.content}</dd>`"></div>
+      x-init="list = (await(await fetch('https://json.n3ko.cc/nekobox-updatehistory/index.json')).json())">
+    <template x-for="log in list.data">
+      <div x-html="`<br><hr><dt>${new Date(log.date).toLocaleDateString()}</dt><br><dd class=uk-text-small>${log.content}</dd>`"></div>
     </template>
   </dl>
 </div>

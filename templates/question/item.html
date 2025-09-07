@@ -9,7 +9,7 @@
   <div class="uk-card uk-card-default">
     <div class="uk-card-header">
       <div class="uk-text-left uk-text-small uk-text-muted">{{Date .Question.CreatedAt "Y-m-d H:i:s"}}</div>
-      <h4 class="uk-text-center uk-margin-top uk-margin-bottom uk-text-break">{{.Question.Content}}</h4>
+      <h4 class="uk-text-center uk-margin-top uk-margin-bottom uk-text-break">{{QuestionFormat .Question.Content}}</h4>
       {{ if .AskUploadImages }}
       <ul class="uk-thumbnav" uk-margin>
         {{ range $index, $elem := .AskUploadImages }}
@@ -54,7 +54,7 @@
         {{ else }}
           <form class="uk-float-right" method="post" action="/_/{{ .PageUser.Domain }}/{{ .Question.ID }}/set-private">
             {{ .CSRFTokenHTML }}
-            <button type="submit" class="uk-button uk-button-default uk-button-small">设为仅自己可见</button>
+            <button type="submit" class="uk-button uk-button-default uk-button-small">设为私密</button>
           </form>
         {{ end }}
 
@@ -79,7 +79,7 @@
         {{ .CSRFTokenHTML }}
         <div class="uk-margin uk-text-center">
               <textarea name="answer" class="uk-textarea" rows="5" maxlength="1000"
-                        placeholder="在此处撰写你的回答...">{{ if ne .Question.Answer "" }}{{ .Question.Answer }}{{ else }}{{ .answer }}{{ end }}</textarea>
+                        placeholder="在此处撰写你的回答...">{{ if .answer }}{{ .answer }}{{ else }}{{ .Question.Answer }}{{ end }}</textarea>
               <div x-data="{ files: null }" style="width: 100%; background-color: #f8f8f8; display: flex; padding-top: 5px; padding-bottom: 5px; align-items: center; justify-content: start;gap: 5px">
                 <div uk-form-custom>
                   <a href="#" class="uk-icon-link" uk-icon="image" style="margin-left: 10px"></a>

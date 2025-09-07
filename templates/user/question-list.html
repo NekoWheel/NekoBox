@@ -4,7 +4,7 @@
   <div>
     <hr>
     {{if eq $elem.Answer ""}}<span class="uk-label uk-float-right uk-margin-small-right">未回答</span>{{end}}
-    {{if $elem.IsPrivate}}<span class="uk-label uk-label-warning uk-float-right uk-margin-small-right">个人可见</span>{{end}}
+    {{if $elem.IsPrivate}}<span class="uk-label uk-label-warning uk-float-right uk-margin-small-right">私密</span>{{end}}
     <div class="uk-text-left uk-text-small uk-text-muted">{{Date $elem.CreatedAt "Y-m-d H:i:s"}}</div>
     <p class="uk-text-small">{{$elem.Content}}</p>
   </div>

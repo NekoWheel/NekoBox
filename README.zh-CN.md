@@ -1,5 +1,5 @@
 <h1 align="center">
-<img src="https://nekobox-public.oss-cn-hangzhou.aliyuncs.com/images/Neko.png" width=100px/>
+<img src="https://box-user-assets.n3ko.cc/public/Neko.png" width=100px/>
 
 NekoBox
 </h1>
@@ -28,60 +28,61 @@ NekoBox
 
 ![Screenshot](./dev/screenshot.svg)
 
-## 安装
+## 部署
 
-### 需求
+### Docker 部署
+
+1. 创建配置文件
+
+基于配置文件模板 `conf/app.sample.ini` 创建配置文件 `app.ini`，相关配置可参考注释进行调整。
+
+2. 启动容器
+
+```bash
+# 拉取最新镜像
+docker pull ghcr.io/nekowheel/nekobox:master
+
+# 启动容器（监听 80 端口并挂载配置文件）
+docker run -dt --name NekoBox -p 80:80 -v $(pwd)/app.ini:/app/conf/app.ini ghcr.io/nekowheel/nekobox:master
+```
+
+### 从源码构建
+
+1. 环境需求
 
 * [Go](https://golang.org/dl/) (v1.19 或更高版本)
 * [MySQL](https://www.mysql.com/downloads/) (v5.7 或更高版本)
 * [Redis](https://redis.io/download/) (v6.0 或更高版本)
 
-### 从源码编译
+2. 编译源码
 
 ```bash
+# 克隆源码
 git clone https://github.com/NekoWheel/NekoBox.git
 
+# 进入项目目录
 cd NekoBox
 
-go build -o NekoBox
+# 构建当前机器系统与架构的二进制文件
+go build -v -ldflags "-w -s -extldflags '-static'" -o NekoBox ./cmd/
+
+# 构建 Linux、AMD64 架构的二进制文件
+GOOS=linux GOARCH=amd64 go build -v -ldflags "-w -s -extldflags '-static'" -o NekoBox ./cmd/
 ```
 
-### 编辑配置文件
+3. 编辑配置文件
+
+基于配置文件模板 `conf/app.sample.ini` 创建配置文件，相关配置可参考注释进行调整。
 
 ```bash
 cp conf/app.sample.ini conf/app.ini
 ```
 
-### 运行
+4. 运行
 
 ```bash
 ./NekoBox web
 ```
-
-## 架构
-
-![Architecture](./dev/nekobox-arch-light.png#gh-light-mode-only)
-![Architecture](./dev/nekobox-arch-dark.png#gh-dark-mode-only)
-
-NekoBox 使用 GitHub Actions 进行持续集成和部署。
-
-当用户访问 NekoBox 时，请求将会被发送至阿里云 CDN，CDN 的访问日志将会被实时推送到阿里云日志服务
-(SLS)。日志数据将在 SLS 中存储 180 天，用于审计。
-
-用户的信息、提问和回答将被存储在 MySQL 数据库中。
-
-用户的会话、CSRF 令牌和电子邮件验证令牌将被暂时存储在 Redis 中。
-
-用户的整个请求和响应链路将被上传到 Uptrace 用于调试。这些数据将被储存 30 天。管理员可以使用用户提供的 `TraceID`
-来追踪查询指定的请求。
-
-当用户提交提问时，问题的内容将被发送到七牛文本审查服务进行审查。如果提问内容存在问题，该内容将被发送到阿里云文本审查服务进行二次审查。
-如果内容审查仍未通过，该提问将被拒绝发送。这是由于七牛文本审查服务不是很准确，一些非冒犯性的内容可能被七牛文本审查误报。
-
-当用户收到新的提问时，阿里云邮件服务（DM）会向用户的邮箱发送一封邮件。
-
-你可以在主页查看 NekoBox 的更新日志，也欢迎访问赞助页面来打钱支持 NekoBox。 更新日志和赞助商名单存储在独立部署的
-Pocketbase 服务中。
 
 ## 开源协议
 

@@ -14,6 +14,7 @@ type NewQuestion struct {
 	ReceiveReplyEmail    string                  `label:"接收回复的电子邮箱"`
 	Recaptcha            string                  `form:"g-recaptcha-response" valid:"required" label:"Recaptcha" msg:"无感验证码加载错误，请尝试刷新页面重试。"`
 	Images               []*multipart.FileHeader `form:"images" label:"图片"`
+	IsPrivate            string                  `form:"private"`
 }
 
 type PublishAnswerQuestion struct {

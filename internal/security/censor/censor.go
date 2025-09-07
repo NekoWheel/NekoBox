@@ -65,7 +65,8 @@ func Text(ctx context.Context, text string) (*TextCensorResponse, error) {
 			}
 		}
 
-		response, err := censor.Censor(ctx, text)
+		censorText := RemoveTrustedURL(text)
+		response, err := censor.Censor(ctx, censorText)
 		if err != nil {
 			logrus.WithContext(ctx).WithError(err).WithField("censor_source", sourceName).Error("Failed to censor text")
 			continue

@@ -2,7 +2,7 @@
 <div class="uk-alert-danger" uk-alert>
   <a class="uk-alert-close" uk-close></a>
   <div>{{.Error}}</div>
-  {{ if .FlashTip }}<span class="uk-text-left uk-text-small">{{.FlashTip}}</span> {{ end }}
+  {{ if .FlashTip }}<span class="uk-text-left uk-text-small">{{.FlashTip | Safe}}</span> {{ end }}
 </div>
 {{end}}
 
@@ -10,7 +10,7 @@
 <div class="uk-alert-warning" uk-alert>
   <a class="uk-alert-close" uk-close></a>
   <div>{{.Warning}}</div>
-  {{ if .FlashTip }}<span class="uk-text-left uk-text-small">{{.FlashTip}}</span> {{ end }}
+  {{ if .FlashTip }}<span class="uk-text-left uk-text-small">{{.FlashTip | Safe}}</span> {{ end }}
 </div>
 {{end}}
 
@@ -18,7 +18,7 @@
 <div class="uk-alert-success" uk-alert>
   <a class="uk-alert-close" uk-close></a>
   <div>{{.Success}}</div>
-  {{ if .FlashTip }}<span class="uk-text-left uk-text-small">{{.FlashTip}}</span> {{ end }}
+  {{ if .FlashTip }}<span class="uk-text-left uk-text-small">{{.FlashTip | Safe}}</span> {{ end }}
 </div>
 {{end}}
 
@@ -26,7 +26,7 @@
 <div class="uk-alert-primary" uk-alert>
   <a class="uk-alert-close" uk-close></a>
   <div>{{.Info}}</div>
-  {{ if .FlashTip }}<span class="uk-text-left uk-text-small">{{.FlashTip}}</span> {{ end }}
+  {{ if .FlashTip }}<span class="uk-text-left uk-text-small">{{.FlashTip | Safe}}</span> {{ end }}
 </div>
 {{end}}
 

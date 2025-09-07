@@ -10,6 +10,7 @@ import (
 	"io"
 	"mime/multipart"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -70,6 +71,7 @@ func Pager(ctx context.Context) {
 
 	ctx.SetTitle(fmt.Sprintf("%s的提问箱 - NekoBox", pageUser.Name))
 
+	ctx.Data["IsUserPage"] = true
 	ctx.Data["IsOwnPage"] = ctx.IsLogged && ctx.User.ID == pageUser.ID
 	ctx.Data["PageUser"] = pageUser
 	ctx.Data["PageQuestions"] = pageQuestions
@@ -155,6 +157,19 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 	}
 
 	content := f.Content
+	isPrivate := f.IsPrivate != ""
+
+	// 🚨 User's block words check.
+	if len(pageUser.BlockWords) > 0 {
+		blockWords := strings.Split(pageUser.BlockWords, ",")
+		for _, word := range blockWords {
+			if strings.Contains(content, word) {
+				ctx.SetError(errors.New("提问内容中包含了提问箱主人设置的屏蔽词，发送失败"), f)
+				ctx.Success("question/list")
+				return
+			}
+		}
+	}
 
 	// 🚨 Content security check.
 	censorResponse, err := censor.Text(ctx.Request().Context(), content)
@@ -190,6 +205,7 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 		Content:           content,
 		ReceiveReplyEmail: receiveReplyEmail,
 		AskerUserID:       askerUserID,
+		IsPrivate:         isPrivate,
 	})
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to create new question")
@@ -235,8 +251,11 @@ func New(ctx context.Context, f form.NewQuestion, pageUser *db.User, recaptcha r
 		}
 	}()
 
-	ctx.SetSuccessFlash("发送问题成功！")
-	ctx.Redirect("/_/" + pageUser.Domain)
+	questionPrivateURL := fmt.Sprintf("/_/%s/%d?t=%s", pageUser.Domain, question.ID, question.Token)
+	questionPrivateAbsURL := fmt.Sprintf("%s%s", strings.TrimRight(conf.App.ExternalURL, "/"), questionPrivateURL)
+
+	ctx.SetSuccessFlash("发送问题成功！以下是提问私密链接，使用该链接可以随时查看你的提问，请注意保存。", fmt.Sprintf(`<a href="%s" target="_blank">%[1]s</a>`, questionPrivateAbsURL))
+	ctx.Redirect(questionPrivateURL)
 }
 
 type uploadImageOptions struct {

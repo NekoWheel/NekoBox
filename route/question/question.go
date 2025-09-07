@@ -18,6 +18,7 @@ import (
 )
 
 func Questioner(ctx context.Context, pageUser *db.User) {
+	token := ctx.Query("t")
 	questionID := uint(ctx.ParamInt("questionID"))
 	question, err := db.Questions.GetByID(ctx.Request().Context(), questionID)
 	if err != nil {
@@ -44,15 +45,18 @@ func Questioner(ctx context.Context, pageUser *db.User) {
 
 	// Check the question is belongs to the correct page user.
 	// If the question has not been answered, we should check the question is belongs to the correct page user.
-	if question.UserID != pageUser.ID || ((question.Answer == "" || question.IsPrivate) && (!ctx.IsLogged || ctx.User.ID != question.UserID)) {
+	// The questioner can use the token to view the question.
+	if question.UserID != pageUser.ID ||
+		((question.Answer == "" || question.IsPrivate) &&
+			(!ctx.IsLogged || ctx.User.ID != question.UserID) &&
+			(question.Token != "" && question.Token != token)) {
 		ctx.Redirect("/")
 		return
 	}
 
 	// The page's owner or the question's token can have the permission to delete the question.
 	// Inject the permission into the context.
-	token := ctx.Query("t")
-	canDelete := (ctx.IsLogged && ctx.User.ID == pageUser.ID) || (token == question.Token && question.Token != "")
+	canDelete := ctx.IsLogged && ctx.User.ID == pageUser.ID
 	ctx.Map(canDelete)
 	ctx.Data["CanDelete"] = canDelete
 

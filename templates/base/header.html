@@ -4,14 +4,31 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
   <title>{{ .Title }}</title>
-  <link rel="stylesheet" href="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-y/uikit/3.3.3/css/uikit.min.css"/>
-  <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-y/uikit/3.3.3/js/uikit.min.js"></script>
-  <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-y/uikit/3.3.3/js/uikit-icons.min.js"></script>
-  <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-y/dayjs/1.10.8/dayjs.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.11.1/dist/cdn.min.js"/></script>
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/uikit/3.3.3/css/uikit.min.css" crossorigin="anonymous"/>
+  <script src="https://cdn.bootcdn.net/ajax/libs/uikit/3.3.3/js/uikit.min.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/uikit/3.3.3/js/uikit-icons.min.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/dayjs/1.10.8/dayjs.min.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+          type="application/javascript"></script>
+  <script defer src="https://cdn.bootcdn.net/ajax/libs/alpinejs/3.9.0/cdn.min.js"/></script>
+  {{ if .VConsole }}
+  <script src="https://cdn.bootcdn.net/ajax/libs/vConsole/3.12.1/vconsole.min.js" type="application/javascript"></script>
+  <script>new window.VConsole()</script>
+  {{ end }}
   {{ if .RecaptchaTurnstileStyle }}
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?compat=recaptcha" async defer></script>
-  <script>function onSubmit() {}</script>
+  <script>
+      document.addEventListener('DOMContentLoaded', function () {
+          document.querySelectorAll('.g-recaptcha').forEach(item => {
+              item.disabled = true;
+          });
+      });
+
+      function onSubmit() {
+          document.querySelectorAll('.g-recaptcha').forEach(item => {
+              item.disabled = false;
+          })
+      }</script>
   {{ else }}
   <script src="{{.RecaptchaDomain}}/recaptcha/api.js" async defer></script>
   <script>function onSubmit() {document.getElementById('form').submit();}</script>
@@ -36,12 +53,28 @@
       .grecaptcha-badge {visibility: hidden;}
   </style>
 
-  <meta itemprop="image" content="https://nekobox-public.oss-cn-hangzhou.aliyuncs.com/images/Neko.png"/>
-  <meta name="msapplication-TileImage" content="https://nekobox-public.oss-cn-hangzhou.aliyuncs.com/images/Neko.png"/>
-  <link rel="shortcut icon" href="https://nekobox-public.oss-cn-hangzhou.aliyuncs.com/images/Neko.png" />
-  <link rel="apple-touch-icon" href="https://nekobox-public.oss-cn-hangzhou.aliyuncs.com/images/Neko.png"/>
-  <link rel="icon" sizes="192x192" href="https://nekobox-public.oss-cn-hangzhou.aliyuncs.com/images/Neko.png">
-
+  {{ if .IsUserPage }}
+  <meta property="og:image" content="{{ .PageUser.Avatar }}?og-image=1" />
+  <meta property="og:image:alt" content="{{ .PageUser.Name }}" />
+  <meta property="og:site_name" content="「提问箱」向我匿名提问吧~" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="「提问箱」向我匿名提问吧~" />
+  <meta property="og:url" content="{{ .ExternalURL }}/_/{{ .PageUser.Domain }}" />
+  <meta property="og:description" content="{{ .PageUser.Name }} 的提问箱，向我匿名提问吧~" />
+  <meta itemprop="image" content="{{ .PageUser.Avatar }}?og-image=1"/>
+  <meta name="msapplication-TileImage" content="{{ .PageUser.Avatar }}?og-image=1"/>
+  <link rel="shortcut icon" href="{{ .PageUser.Avatar }}?og-image=1"/>
+  <link rel="apple-touch-icon" href="{{ .PageUser.Avatar }}?og-image=1"/>
+  <link rel="icon" sizes="192x192" href="{{ .PageUser.Avatar }}?og-image=1">
+  <meta name="twitter:image:src" content="{{ .PageUser.Avatar }}?og-image=1" />
+  {{ else }}
+  <meta itemprop="image" content="https://box-user-assets.n3ko.cc/public/Neko.png"/>
+  <meta name="msapplication-TileImage" content="https://box-user-assets.n3ko.cc/public/Neko.png"/>
+  <link rel="shortcut icon" href="https://box-user-assets.n3ko.cc/public/Neko.png"/>
+  <link rel="apple-touch-icon" href="https://box-user-assets.n3ko.cc/public/Neko.png"/>
+  <link rel="icon" sizes="192x192" href="https://box-user-assets.n3ko.cc/public/Neko.png">
+  <meta name="twitter:image:src" content="https://box-user-assets.n3ko.cc/public/Neko.png" />
+  {{ end }}
 </head>
 <body>
 <nav class="uk-navbar-container uk-margin" uk-navbar>
@@ -77,4 +110,8 @@
     </div>
   </div>
 </nav>
+{{ if .IsPixel }}
+<div>
+{{ else }}
 <div class="uk-container uk-container-xsmall">
+{{ end }}

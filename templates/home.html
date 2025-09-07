@@ -5,8 +5,8 @@
   <br>
   <hr>
   <div x-data="{ c: '' }" x-init="c = await (async () => {
-    let log = (await(await fetch('https://pb.app.apicon.cn/api/collections/changelogs/records?sort=-published_at&perPage=1')).json()).items[0];
-    return `<p class=uk-article-meta>开发日记 - ${new Date(log.published_at).toLocaleDateString()}</p><span class=uk-text-small>${log.content}</span>`;
+    let log = (await(await fetch('https://json.n3ko.cc/nekobox-updatehistory/latest.json')).json())[0];
+    return `<p class=uk-article-meta>开发日记 - ${new Date(log.date).toLocaleDateString()}</p><span class=uk-text-small>${log.content}</span>`;
   })()" x-html="c">
   </div>
   <p class="uk-text-right uk-text-small"><a class="uk-link-text" href="/change-logs">查看更多...</a></p>

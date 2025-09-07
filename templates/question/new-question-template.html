@@ -25,6 +25,9 @@
   </div>
   <div class="uk-margin uk-grid-small" x-data="{ receiveReplyViaEmail: '{{.receive_reply_via_email}}' === 'on' }">
     <label class="uk-text-small">
+      <input name="private" class="uk-checkbox" type="checkbox"> 回复后不公开提问
+    </label>
+    <label class="uk-text-small">
       <input name="receive_reply_via_email" class="uk-checkbox" type="checkbox"
              x-model="receiveReplyViaEmail"> 我想接收回复通知
     </label>
