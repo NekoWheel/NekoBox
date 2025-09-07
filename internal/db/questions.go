@@ -191,7 +191,7 @@ func (db *questions) GetByAskUserID(ctx context.Context, userID uint, opts GetQu
 	args := userID
 
 	if opts.FilterAnswered {
-		where = `asker_user_id = ? AND answer <> ''`
+		where = `asker_user_id = ? AND answer != ''`
 	}
 	if !opts.ShowPrivate {
 		where += ` AND is_private = false`
@@ -242,7 +242,7 @@ type GetQuestionsCountOptions struct {
 func (db *questions) Count(ctx context.Context, userID uint, opts GetQuestionsCountOptions) (int64, error) {
 	q := db.WithContext(ctx).Model(&Question{})
 	if opts.FilterAnswered {
-		q = q.Where(`user_id = ? AND answer <> ''`, userID)
+		q = q.Where(`user_id = ? AND answer != ''`, userID)
 	} else {
 		q = q.Where(`user_id = ?`, userID)
 	}
