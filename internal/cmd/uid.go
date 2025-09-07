@@ -22,7 +22,17 @@ func runUid(ctx *cli.Context) error {
 		return errors.Wrap(err, "load configuration")
 	}
 
-	database, err := db.Init()
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		conf.Database.User,
+		conf.Database.Password,
+		conf.Database.Host,
+		conf.Database.Port,
+		conf.Database.Name,
+	)
+	dbType := conf.Database.Type
+	conf.Database.DSN = dsn
+
+	database, err := db.Init(dbType, dsn)
 	if err != nil {
 		return errors.Wrap(err, "connect to database")
 	}
