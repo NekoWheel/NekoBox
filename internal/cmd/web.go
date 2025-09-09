@@ -44,7 +44,20 @@ func runWeb(ctx *cli.Context) error {
 		logrus.WarnLevel,
 	)))
 
-	_, err := db.Init()
+	dbType := conf.Database.Type
+
+	var dsn string
+	switch dbType {
+	case "mysql", "":
+		dsn = conf.MySQLDsn()
+	case "postgres":
+		dsn = conf.PostgresDsn()
+	default:
+		return errors.Errorf("unknown database type: %q", dbType)
+	}
+	conf.Database.DSN = dsn
+
+	_, err := db.Init(dbType, dsn)
 	if err != nil {
 		return errors.Wrap(err, "connect to database")
 	}

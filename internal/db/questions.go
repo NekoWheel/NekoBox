@@ -47,11 +47,9 @@ type Question struct {
 	UserID                uint           `gorm:"index:idx_question_user_id" json:"-"`
 	Content               string         `json:"content"`
 	ContentCensorMetadata datatypes.JSON `json:"-"`
-	ContentCensorPass     bool           `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(content_censor_metadata->'$.pass' = true, false)) STORED NOT NULL" json:"-"`
 	Token                 string         `json:"-"`
 	Answer                string         `json:"answer"`
 	AnswerCensorMetadata  datatypes.JSON `json:"-"`
-	AnswerCensorPass      bool           `gorm:"->;type:boolean GENERATED ALWAYS AS (IFNULL(answer_censor_metadata->'$.pass' = true, false)) STORED NOT NULL" json:"-"`
 	ReceiveReplyEmail     string         `json:"-"`
 	AskerUserID           uint           `json:"-"`
 	IsPrivate             bool           `gorm:"default: FALSE; NOT NULL" json:"-"`
@@ -169,7 +167,7 @@ func (db *questions) GetByUserID(ctx context.Context, userID uint, opts GetQuest
 	args := userID
 
 	if opts.FilterAnswered {
-		where = `user_id = ? AND answer <> ""`
+		where = `user_id = ? AND answer != ''`
 	}
 	if !opts.ShowPrivate {
 		where += ` AND is_private = false`
@@ -193,7 +191,7 @@ func (db *questions) GetByAskUserID(ctx context.Context, userID uint, opts GetQu
 	args := userID
 
 	if opts.FilterAnswered {
-		where = `asker_user_id = ? AND answer <> ""`
+		where = `asker_user_id = ? AND answer != ''`
 	}
 	if !opts.ShowPrivate {
 		where += ` AND is_private = false`
@@ -244,7 +242,7 @@ type GetQuestionsCountOptions struct {
 func (db *questions) Count(ctx context.Context, userID uint, opts GetQuestionsCountOptions) (int64, error) {
 	q := db.WithContext(ctx).Model(&Question{})
 	if opts.FilterAnswered {
-		q = q.Where(`user_id = ? AND answer <> ""`, userID)
+		q = q.Where(`user_id = ? AND answer != ''`, userID)
 	} else {
 		q = q.Where(`user_id = ?`, userID)
 	}

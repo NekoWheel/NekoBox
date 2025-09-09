@@ -29,7 +29,10 @@ func runCensor(ctx *cli.Context) error {
 		return errors.New("text censor is disabled")
 	}
 
-	database, err := db.Init()
+	dbType := "mysql"
+	conf.Database.DSN = conf.MySQLDsn()
+
+	database, err := db.Init(dbType, conf.Database.DSN)
 	if err != nil {
 		return errors.Wrap(err, "connect to database")
 	}

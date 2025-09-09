@@ -22,7 +22,10 @@ func runUid(ctx *cli.Context) error {
 		return errors.Wrap(err, "load configuration")
 	}
 
-	database, err := db.Init()
+	dbType := "mysql"
+	conf.Database.DSN = conf.MySQLDsn()
+
+	database, err := db.Init(dbType, conf.Database.DSN)
 	if err != nil {
 		return errors.Wrap(err, "connect to database")
 	}

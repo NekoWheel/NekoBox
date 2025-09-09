@@ -7,8 +7,8 @@ package dbutil
 import (
 	"context"
 	"flag"
-	"fmt"
 	"math/rand"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -17,15 +17,30 @@ import (
 	"time"
 
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var flagParseOnce sync.Once
 
 func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, cleanup func(...string) error) {
-	dsn := os.ExpandEnv("$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_DATABASE?charset=utf8mb4&parseTime=True&loc=Local")
-	fmt.Println(dsn)
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+	dbType := os.Getenv("DB_TYPE")
+
+	var dsn string
+	var dialectFunc func(string) gorm.Dialector
+
+	switch dbType {
+	case "mysql":
+		dsn = os.ExpandEnv("$DB_USER:$DB_PASSWORD@tcp($DB_HOST:$DB_PORT)/$DB_DATABASE?charset=utf8mb4&parseTime=True&loc=Local")
+		dialectFunc = mysql.Open
+	case "postgres":
+		dsn = os.ExpandEnv("postgres://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT?sslmode=disable")
+		dialectFunc = postgres.Open
+	default:
+		t.Fatalf("Unknown database type: %q", dbType)
+	}
+
+	db, err := gorm.Open(dialectFunc(dsn), &gorm.Config{
 		NowFunc:                Now,
 		SkipDefaultTransaction: true,
 	})
@@ -35,19 +50,28 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 
 	ctx := context.Background()
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
-	dbname := "cardinal-test-" + strconv.FormatUint(rng.Uint64(), 10)
+	dbname := "nekobox-test-" + strconv.FormatUint(rng.Uint64(), 10)
 
-	err = db.WithContext(ctx).Exec(`CREATE DATABASE ` + QuoteIdentifier(dbname)).Error
+	err = db.WithContext(ctx).Exec(`CREATE DATABASE ` + QuoteIdentifier(dbType, dbname)).Error
 	if err != nil {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 
-	// HACK: replace the database name in the DSN.
-	dsn = strings.ReplaceAll(dsn, os.Getenv("DB_DATABASE"), dbname)
+	switch dbType {
+	case "mysql":
+		dsn = strings.ReplaceAll(dsn, os.Getenv("DB_DATABASE"), dbname)
+	case "postgres":
+		cfg, err := url.Parse(dsn)
+		if err != nil {
+			t.Fatalf("Failed to parse DSN")
+		}
+		cfg.Path = "/" + dbname
+		dsn = cfg.String()
+	}
 
 	flagParseOnce.Do(flag.Parse)
 
-	testDB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+	testDB, err = gorm.Open(dialectFunc(dsn), &gorm.Config{
 		NowFunc:                Now,
 		SkipDefaultTransaction: true,
 	})
@@ -82,7 +106,7 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 			t.Fatalf("Failed to close currently open database: %v", err)
 		}
 
-		err = db.WithContext(ctx).Exec(`DROP DATABASE ` + QuoteIdentifier(dbname)).Error
+		err = db.WithContext(ctx).Exec(`DROP DATABASE ` + QuoteIdentifier(dbType, dbname)).Error
 		if err != nil {
 			t.Fatalf("Failed to drop test database: %v", err)
 		}
@@ -94,7 +118,15 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 		}
 
 		for _, table := range tables {
-			err := testDB.WithContext(ctx).Exec(`TRUNCATE TABLE ` + QuoteIdentifier(table)).Error
+			var query string
+			switch dbType {
+			case "mysql":
+				query = `TRUNCATE TABLE ` + QuoteIdentifier(dbType, table)
+			case "postgres":
+				query = `TRUNCATE TABLE ` + QuoteIdentifier(dbType, table) + ` RESTART IDENTITY CASCADE`
+			}
+
+			err := testDB.WithContext(ctx).Exec(query).Error
 			if err != nil {
 				return err
 			}
@@ -105,6 +137,9 @@ func NewTestDB(t *testing.T, migrationTables ...interface{}) (testDB *gorm.DB, c
 
 // QuoteIdentifier quotes an "identifier" (e.g. a table or a column name) to be
 // used as part of an SQL statement.
-func QuoteIdentifier(s string) string {
+func QuoteIdentifier(typ, s string) string {
+	if typ == "postgres" {
+		return `"` + strings.ReplaceAll(s, `"`, `""`) + `"`
+	}
 	return "`" + strings.ReplaceAll(s, "`", "``") + "`"
 }

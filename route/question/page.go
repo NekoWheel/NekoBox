@@ -318,7 +318,7 @@ func uploadImage(ctx context.Context, opts uploadImageOptions) error {
 
 	fileMd5 := fmt.Sprintf("%x", hasher.Sum(nil))
 
-	_, err = db.UploadImgaes.Create(ctx.Request().Context(), db.CreateUploadImageOptions{
+	_, err = db.UploadImages.Create(ctx.Request().Context(), db.CreateUploadImageOptions{
 		Type:               opts.Type,
 		QuestionID:         opts.QuestionID,
 		UploaderUserID:     opts.UploaderUserID,

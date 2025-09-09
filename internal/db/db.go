@@ -5,11 +5,10 @@
 package db
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
@@ -19,17 +18,19 @@ var AllTables = []interface{}{
 	&User{}, &Question{}, &CensorLog{}, &UploadImage{}, &UploadImageQuestion{},
 }
 
-func Init() (*gorm.DB, error) {
-	dsn := fmt.Sprintf("%s:%s@%s/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		conf.Database.User,
-		conf.Database.Password,
-		conf.Database.Address,
-		conf.Database.Name,
-	)
-	conf.Database.DSN = dsn
+func Init(typ, dsn string) (*gorm.DB, error) {
+	var dialector gorm.Dialector
 
-	fmt.Println(dsn)
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+	switch typ {
+	case "mysql", "":
+		dialector = mysql.Open(dsn)
+	case "postgres":
+		dialector = postgres.Open(dsn)
+	default:
+		return nil, errors.Errorf("unknown database type: %q", typ)
+	}
+
+	db, err := gorm.Open(dialector, &gorm.Config{
 		SkipDefaultTransaction: true,
 	})
 	if err != nil {
@@ -43,7 +44,7 @@ func Init() (*gorm.DB, error) {
 	Users = NewUsersStore(db)
 	Questions = NewQuestionsStore(db)
 	CensorLogs = NewCensorLogsStore(db)
-	UploadImgaes = NewUploadImagesStore(db)
+	UploadImages = NewUploadImagesStore(db)
 
 	if err := db.Use(otelgorm.NewPlugin(
 		otelgorm.WithDBName(conf.Database.Name),
