@@ -107,12 +107,13 @@ func BindMultipart(model interface{}) flamego.Handler {
 						val.Field(i).SetBool(fieldValue.String() == "true" || fieldValue.String() == "on" || fieldValue.String() == "1")
 						continue
 					case reflect.Slice:
-						// 将结构体字段设置为文件切片
 						numElems := len(value)
 						slice := reflect.MakeSlice(val.Field(i).Type(), numElems, numElems)
-						for i := 0; i < numElems; i++ {
-							slice.Index(i).Set(reflect.ValueOf(value[i]))
+						for j := 0; j < numElems; j++ {
+							slice.Index(j).Set(reflect.ValueOf(value[j]))
 						}
+						val.Field(i).Set(slice)
+						continue
 					default:
 						val.Field(i).Set(fieldValue)
 					}

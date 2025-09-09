@@ -242,7 +242,6 @@ const updateBoxSettings = () => {
 }
 const handleSelectAvatarImage = (event: Event) => {
   const target = event.target as HTMLInputElement
-  console.log(target)
   if (target.files && target.files.length > 0) {
     updateMineBoxSettingsForm.value.avatar = target.files[0]
   } else {
