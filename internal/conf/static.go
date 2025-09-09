@@ -40,7 +40,7 @@ var (
 		User     string `ini:"user"`
 		Password string `ini:"password"`
 		Host     string `ini:"host"`
-		Port     string `ini:"port"`
+		Port     uint   `ini:"port"`
 		Name     string `ini:"name"`
 	}
 
