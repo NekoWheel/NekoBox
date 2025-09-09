@@ -13,7 +13,7 @@ jobs:
       image_tag: ${{ steps.image-tag.outputs.tag }}
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Set image tag
         id: image-tag
