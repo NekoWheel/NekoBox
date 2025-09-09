@@ -28,7 +28,7 @@ func Middleware(service string, opts ...Option) flamego.Handler {
 	return func(res http.ResponseWriter, req *http.Request, c flamego.Context) {
 		savedCtx := c.Request().Context()
 		defer func() {
-			c.Request().Request = c.Request().WithContext(savedCtx)
+			c.Request().Request = c.Request().Request.WithContext(savedCtx)
 		}()
 
 		ctx := cfg.Propagators.Extract(savedCtx, propagation.HeaderCarrier(c.Request().Header))
