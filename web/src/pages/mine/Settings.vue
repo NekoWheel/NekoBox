@@ -66,7 +66,7 @@
           <br/>
           <div uk-form-custom="target: true">
             <input ref="backgroundImageUploader" name="avatar" type="file" accept="image/*"
-                   @click="handleSelectBackgroundImage">
+                   @change="handleSelectBackgroundImage">
             <input class="uk-input uk-form-width-large" type="text" placeholder="点击选择提问箱背景" disabled>
           </div>
         </div>
