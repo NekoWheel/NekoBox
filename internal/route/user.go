@@ -313,7 +313,7 @@ func uploadImageFile(ctx context.Context, options uploadImageFileOptions) (*db.U
 
 	fileMd5 := fmt.Sprintf("%x", hasher.Sum(nil))
 
-	uploadImage, err := db.UploadImgaes.Create(ctx.Request().Context(), db.CreateUploadImageOptions{
+	uploadImage, err := db.UploadImages.Create(ctx.Request().Context(), db.CreateUploadImageOptions{
 		UploaderUserID: options.UploaderUserID,
 		Name:           fileName,
 		FileSize:       fileSize,
@@ -350,7 +350,7 @@ func (*UserHandler) GetQuestion(ctx context.Context, pageUser *db.User) error {
 		return ctx.Error(http.StatusNotFound, "提问不存在")
 	}
 
-	questionUploadImages, err := db.UploadImgaes.GetByTypeQuestionID(ctx.Request().Context(), db.UploadImageQuestionTypeAsk, questionID)
+	questionUploadImages, err := db.UploadImages.GetByTypeQuestionID(ctx.Request().Context(), db.UploadImageQuestionTypeAsk, questionID)
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get ask upload images")
 		return ctx.ServerError()
@@ -359,7 +359,7 @@ func (*UserHandler) GetQuestion(ctx context.Context, pageUser *db.User) error {
 		return "https://" + conf.Upload.ImageBucketCDNHost + "/" + item.Key
 	})
 
-	answerUploadImages, err := db.UploadImgaes.GetByTypeQuestionID(ctx.Request().Context(), db.UploadImageQuestionTypeAnswer, questionID)
+	answerUploadImages, err := db.UploadImages.GetByTypeQuestionID(ctx.Request().Context(), db.UploadImageQuestionTypeAnswer, questionID)
 	if err != nil {
 		logrus.WithContext(ctx.Request().Context()).WithError(err).Error("Failed to get answer upload images")
 		return ctx.ServerError()

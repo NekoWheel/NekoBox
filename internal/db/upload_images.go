@@ -14,7 +14,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var UploadImgaes UploadImagesStore
+var UploadImages UploadImagesStore
 
 var _ UploadImagesStore = (*uploadImages)(nil)
 
