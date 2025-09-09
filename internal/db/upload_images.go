@@ -6,11 +6,9 @@ package db
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
-	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -40,7 +38,6 @@ type UploadImage struct {
 	FileSize       int64
 	Md5            string
 	Key            string
-	PublicURLs     datatypes.JSON
 }
 
 type UploadImageQuestionType string
@@ -62,22 +59,15 @@ type CreateUploadImageOptions struct {
 	FileSize       int64
 	Md5            string
 	Key            string
-	PublicURLs     map[string]string
 }
 
 func (db *uploadImages) Create(ctx context.Context, opts CreateUploadImageOptions) (*UploadImage, error) {
-	publicURLsJson, err := json.Marshal(opts.PublicURLs)
-	if err != nil {
-		return nil, errors.Wrap(err, "marshal public urls")
-	}
-
 	image := &UploadImage{
 		UploaderUserID: opts.UploaderUserID,
 		Name:           opts.Name,
 		FileSize:       opts.FileSize,
 		Md5:            opts.Md5,
 		Key:            opts.Key,
-		PublicURLs:     datatypes.JSON(publicURLsJson),
 	}
 	if err := db.Model(&UploadImage{}).WithContext(ctx).Create(image).Error; err != nil {
 		return nil, errors.Wrap(err, "create")
@@ -98,7 +88,7 @@ func (db *uploadImages) BindUploadImageWithQuestion(ctx context.Context, uploadI
 			return errors.Wrap(err, "unbind previous image with question")
 		}
 
-		if err := db.Model(&UploadImageQuestion{}).WithContext(ctx).Create(uploadImageQuestion).Error; err != nil {
+		if err := tx.Model(&UploadImageQuestion{}).WithContext(ctx).Create(uploadImageQuestion).Error; err != nil {
 			return errors.Wrap(err, "bind upload image with question")
 		}
 		return nil
