@@ -230,5 +230,11 @@ func Contexter() flamego.Handler {
 
 		ctx.Map(c)
 		ctx.Map(EndpointWeb)
+
+		if conf.App.MaintenanceMode {
+			c.ResponseWriter().Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+			c.Success("maintenance-mode")
+			return
+		}
 	}
 }

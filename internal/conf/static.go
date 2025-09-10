@@ -21,6 +21,7 @@ var (
 		AliyunAccessKey       string `ini:"aliyun_access_key"`
 		AliyunAccessKeySecret string `ini:"aliyun_access_key_secret"`
 		SentryDSN             string `ini:"sentry_dsn"`
+		MaintenanceMode       bool   `ini:"maintenance_mode"`
 	}
 
 	Security struct {
