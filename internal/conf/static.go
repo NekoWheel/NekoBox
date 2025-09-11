@@ -43,6 +43,7 @@ var (
 		Host     string `ini:"host"`
 		Port     uint   `ini:"port"`
 		Name     string `ini:"name"`
+		Schema   string `ini:"schema"` // for postgres
 	}
 
 	Redis struct {
