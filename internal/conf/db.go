@@ -13,11 +13,15 @@ func MySQLDsn() string {
 }
 
 func PostgresDsn() string {
-	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable TimeZone=Asia/Shanghai",
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable TimeZone=Asia/Shanghai",
 		Database.Host,
 		Database.Port,
 		Database.User,
 		Database.Password,
 		Database.Name,
 	)
+	if Database.Schema != "" {
+		dsn += fmt.Sprintf(" search_path=%s", Database.Schema)
+	}
+	return dsn
 }

@@ -23,6 +23,7 @@ var (
 		SentryDSN             string `ini:"sentry_dsn"`
 		IPHeader              string `ini:"ip_header"`
 		CorsAllowDomain       string `ini:"cors_allow_domain"`
+		MaintenanceMode       bool   `ini:"maintenance_mode"`
 	}
 
 	Security struct {
@@ -44,6 +45,7 @@ var (
 		Host     string `ini:"host"`
 		Port     uint   `ini:"port"`
 		Name     string `ini:"name"`
+		Schema   string `ini:"schema"` // for postgres
 	}
 
 	Redis struct {
