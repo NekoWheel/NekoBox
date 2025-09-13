@@ -5,15 +5,19 @@
 package context
 
 import (
+	"net/http"
+
 	"github.com/flamego/flamego"
 	"github.com/flamego/session"
 
 	"github.com/NekoWheel/NekoBox/internal/db"
 )
 
+const SessionKeyUserID = "nekobox:auth:user-id"
+
 // authenticatedUser returns the user object of the authenticated user.
 func authenticatedUser(ctx flamego.Context, sess session.Session) *db.User {
-	uid, ok := sess.Get("uid").(uint)
+	uid, ok := sess.Get(SessionKeyUserID).(uint)
 	if !ok {
 		return nil
 	}
@@ -28,19 +32,13 @@ type ToggleOptions struct {
 }
 
 func Toggle(options *ToggleOptions) flamego.Handler {
-	return func(ctx Context, endpoint EndpointType) error {
-		if options.UserSignOutRequired && ctx.IsLogged {
-			ctx.Redirect("/")
-			return nil
+	return func(ctx Context) error {
+		if options.UserSignOutRequired && ctx.IsSignedIn {
+			return ctx.Error(http.StatusForbidden, "请先登出账号")
 		}
 
-		if options.UserSignInRequired && !ctx.IsLogged {
-			if endpoint.IsAPI() {
-				return ctx.JSONError(40100, "请先登录")
-			}
-			ctx.SetErrorFlash("请先登录！")
-			ctx.Redirect("/login")
-			return nil
+		if options.UserSignInRequired && !ctx.IsSignedIn {
+			return ctx.Error(http.StatusUnauthorized, "请先登录账号")
 		}
 		return nil
 	}

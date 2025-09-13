@@ -21,7 +21,8 @@ var (
 		AliyunAccessKey       string `ini:"aliyun_access_key"`
 		AliyunAccessKeySecret string `ini:"aliyun_access_key_secret"`
 		SentryDSN             string `ini:"sentry_dsn"`
-		MaintenanceMode       bool   `ini:"maintenance_mode"`
+		IPHeader              string `ini:"ip_header"`
+		CorsAllowDomain       string `ini:"cors_allow_domain"`
 	}
 
 	Security struct {

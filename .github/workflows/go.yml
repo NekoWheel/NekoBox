@@ -23,11 +23,11 @@ jobs:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v6
         with:
-          go-version: 1.20.x
+          go-version: 1.24.x
       - name: Run tests
         run: go test -v -race -coverprofile=coverage.txt -race -covermode=atomic ./...
         env:
@@ -54,11 +54,11 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v6
         with:
-          go-version: 1.20.x
+          go-version: 1.24.x
       - name: Run tests
         run: go test -v -race -coverprofile=coverage.txt -race -covermode=atomic ./...
         env:
@@ -73,13 +73,13 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v6
         with:
-          go-version: 1.20.x
+          go-version: 1.24.x
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v8
         with:
-          version: v1.53
+          version: v2.1
           args: --timeout=10m

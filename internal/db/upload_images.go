@@ -18,6 +18,7 @@ var _ UploadImagesStore = (*uploadImages)(nil)
 
 type UploadImagesStore interface {
 	Create(ctx context.Context, opts CreateUploadImageOptions) (*UploadImage, error)
+	BindUploadImageWithQuestion(ctx context.Context, uploadImageID uint, typ UploadImageQuestionType, questionID uint) error
 	GetByQuestionID(ctx context.Context, questionID uint) ([]*UploadImage, error)
 	GetByTypeQuestionID(ctx context.Context, typ UploadImageQuestionType, questionID uint) ([]*UploadImage, error)
 }
@@ -53,14 +54,11 @@ type UploadImageQuestion struct {
 }
 
 type CreateUploadImageOptions struct {
-	Type               UploadImageQuestionType
-	QuestionID         uint
-	UploaderUserID     uint
-	Name               string
-	FileSize           int64
-	Md5                string
-	Key                string
-	IsDeletingPrevious bool
+	UploaderUserID uint
+	Name           string
+	FileSize       int64
+	Md5            string
+	Key            string
 }
 
 func (db *uploadImages) Create(ctx context.Context, opts CreateUploadImageOptions) (*UploadImage, error) {
@@ -71,29 +69,33 @@ func (db *uploadImages) Create(ctx context.Context, opts CreateUploadImageOption
 		Md5:            opts.Md5,
 		Key:            opts.Key,
 	}
+	if err := db.Model(&UploadImage{}).WithContext(ctx).Create(image).Error; err != nil {
+		return nil, errors.Wrap(err, "create")
+	}
+	return image, nil
+}
+
+func (db *uploadImages) BindUploadImageWithQuestion(ctx context.Context, uploadImageID uint, typ UploadImageQuestionType, questionID uint) error {
+	uploadImageQuestion := &UploadImageQuestion{
+		Type:          typ,
+		UploadImageID: uploadImageID,
+		QuestionID:    questionID,
+	}
+
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.WithContext(ctx).Create(image).Error; err != nil {
-			return errors.Wrap(err, "create image")
+		// Unbind the question's previous image of the same type.
+		if err := tx.Where("type = ? AND question_id = ?", typ, questionID).Delete(&UploadImageQuestion{}).Error; err != nil {
+			return errors.Wrap(err, "unbind previous image with question")
 		}
 
-		if opts.IsDeletingPrevious {
-			if err := tx.WithContext(ctx).Where("type = ? AND question_id = ?", opts.Type, opts.QuestionID).Delete(&UploadImageQuestion{}).Error; err != nil {
-				return errors.Wrap(err, "delete previous image question link")
-			}
-		}
-		if err := tx.WithContext(ctx).Create(&UploadImageQuestion{
-			Type:          opts.Type,
-			UploadImageID: image.ID,
-			QuestionID:    opts.QuestionID,
-		}).Error; err != nil {
-			return errors.Wrap(err, "create image question link")
+		if err := tx.Model(&UploadImageQuestion{}).WithContext(ctx).Create(uploadImageQuestion).Error; err != nil {
+			return errors.Wrap(err, "bind upload image with question")
 		}
 		return nil
 	}); err != nil {
-		return nil, err
+		return errors.Wrap(err, "transaction")
 	}
-
-	return image, nil
+	return nil
 }
 
 func (db *uploadImages) getBy(ctx context.Context, where string, args ...interface{}) ([]*UploadImage, error) {
