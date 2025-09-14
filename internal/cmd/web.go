@@ -5,10 +5,12 @@
 package cmd
 
 import (
+	"context"
+	"os"
+
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/uptrace/opentelemetry-go-extra/otellogrus"
-	"github.com/uptrace/uptrace-go/uptrace"
 	"github.com/urfave/cli/v2"
 
 	"github.com/NekoWheel/NekoBox/internal/conf"
@@ -28,21 +30,29 @@ func runWeb(ctx *cli.Context) error {
 		return errors.Wrap(err, "load configuration")
 	}
 
-	if conf.App.UptraceDSN != "" {
-		uptrace.ConfigureOpentelemetry(
-			uptrace.WithDSN(conf.App.UptraceDSN),
-			uptrace.WithServiceName("nekobox"),
-			uptrace.WithServiceVersion(conf.BuildCommit),
-		)
+	if conf.Tracing.Enabled {
+		logrus.AddHook(otellogrus.NewHook(otellogrus.WithLevels(
+			logrus.PanicLevel,
+			logrus.FatalLevel,
+			logrus.ErrorLevel,
+			logrus.WarnLevel,
+		)))
+
+		otelShutdown, err := tracing.SetupOTelSDK(ctx.Context, tracing.SetupOTelSDKOptions{
+			TracingEndpoint: conf.Tracing.Endpoint,
+			TracingToken:    conf.Tracing.Token,
+			ServiceName:     conf.Tracing.ServiceName,
+			HostName:        os.Getenv("HOSTNAME"),
+		})
+		if err != nil {
+			logrus.WithContext(ctx.Context).WithError(err).Fatal("Failed to initialize OTel SDK")
+		}
+
+		defer func() {
+			_ = otelShutdown(context.Background())
+		}()
 		logrus.WithContext(ctx.Context).Debug("Tracing enabled.")
 	}
-
-	logrus.AddHook(otellogrus.NewHook(otellogrus.WithLevels(
-		logrus.PanicLevel,
-		logrus.FatalLevel,
-		logrus.ErrorLevel,
-		logrus.WarnLevel,
-	)))
 
 	dbType := conf.Database.Type
 

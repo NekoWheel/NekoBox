@@ -20,7 +20,6 @@ var (
 		UptraceDSN            string `ini:"uptrace_dsn"`
 		AliyunAccessKey       string `ini:"aliyun_access_key"`
 		AliyunAccessKeySecret string `ini:"aliyun_access_key_secret"`
-		SentryDSN             string `ini:"sentry_dsn"`
 		MaintenanceMode       bool   `ini:"maintenance_mode"`
 	}
 
@@ -75,6 +74,13 @@ var (
 		ImageAccessSecret   string `ini:"image_access_secret"`
 		ImageBucket         string `ini:"image_bucket"`
 		ImageBucketCDNHost  string `ini:"image_bucket_cdn_host"`
+	}
+
+	Tracing struct {
+		Enabled     bool   `ini:"enabled"`
+		Endpoint    string `ini:"endpoint"`
+		Token       string `ini:"token"`
+		ServiceName string `ini:"service_name"`
 	}
 
 	Mail struct {

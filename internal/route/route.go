@@ -25,6 +25,7 @@ import (
 	"github.com/NekoWheel/NekoBox/internal/context"
 	"github.com/NekoWheel/NekoBox/internal/form"
 	templatepkg "github.com/NekoWheel/NekoBox/internal/template"
+	"github.com/NekoWheel/NekoBox/internal/tracing"
 	"github.com/NekoWheel/NekoBox/route"
 	"github.com/NekoWheel/NekoBox/route/auth"
 	"github.com/NekoWheel/NekoBox/route/pixel"
@@ -74,10 +75,13 @@ func New() *flamego.Flame {
 		Config: sessionStorage,
 	})
 
-	f.Use(flamego.Static(flamego.StaticOptions{
-		FileSystem: http.FS(static.FS),
-		Prefix:     "/static",
-	}))
+	f.Use(
+		tracing.Middleware("nekobox-server"),
+		flamego.Static(flamego.StaticOptions{
+			FileSystem: http.FS(static.FS),
+			Prefix:     "/static",
+		}),
+	)
 
 	reqUserSignOut := context.Toggle(&context.ToggleOptions{UserSignOutRequired: true})
 	reqUserSignIn := context.Toggle(&context.ToggleOptions{UserSignInRequired: true})

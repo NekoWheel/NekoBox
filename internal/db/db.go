@@ -5,13 +5,19 @@
 package db
 
 import (
+	"log"
+	"os"
+	"time"
+
 	"github.com/pkg/errors"
-	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
+	"go.opentelemetry.io/otel/attribute"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/plugin/opentelemetry/tracing"
 
-	"github.com/NekoWheel/NekoBox/internal/conf"
+	"github.com/NekoWheel/NekoBox/internal/dbutil"
 )
 
 var AllTables = []interface{}{
@@ -32,9 +38,29 @@ func Init(typ, dsn string) (*gorm.DB, error) {
 
 	db, err := gorm.Open(dialector, &gorm.Config{
 		SkipDefaultTransaction: true,
+		NowFunc: func() time.Time {
+			return dbutil.Now()
+		},
+		Logger: logger.New(
+			log.New(os.Stdout, "\r\n", log.LstdFlags),
+			logger.Config{
+				SlowThreshold:             3 * time.Second,
+				LogLevel:                  logger.Silent,
+				IgnoreRecordNotFoundError: true,
+				Colorful:                  false,
+			},
+		),
 	})
 	if err != nil {
 		return nil, errors.Wrap(err, "connect to database")
+	}
+
+	if err := db.Use(tracing.NewPlugin(
+		tracing.WithAttributes(
+			attribute.String("db.name", db.Name()),
+		),
+	)); err != nil {
+		return nil, errors.Wrap(err, "register otelgorm plugin")
 	}
 
 	if err := db.AutoMigrate(AllTables...); err != nil {
@@ -45,12 +71,6 @@ func Init(typ, dsn string) (*gorm.DB, error) {
 	Questions = NewQuestionsStore(db)
 	CensorLogs = NewCensorLogsStore(db)
 	UploadImages = NewUploadImagesStore(db)
-
-	if err := db.Use(otelgorm.NewPlugin(
-		otelgorm.WithDBName(conf.Database.Name),
-	)); err != nil {
-		return nil, errors.Wrap(err, "register otelgorm plugin")
-	}
 
 	return db, nil
 }
