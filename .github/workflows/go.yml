@@ -27,7 +27,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.20.x
+          go-version: 1.24.x
       - name: Run tests
         run: go test -v -race -coverprofile=coverage.txt -race -covermode=atomic ./...
         env:
@@ -58,7 +58,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.20.x
+          go-version: 1.24.x
       - name: Run tests
         run: go test -v -race -coverprofile=coverage.txt -race -covermode=atomic ./...
         env:
@@ -77,7 +77,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.20.x
+          go-version: 1.24.x
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
