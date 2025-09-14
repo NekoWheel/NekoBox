@@ -79,7 +79,7 @@ jobs:
         with:
           go-version: 1.24.x
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v8
         with:
-          version: v1.53
+          version: v2.1
           args: --timeout=10m
