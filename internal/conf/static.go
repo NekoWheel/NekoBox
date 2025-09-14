@@ -17,9 +17,9 @@ var (
 		Production            bool   `ini:"production"`
 		ExternalURL           string `ini:"external_url"`
 		ICP                   string `ini:"icp"`
-		UptraceDSN            string `ini:"uptrace_dsn"`
 		AliyunAccessKey       string `ini:"aliyun_access_key"`
 		AliyunAccessKeySecret string `ini:"aliyun_access_key_secret"`
+		SentryDSN             string `ini:"sentry_dsn"`
 		MaintenanceMode       bool   `ini:"maintenance_mode"`
 	}
 
