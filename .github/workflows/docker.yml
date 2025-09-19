@@ -21,8 +21,7 @@ jobs:
           timezoneLinux: "Asia/Shanghai"
 
       - name: Set image tag
-        id: image-tag
-        run: echo "IMAGE_DATE_TAG=$(date '+%Y%m%d-%I%M%S')" >> $GITHUB_OUTPUT
+        run: echo "IMAGE_DATE_TAG=$(date '+%Y%m%d-%I%M%S')" >> $GITHUB_ENV
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -45,7 +44,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Build and push images
         uses: docker/build-push-action@v4
         with:
