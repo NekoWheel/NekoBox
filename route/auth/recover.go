@@ -14,10 +14,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/thanhpk/randstr"
 
-	"github.com/NekoWheel/NekoBox/internal/context"
-	"github.com/NekoWheel/NekoBox/internal/db"
-	"github.com/NekoWheel/NekoBox/internal/form"
-	"github.com/NekoWheel/NekoBox/internal/mail"
+	"github.com/wuhan005/NekoBox/internal/context"
+	"github.com/wuhan005/NekoBox/internal/db"
+	"github.com/wuhan005/NekoBox/internal/form"
+	"github.com/wuhan005/NekoBox/internal/mail"
 )
 
 func ForgotPassword(ctx context.Context) {

@@ -7,8 +7,8 @@ package user
 import (
 	"github.com/sirupsen/logrus"
 
-	"github.com/NekoWheel/NekoBox/internal/context"
-	"github.com/NekoWheel/NekoBox/internal/db"
+	"github.com/wuhan005/NekoBox/internal/context"
+	"github.com/wuhan005/NekoBox/internal/db"
 )
 
 func QuestionList(ctx context.Context) {

@@ -5,7 +5,7 @@
 package auth
 
 import (
-	"github.com/NekoWheel/NekoBox/internal/context"
+	"github.com/wuhan005/NekoBox/internal/context"
 )
 
 func Logout(ctx context.Context) {

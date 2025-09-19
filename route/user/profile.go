@@ -13,10 +13,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
 
-	"github.com/NekoWheel/NekoBox/internal/context"
-	"github.com/NekoWheel/NekoBox/internal/db"
-	"github.com/NekoWheel/NekoBox/internal/form"
-	"github.com/NekoWheel/NekoBox/internal/storage"
+	"github.com/wuhan005/NekoBox/internal/context"
+	"github.com/wuhan005/NekoBox/internal/db"
+	"github.com/wuhan005/NekoBox/internal/form"
+	"github.com/wuhan005/NekoBox/internal/storage"
 )
 
 func Profile(ctx context.Context) {

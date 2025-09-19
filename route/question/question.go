@@ -10,11 +10,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/NekoWheel/NekoBox/internal/context"
-	"github.com/NekoWheel/NekoBox/internal/db"
-	"github.com/NekoWheel/NekoBox/internal/form"
-	"github.com/NekoWheel/NekoBox/internal/mail"
-	"github.com/NekoWheel/NekoBox/internal/security/censor"
+	"github.com/wuhan005/NekoBox/internal/context"
+	"github.com/wuhan005/NekoBox/internal/db"
+	"github.com/wuhan005/NekoBox/internal/form"
+	"github.com/wuhan005/NekoBox/internal/mail"
+	"github.com/wuhan005/NekoBox/internal/security/censor"
 )
 
 func Questioner(ctx context.Context, pageUser *db.User) {
