@@ -20,9 +20,9 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 
-	"github.com/NekoWheel/NekoBox/internal/conf"
-	"github.com/NekoWheel/NekoBox/internal/db"
-	templatepkg "github.com/NekoWheel/NekoBox/internal/template"
+	"github.com/wuhan005/NekoBox/internal/conf"
+	"github.com/wuhan005/NekoBox/internal/db"
+	templatepkg "github.com/wuhan005/NekoBox/internal/template"
 )
 
 type EndpointType string

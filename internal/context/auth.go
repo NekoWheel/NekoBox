@@ -8,7 +8,7 @@ import (
 	"github.com/flamego/flamego"
 	"github.com/flamego/session"
 
-	"github.com/NekoWheel/NekoBox/internal/db"
+	"github.com/wuhan005/NekoBox/internal/db"
 )
 
 // authenticatedUser returns the user object of the authenticated user.

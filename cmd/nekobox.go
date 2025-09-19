@@ -10,7 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 
-	"github.com/NekoWheel/NekoBox/internal/cmd"
+	"github.com/wuhan005/NekoBox/internal/cmd"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 		cmd.Censor,
 		cmd.Uid,
 	}
-	
+
 	if err := app.Run(os.Args); err != nil {
 		logrus.WithError(err).Fatal("Failed to start application")
 	}
