@@ -161,7 +161,7 @@ func New() *flamego.Flame {
 						// FYI: https://developers.cloudflare.com/turnstile/migration/migrating-from-recaptcha/
 						return "https://challenges.cloudflare.com/turnstile/v0/siteverify"
 					}
-					return recaptcha.VerifyURLGlobal
+					return recaptcha.VerifyURLGoogle
 				}(),
 			},
 		),
